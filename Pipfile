@@ -1,0 +1,23 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[[source]]
+name = "piwigo"
+url = "https://piwigo.ilikeviecher.com/ftp-upload/packages/"
+verify_ssl = true
+
+[dev-packages]
+paramiko = "*"
+pyinstaller = "*"
+
+[packages]
+eel = {version = "==0.14.1", index = "piwigo"}  # See fork https://github.com/tappi287/Eel
+appdirs = "*"
+gevent = ">=21.1.2"
+python-a2s = "*"
+psutil = "*"
+
+[requires]
+python_version = "3.9"

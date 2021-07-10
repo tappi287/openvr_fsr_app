@@ -5,6 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <script type=text/javascript src=/eel.js></script>
+    <script type="text/javascript">
+        eel.expose(closeApp)
+        function closeApp () {
+          return window.close()
+        }
+        // Avoid accidental dragging and triggering a preset import
+        window.ondragstart = function() { return false; }
+    </script>
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
   <body>
