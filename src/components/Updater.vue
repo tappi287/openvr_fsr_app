@@ -26,7 +26,7 @@
 import {getRequest} from '@/main'
 import {version} from '../../package.json';
 
-const GIT_RELEASE_URL = 'https://api.github.com/repos/tappi287/rf2_video_settings/releases/latest'
+const GIT_RELEASE_URL = 'https://api.github.com/repos/tappi287/openvr_fsr_app/releases/latest'
 
 export default {
   name: 'Updater',

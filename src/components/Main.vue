@@ -10,7 +10,7 @@
 
     <div class="text-center">
       <!-- FSR Folder Select -->
-      <b-button variant="secondary" id="fsr-folder">
+      <b-button variant="secondary" id="fsr-folder" v-b-popover.hover.auto="'Customize Plugin path.'">
         <b-icon icon="folder-fill"></b-icon>
       </b-button>
 
