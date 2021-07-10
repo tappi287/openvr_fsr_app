@@ -16,7 +16,12 @@
             <b-icon :icon="filterVr ? 'plug-fill' : 'plug'" :variant="filterVr ? 'success' : 'white'" />
             <span class="ml-2">OpenVR</span>
           </b-button>
-          <b-button @click="textFilter=''" variant="secondary">
+          <b-button @click="filterInstalled = !filterInstalled" :variant="filterInstalled ? 'dark' : ''">
+            <b-icon :icon="filterInstalled ? 'square-fill' : 'square'"
+                    :variant="filterInstalled ? 'success' : 'white'" />
+            <span class="ml-2">Installed</span>
+          </b-button>
+          <b-button @click="textFilter=''; filterVr=false;filterInstalled=false;" variant="secondary">
               <b-icon class="mr-2 ml-1" icon="backspace-fill" aria-hidden="true"></b-icon>Reset
           </b-button>
         </b-button-group>
@@ -29,7 +34,7 @@
              primary-key="id" class="server-list" thead-class="bg-dark text-white">
 
       <template v-slot:cell(name)="row">
-        <b-link @click="row.toggleDetails()" class="text-light">
+        <b-link @click="row.toggleDetails()" :class="row.item.fsrInstalled ? 'text-success' : 'text-light'">
           <b-icon :icon="row.detailsShowing ? 'caret-down-fill': 'caret-right-fill'" variant="secondary">
           </b-icon>
           <span class="ml-1">{{ row.item.name }}</span>
@@ -87,7 +92,7 @@ export default {
   components: {Setting},
   data: function () {
     return {
-      textFilter: null, filterVr: true,
+      textFilter: null, filterVr: true, filterInstalled: false,
       steamApps: {},
       fields: [
         { key: 'id', label: 'App Id', sortable: true, class: 'text-left' },
@@ -117,6 +122,7 @@ export default {
       tableData.forEach(rowItem => {
         // Button Filter
         if (this.filterVr && !rowItem.openVr) { return }
+        if (this.filterInstalled && !rowItem.fsrInstalled) { return }
 
         // Text Filter
         if (filterText === '') { filteredList.push(rowItem); return }
