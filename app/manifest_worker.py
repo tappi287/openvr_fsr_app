@@ -66,7 +66,7 @@ class ManifestWorker:
             f = FsrSettings()
 
             # -- LookUp OpenVr Api location
-            if Path(manifest['path']).exists():
+            if manifest['path'] and Path(manifest['path']).exists():
                 open_vr_dll_path = find_open_vr_dll(Path(manifest['path']))
 
                 if open_vr_dll_path:
