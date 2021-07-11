@@ -37,7 +37,19 @@ KNOWN_APPS = {
         "installdir": "fpsVR",
         "executable": "fpsVR.exe",
         "exe_sub_path": ""
-    }
+    },
+    "546560": {"name": "Half-Life: Alyx", "fsr_compatible": False},
+    "1222730": {"name": "STAR WARS: Squadrons", "fsr_compatible": False},
+    "1066890": {"name": "Automobilista 2", "fsr_compatible": False},
+    "378860": {"name": "Project CARS 2", "fsr_compatible": False},
+    "650000": {"name": "DOOM VFR", "fsr_compatible": False},
+    "1250410": {"name": "Microsoft Flight Simulator", "fsr_compatible": False},
+    "218620": {"name": "PAYDAY 2", "fsr_compatible": False},
+    "227300": {"name": "Euro Truck Simulator 2", "fsr_compatible": False},
+    "270880": {"name": "American Truck Simulator", "fsr_compatible": False},
+    "330770": {"name": "Radial-G : Racing Revolved", "fsr_compatible": False},
+    "804490": {"name": "Creed: Rise to Glory", "fsr_compatible": False},
+    "211500": {"name": "RaceRoom Racing Experience", "fsr_compatible": False},
 }
 
 RF2_APPID = [k for k in KNOWN_APPS.keys()][0]

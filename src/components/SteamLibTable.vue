@@ -68,6 +68,21 @@
 
           <!-- Actions -->
           <div style="position: absolute; top: 1.25rem; right: 1.25rem;">
+            <template v-if="row.item.fsr_compatible !== undefined">
+              <div class="btn btn-sm btn-warning mr-2" :id="row.item.id + '-warn'">
+                OpenVR FSR Incompatible
+              </div>
+              <b-popover :target="row.item.id + '-warn'" triggers="hover">
+                <template #title>{{ row.item.name }} Compatibility Report</template>
+                This app was reported to be not compatible with the way the OpenVr Fsr PlugIn injects itself into
+                the render pipeline.<br/><br/>
+                In case you run into issues, the log file (openvr_mod.log) may provide clues to what's going on.
+                Report errors and consult this page for troubleshooting:<br/><br/>
+                <b-link href="https://github.com/fholger/openvr_fsr/issues" target="_blank">
+                  https://github.com/fholger/openvr_fsr/issues
+                </b-link>
+              </b-popover>
+            </template>
             <b-button @click="launchApp(row.item)"
                       variant="primary" size="sm">
               <b-icon variant="light" icon="play"></b-icon>
