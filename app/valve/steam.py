@@ -122,11 +122,11 @@ class SteamApps:
                             # -- Add Path information
                             self._add_path(manifest, lib_folders)
 
-                            # -- Add known apps entries
+                            # -- Add known apps entries data
                             app_id = manifest.get('appid')
-                            manifest['fsr_install_dir'] = ''
                             if app_id in _known_apps:
-                                manifest['fsr_install_dir'] = _known_apps[app_id].get('fsr_install_dir', '')
+                                for k, v in _known_apps[app_id].items():
+                                    manifest[k] = v
 
                             # -- Store Entry
                             steam_apps[app_id] = manifest
