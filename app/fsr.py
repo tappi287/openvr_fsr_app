@@ -99,8 +99,6 @@ class FsrSettings(JsonRepr):
 
 
 class Fsr:
-    back_up_suffix = '.original'
-
     def __init__(self, manifest: dict):
         self.manifest = manifest
 
@@ -108,34 +106,62 @@ class Fsr:
         self.settings.from_js_dict(manifest.get('settings'))
 
         self.open_vr_dll: Optional[Path] = None
-        self.error = str()
+        self.extra_fsr_path = manifest.get('fsr_install_dir')
+        self._error_ls = list()
 
-    def _update_open_vr_dll_path(self):
-        open_vr_dll = self.manifest.get('openVrDllPath')
-        if not open_vr_dll:
-            self.error = 'Open VR Api Dll not found in: ' + self.manifest.get('name')
-            return False
+    @property
+    def error(self):
+        return ' '.join(self._error_ls)
 
-        self.open_vr_dll = Path(open_vr_dll)
-        return True
+    @error.setter
+    def error(self, value):
+        self._error_ls.append(value)
 
     def update_cfg(self) -> bool:
-        if not self._update_open_vr_dll_path():
-            return False
+        results = list()
+        for open_vr_dll in self.manifest.get('openVrDllPaths'):
+            if not self._update_open_vr_dll_path(open_vr_dll):
+                results.append(False)
+                continue
+            results.append(self._update_cfg_single())
+
+        return all(results)
+
+    def _update_cfg_single(self) -> bool:
         if not self.settings.write_cfg(self.open_vr_dll.parent):
             msg = 'Error writing Fsr cfg file.'
             self.error = msg
             return False
         return True
 
-    def uninstall(self) -> bool:
-        return self.install(True)
-
-    def install(self, uninstall: bool = False) -> bool:
-        if not self._update_open_vr_dll_path():
+    def _update_open_vr_dll_path(self, open_vr_dll: str):
+        if not open_vr_dll:
+            self.error = 'Open VR Api Dll not found in: ' + self.manifest.get('name')
             return False
 
-        org_open_vr_dll = self.open_vr_dll.with_suffix(self.back_up_suffix)
+        open_vr_dll = Path(open_vr_dll)
+        self.open_vr_dll = open_vr_dll
+
+        # -- Adjust install path for known exceptions
+        if self.extra_fsr_path:
+            self.open_vr_dll = open_vr_dll.parent / self.extra_fsr_path / open_vr_dll.name
+        return True
+
+    def uninstall(self) -> bool:
+        return self.install(uninstall=True)
+
+    def install(self, uninstall: bool = False) -> bool:
+        results = list()
+        for open_vr_dll in self.manifest.get('openVrDllPaths'):
+            if not self._update_open_vr_dll_path(open_vr_dll):
+                results.append(False)
+                continue
+            results.append(self._install_single(uninstall))
+
+        return all(results)
+
+    def _install_single(self, uninstall: bool = False) -> bool:
+        org_open_vr_dll = self.open_vr_dll.parent / f'{self.open_vr_dll.stem}.orig{self.open_vr_dll.suffix}'
 
         try:
             # --- Installation
@@ -153,11 +179,16 @@ class Fsr:
         return True
 
     def _uninstall_fsr(self, org_open_vr_dll: Path):
-        if org_open_vr_dll.exists():
+        legacy_dll_bak = self.open_vr_dll.with_suffix('.original')
+
+        if org_open_vr_dll.exists() or legacy_dll_bak.exists():
             # Remove Fsr dll
             self.open_vr_dll.unlink()
             # Rename original open vr dll
-            org_open_vr_dll.rename(self.open_vr_dll)
+            if org_open_vr_dll.exists():
+                org_open_vr_dll.rename(self.open_vr_dll)
+            if legacy_dll_bak.exists():
+                legacy_dll_bak.rename(self.open_vr_dll)
 
         # Remove Cfg
         if not self.settings.delete_cfg(self.open_vr_dll.parent):
@@ -168,7 +199,7 @@ class Fsr:
         fsr_open_vr_dll = Path(AppSettings.openvr_fsr_dir) / OPEN_VR_DLL
 
         # Rename / Create backUp
-        if not org_open_vr_dll.exists():
+        if not org_open_vr_dll.exists() and self.open_vr_dll.exists():
             self.open_vr_dll.rename(org_open_vr_dll)
 
         if self.open_vr_dll.exists():

@@ -2,15 +2,16 @@ import concurrent.futures
 import logging
 import os
 from pathlib import Path
+from typing import Optional, List
 
 from app.fsr import FsrSettings
-from app.utils import find_open_vr_dll
+from app.globals import OPEN_VR_DLL
 
 
 class ManifestWorker:
     """ Multi threaded search in steam apps for openvr_api.dll """
     max_workers = min(48, int(max(4, os.cpu_count()) * 3))  # Number of maximum concurrent workers
-    chunk_size = 16  # Number of Manifests per worker
+    chunk_size = 8  # Number of Manifests per worker
 
     @classmethod
     def update_steam_apps(cls, steam_apps: dict):
@@ -59,7 +60,7 @@ class ManifestWorker:
     @staticmethod
     def worker(manifest_ls):
         for manifest in manifest_ls:
-            manifest['openVrDllPath'] = ''
+            manifest['openVrDllPaths'] = ''
             manifest['openVr'] = False
             manifest['settings'] = list()
             manifest['fsrInstalled'] = False
@@ -67,17 +68,28 @@ class ManifestWorker:
 
             # -- LookUp OpenVr Api location
             if manifest['path'] and Path(manifest['path']).exists():
-                open_vr_dll_path = find_open_vr_dll(Path(manifest['path']))
+                open_vr_dll_path_ls = ManifestWorker.find_open_vr_dll(Path(manifest['path']))
 
-                if open_vr_dll_path:
+                if open_vr_dll_path_ls:
                     # -- Add OpenVr path info
-                    manifest['openVrDllPath'] = open_vr_dll_path.as_posix()
+                    manifest['openVrDllPaths'] = [p.as_posix() for p in open_vr_dll_path_ls]
                     manifest['openVr'] = True
 
                     # -- Read settings and set 'fsrInstalled' prop
-                    manifest['fsrInstalled'] = f.read_from_cfg(open_vr_dll_path.parent)
+                    cfg_results = list()
+                    for p in open_vr_dll_path_ls:
+                        cfg_results.append(f.read_from_cfg(p.parent))
+                    manifest['fsrInstalled'] = any(cfg_results)
 
             # -- Save Fsr settings to manifest as json serializable string
             manifest['settings'] = f.to_js()
 
         return manifest_ls
+
+    @staticmethod
+    def find_open_vr_dll(base_path: Path) -> List[Optional[Path]]:
+        open_vr_dll_ls: List[Optional[Path]] = list()
+        for file in base_path.glob(f'**/{OPEN_VR_DLL}'):
+            open_vr_dll_ls.append(file)
+
+        return open_vr_dll_ls

@@ -267,12 +267,3 @@ def convert_unit(size_in_bytes, unit):
         return size_in_bytes / (1024 * 1024 * 1024)
     else:
         return size_in_bytes
-
-
-def find_open_vr_dll(base_path: Path) -> Optional[Path]:
-    open_vr_dll: Optional[Path] = None
-    for file in base_path.glob(f'**/{OPEN_VR_DLL}'):
-        open_vr_dll = file
-        break
-
-    return open_vr_dll

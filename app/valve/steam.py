@@ -8,7 +8,7 @@ from typing import Iterable, List, Optional, Tuple
 
 from . import acf
 from ..globals import KNOWN_APPS
-from ..utils import convert_unit, SizeUnit, find_open_vr_dll
+from ..utils import convert_unit, SizeUnit
 
 STEAM_LIBRARY_FOLDERS = 'LibraryFolders'
 STEAM_LIBRARY_FILE = 'libraryfolders.vdf'
@@ -122,8 +122,14 @@ class SteamApps:
                             # -- Add Path information
                             self._add_path(manifest, lib_folders)
 
+                            # -- Add known apps entries
+                            app_id = manifest.get('appid')
+                            manifest['fsr_install_dir'] = ''
+                            if app_id in _known_apps:
+                                manifest['fsr_install_dir'] = _known_apps[app_id].get('fsr_install_dir', '')
+
                             # -- Store Entry
-                            steam_apps[manifest.get('appid')] = manifest
+                            steam_apps[app_id] = manifest
                 except Exception as e:
                     logging.error('Error reading Steam App manifest: %s %s', manifest_file, e)
 

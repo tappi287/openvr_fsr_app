@@ -30,7 +30,7 @@ KNOWN_APPS = {
         "name": "rFactor 2",
         "installdir": "rFactor 2",
         "executable": "rFactor2.exe",
-        "exe_sub_path": "Bin64/"
+        "exe_sub_path": "Bin64/",
     },
     "908520": {
         "name": "fpsVR",

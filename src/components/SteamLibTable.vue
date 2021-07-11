@@ -50,8 +50,12 @@
         <b-card :title="row.item.name" :sub-title="row.item.appid"
                 bg-variant="dark" text-variant="white" class="text-left m-1">
 
-          <b-card-text>{{ row.item.path }}</b-card-text>
-          <b-card-text>{{ row.item.openVrDllPath }}</b-card-text>
+          <b-card-text>
+            {{ row.item.path }}<br />
+            <p v-for="p in row.item.openVrDllPaths" :key="p" class="m-0">
+              {{ p }}
+            </p>
+          </b-card-text>
           <b-button :variant="row.item.fsrInstalled ? 'success' : 'primary'"
                     @click="installFsr(row.item)">
             {{ row.item.fsrInstalled ? 'Uninstall PlugIn' : 'Install PlugIn'}}
