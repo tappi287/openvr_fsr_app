@@ -107,8 +107,9 @@ def launch_app(manifest: dict):
     if not app_id:
         return json.dumps({'result': False, 'msg': 'Could not find valid Steam App ID'})
 
-    steam_path = Path(steam.apps.find_steam_location()) / 'steam.exe'
-    cmd = [str(WindowsPath(steam_path)), '-applaunch', app_id]
+    # steam_path = Path(steam.apps.find_steam_location()) / 'steam.exe'
+    # cmd = [str(WindowsPath(steam_path)), '-applaunch', app_id]
+    cmd = f'explorer "steam://rungameid/{app_id}"'
     logging.info('Launching %s', cmd)
 
     subprocess.Popen(cmd)

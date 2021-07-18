@@ -29,10 +29,10 @@
     </b-input-group>
 
     <!-- Steam Library Table -->
-    <b-table :items="computedList" :fields="fields"
-             table-variant="dark" small borderless
+    <b-table :items="computedList" :fields="fields" :busy="steamlibBusy"
+             table-variant="dark" small borderless show-empty
              primary-key="id" class="server-list" thead-class="bg-dark text-white">
-
+      <!-- Name Column -->
       <template v-slot:cell(name)="row">
         <b-link @click="row.toggleDetails()" :class="row.item.fsrInstalled ? 'text-success' : 'text-light'">
           <b-icon :icon="row.detailsShowing ? 'caret-down-fill': 'caret-right-fill'" variant="secondary">
@@ -95,7 +95,15 @@
       <!-- Empty table -->
       <template #empty>
         <div class="text-center p-4">
-          Steam library is being scanned ...
+          <template v-if="steamlibBusy">
+            <b-spinner></b-spinner>
+            <p>
+              Steam library is being scanned ...
+            </p>
+          </template>
+          <template v-else>
+            <p>Steam library could not be found.</p>
+          </template>
         </div>
       </template>
     </b-table>
@@ -112,7 +120,7 @@ export default {
   data: function () {
     return {
       textFilter: null, filterVr: true, filterInstalled: false,
-      steamApps: {},
+      steamApps: {}, steamlibBusy: false,
       fields: [
         { key: 'id', label: 'App Id', sortable: true, class: 'text-left' },
         { key: 'name', label: 'Name', sortable: true, class: 'text-left' },
@@ -123,7 +131,8 @@ export default {
   },
   methods: {
     getSteamLib: async function() {
-      this.$eventHub.$emit('set-busy', true)
+      // this.$eventHub.$emit('set-busy', true)
+      this.steamlibBusy = true
       const r = await getEelJsonObject(window.eel.get_steam_lib()())
       if (!r.result) {
         this.$eventHub.$emit('make-toast',
@@ -131,7 +140,8 @@ export default {
       } else {
         this.steamApps = r.data
       }
-      this.$eventHub.$emit('set-busy', false)
+      // this.$eventHub.$emit('set-busy', false)
+      this.steamlibBusy = false
     },
     filterEntries: function (tableData) {
       let filterText = ''
