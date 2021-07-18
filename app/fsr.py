@@ -37,7 +37,20 @@ class FsrSettings(JsonRepr):
             value=0.75,
             settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.0, 'step': 0.01, 'display': 'floatpercent'}]
         )
-        self.options = [self.enabled.key, self.renderScale.key, self.sharpness.key]
+        self.radius = FsrSetting(
+            key='radius',
+            name='Radius',
+            value=0.50,
+            settings=[{'settingType': 'range', 'min': 0.20, 'max': 2.00, 'step': 0.01}]
+        )
+        self.applyMIPBias = FsrSetting(
+            key='applyMIPBias',
+            name='Apply MIP Bias',
+            value=True,
+            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
+        )
+        self.options = [self.enabled.key, self.renderScale.key, self.sharpness.key, self.radius.key,
+                        self.applyMIPBias.key]
 
     def _get_options(self):
         for key in self.options:
@@ -58,7 +71,9 @@ class FsrSettings(JsonRepr):
 
                 json_dict = json.loads(json_str)
                 for s in self._get_options():
-                    s.value = json_dict['fsr'].get(s.key)
+                    json_value = json_dict['fsr'].get(s.key)
+                    if json_value is not None:
+                        s.value = json_value
         except Exception as e:
             logging.error('Error reading FSR settings from cfg file: %s', e)
             return False
