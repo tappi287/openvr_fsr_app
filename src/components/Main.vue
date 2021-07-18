@@ -19,15 +19,15 @@
           </b-link>
         and adjust the plugin settings per app.</p>
         <p>
-          <b>Note:</b> This app has absolutely no knowledge which Steam apps work with the FSR PlugIn.
-          But this app might be the quickest way to find out <b-icon icon="emoji-sunglasses-fill" />
+          <b>Note:</b> This app has absolutely no knowledge which Steam apps will work with the FSR PlugIn.
+          But this app might be the quickest way to find out <b-icon icon="emoji-sunglasses-fill" />.
         </p>
-        <h5>Installation</h5>
+        <h5 class="mt-4">Installation</h5>
         <p>
           Hit the <i>install plugin</i> button in the menu for your Steam app of choice.
           That will enable AMD FidelityFX Super Resolution.
         </p>
-        <h5>Render Scale</h5>
+        <h5 class="mt-4">Render Scale</h5>
         <p>
           Per-dimension render scale. If smaller than 1 / 100%, will lower the game's render resolution
           accordingly and afterwards upscale to the "native" resolution set in SteamVR.<br />
@@ -39,6 +39,24 @@
           Quality       => 0.67<br />
           Balanced      => 0.59<br />
           Performance   => 0.50<br />
+        </p>
+        <h5 class="mt-4">Sharpness</h5><p>Tune sharpness, values range from 0 to 1</p>
+        <h5 class="mt-4">Radius</h5>
+        <p>
+          Only apply FSR to the given radius around the center of the image.
+          Anything outside this radius is upscaled by simple bilinear filtering,
+          which is cheaper and thus saves a bit of performance. Due to the design
+          of current HMD lenses, you can experiment with fairly small radii and may
+          still not see a noticeable difference.
+          Sensible values probably lie somewhere between [0.2, 1.0]. However, note
+          that, since the image is not spheric, even a value of 1.0 technically still
+          skips some pixels in the corner of the image, so if you want to completely
+          disable this optimization, you can choose a value of 2.
+        </p>
+        <h5 class="mt-4">Apply MIP Bias</h5>
+        <p>
+          If enabled, applies a negative LOD bias to texture MIP levels
+          should theoretically improve texture detail in the upscaled image
         </p>
       </b-card>
     </b-collapse>
@@ -81,7 +99,11 @@
       </b-popover>
     </div>
 
+    <!-- Steam Library -->
     <SteamLibTable class="mt-3"></SteamLibTable>
+
+    <!-- Footer -->
+    <Footer class="mt-4"></Footer>
 
     <!-- Busy Overlay -->
     <b-overlay no-wrap fixed :show="isBusy" blur="1px" variant="dark" rounded>
@@ -94,6 +116,7 @@
 
 import SteamLibTable from "@/components/SteamLibTable";
 import {getEelJsonObject} from "@/main";
+import Footer from "@/components/Footer";
 
 export default {
   name: 'Main',
@@ -164,6 +187,7 @@ export default {
     this.$eventHub.$off('set-busy')
   },
   components: {
+    Footer,
     SteamLibTable
   },
 }
