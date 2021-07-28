@@ -68,7 +68,7 @@
 
           <!-- Actions -->
           <div style="position: absolute; top: 1.25rem; right: 1.25rem;">
-            <template v-if="row.item.fsr_compatible !== undefined">
+            <template v-if="row.item.fsr_compatible !== undefined && row.item.fsr_compatible === false">
               <div class="btn btn-sm btn-warning mr-2" :id="row.item.id + '-warn'">
                 OpenVR FSR Incompatible
               </div>
