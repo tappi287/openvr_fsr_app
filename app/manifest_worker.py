@@ -10,8 +10,8 @@ from app.globals import OPEN_VR_DLL
 
 class ManifestWorker:
     """ Multi threaded search in steam apps for openvr_api.dll """
-    max_workers = min(48, int(max(4, os.cpu_count()) * 3))  # Number of maximum concurrent workers
-    chunk_size = 8  # Number of Manifests per worker
+    max_workers = min(48, int(max(4, os.cpu_count())))  # Number of maximum concurrent workers
+    chunk_size = 16  # Number of Manifests per worker
 
     @classmethod
     def update_steam_apps(cls, steam_apps: dict):
