@@ -50,6 +50,7 @@ KNOWN_APPS = {
     "330770": {"name": "Radial-G : Racing Revolved", "fsr_compatible": False},
     "804490": {"name": "Creed: Rise to Glory", "fsr_compatible": False},
     "211500": {"name": "RaceRoom Racing Experience", "fsr_compatible": False},
+    "496240": {"name": "Onward", "fsr_compatible": False},
 }
 
 RF2_APPID = [k for k in KNOWN_APPS.keys()][0]
