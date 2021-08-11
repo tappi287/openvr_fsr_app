@@ -72,9 +72,14 @@ class SteamApps:
 
         for k, v in lib_data.get(STEAM_LIBRARY_FOLDERS, dict()).items():
             if isinstance(k, str) and k.isdigit():
-                lib_dir = Path(v) / STEAM_APPS_FOLDER
-                if lib_dir.exists():
-                    lib_folders.append(lib_dir)
+                if isinstance(v, str):
+                    lib_dir = Path(v) / STEAM_APPS_FOLDER
+                    if lib_dir.exists():
+                        lib_folders.append(lib_dir)
+                elif isinstance(v, dict):
+                    lib_dir = Path(v.get('path')) / STEAM_APPS_FOLDER
+                    if lib_dir.exists():
+                        lib_folders.append(lib_dir)
 
         return lib_folders
 
