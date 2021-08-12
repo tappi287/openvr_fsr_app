@@ -70,6 +70,10 @@ class SteamApps:
         except Exception as e:
             logging.error(f'Could not read Steam Library {steam_lib_file.name} file: {e}')
 
+        # "LibraryFolders" => "libraryfolders"
+        if STEAM_LIBRARY_FOLDERS.casefold() in lib_data:
+            lib_data[STEAM_LIBRARY_FOLDERS] = lib_data.get(STEAM_LIBRARY_FOLDERS.casefold())
+
         for k, v in lib_data.get(STEAM_LIBRARY_FOLDERS, dict()).items():
             if isinstance(k, str) and k.isdigit():
                 if isinstance(v, str):
