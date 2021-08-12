@@ -64,10 +64,18 @@ def start_eel():
         eel.start(page, host=host, port=port, block=False)
     except EnvironmentError:
         # If Chrome isn't found, fallback to Microsoft Edge on Win10 or greater
+        edge_failed = False
         if sys.platform in ['win32', 'win64'] and int(platform.release()) >= 10:
-            eel.start(page, mode='edge', host=host, port=port, block=False)
+            try:
+                eel.start(page, mode='edge', host=host, port=port, block=False)
+            except Exception as e:
+                logging.error(e)
+                edge_failed = True
         # Fallback to opening a regular browser window
         else:
+            edge_failed = True
+
+        if edge_failed:
             eel.start(page, mode=None, app_mode=False, host=host, port=port, block=False)
             # Open system default web browser
             webbrowser.open_new(f'http://{host}:{port}')
