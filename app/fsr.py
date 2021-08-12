@@ -49,8 +49,14 @@ class FsrSettings(JsonRepr):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
+        self.debugMode = FsrSetting(
+            key='debugMode',
+            name='Debug Mode',
+            value=False,
+            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
+        )
         self.options = [self.enabled.key, self.renderScale.key, self.sharpness.key, self.radius.key,
-                        self.applyMIPBias.key]
+                        self.applyMIPBias.key, self.debugMode.key]
 
     def _get_options(self):
         for key in self.options:
