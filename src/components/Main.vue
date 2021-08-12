@@ -58,6 +58,12 @@
           If enabled, applies a negative LOD bias to texture MIP levels
           should theoretically improve texture detail in the upscaled image
         </p>
+        <h5 class="mt-4">Debug Mode</h5>
+        <p>
+          If enabled, will visualize the radius to which FSR is applied.
+          Will also periodically log the GPU cost for applying FSR in the
+          current configuration.
+        </p>
       </b-card>
     </b-collapse>
 
