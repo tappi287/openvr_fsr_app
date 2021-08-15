@@ -28,7 +28,7 @@ class FsrSettings(JsonRepr):
         self.renderScale = FsrSetting(
             key='renderScale',
             name='Render Scale',
-            value=0.75,
+            value=0.77,
             settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.0, 'step': 0.01, 'display': 'floatpercent'}]
         )
         self.sharpness = FsrSetting(
