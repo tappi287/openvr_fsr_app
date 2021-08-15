@@ -4,6 +4,7 @@ import subprocess
 from pathlib import WindowsPath, Path
 
 import eel
+import gevent
 import gevent.event
 
 from .app_settings import AppSettings
@@ -36,7 +37,15 @@ def close_request():
 
 
 @eel.expose
+def load_steam_lib():
+    """ Load saved SteamApps from disk """
+    steam_apps = AppSettings.load_steam_apps()
+    return json.dumps({'result': True, 'data': steam_apps})
+
+
+@eel.expose
 def get_steam_lib():
+    """ Refresh SteamLib and re-scan every app directory """
     logging.debug('Reading Steam Library')
     try:
         # -- Read this machines Steam library

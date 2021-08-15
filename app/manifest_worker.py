@@ -4,8 +4,9 @@ import os
 from pathlib import Path
 from typing import Optional, List
 
-from app.fsr import FsrSettings
-from app.globals import OPEN_VR_DLL
+from .fsr import FsrSettings
+from .app_settings import AppSettings
+from .globals import OPEN_VR_DLL
 
 
 class ManifestWorker:
@@ -14,7 +15,7 @@ class ManifestWorker:
     chunk_size = 16  # Number of Manifests per worker
 
     @classmethod
-    def update_steam_apps(cls, steam_apps: dict):
+    def update_steam_apps(cls, steam_apps: dict) -> dict:
         app_id_list = list(steam_apps.keys())
 
         # -- Split server addresses into chunks for workers
@@ -55,6 +56,7 @@ class ManifestWorker:
                     for manifest in manifest_ls:
                         steam_apps[manifest.get('appid')] = manifest
 
+        AppSettings.save_steam_apps(steam_apps)
         return steam_apps
 
     @staticmethod

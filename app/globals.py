@@ -64,6 +64,7 @@ else:
     FROZEN = False
 
 SETTINGS_FILE_NAME = 'settings.json' if FROZEN else 'settings_dev.json'
+APPS_STORE_FILE_NAME = 'steam_apps.json'
 
 
 def check_and_create_dir(directory: Union[str, Path]) -> str:

@@ -3,7 +3,10 @@
     <!-- Filter -->
     <b-input-group size="md" class="mt-2">
       <b-input-group-prepend>
-        <b-input-group-text><b-icon icon="filter" aria-hidden="true"></b-icon></b-input-group-text>
+        <b-input-group-text>
+          <b-icon icon="filter" aria-hidden="true"></b-icon>
+          <b-spinner class="ml-2" small v-if="backgroundBusy"></b-spinner>
+        </b-input-group-text>
       </b-input-group-prepend>
 
       <b-form-input v-model="textFilter" type="search" debounce="1000" placeholder="Search..." spellcheck="false"
@@ -120,7 +123,7 @@ export default {
   data: function () {
     return {
       textFilter: null, filterVr: true, filterInstalled: false,
-      steamApps: {}, steamlibBusy: false,
+      steamApps: {}, steamlibBusy: false, backgroundBusy: false,
       fields: [
         { key: 'id', label: 'App Id', sortable: true, class: 'text-left' },
         { key: 'name', label: 'Name', sortable: true, class: 'text-left' },
@@ -130,9 +133,22 @@ export default {
     }
   },
   methods: {
+    loadSteamLib: async function() {
+      // Load Steam Lib from disk if available
+      this.steamlibBusy = true
+      const r = await getEelJsonObject(window.eel.load_steam_lib()())
+      if (!r.result) {
+        this.$eventHub.$emit('make-toast',
+            'Could not load Steam Library!', 'danger', 'Steam Library', true, -1)
+      } else {
+        this.steamApps = r.data
+      }
+      // Set un-busy if actual data returned
+      if (Object.keys(this.steamApps).length !== 0) { this.steamlibBusy = false }
+    },
     getSteamLib: async function() {
       // this.$eventHub.$emit('set-busy', true)
-      this.steamlibBusy = true
+      this.backgroundBusy = true
       const r = await getEelJsonObject(window.eel.get_steam_lib()())
       if (!r.result) {
         this.$eventHub.$emit('make-toast',
@@ -141,7 +157,7 @@ export default {
         this.steamApps = r.data
       }
       // this.$eventHub.$emit('set-busy', false)
-      this.steamlibBusy = false
+      this.backgroundBusy = false; this.steamlibBusy = false
     },
     filterEntries: function (tableData) {
       let filterText = ''
@@ -218,7 +234,10 @@ export default {
     }
   },
   async mounted() {
-    await this.getSteamLib()
+    await this.loadSteamLib()
+    setTimeout(() => {
+      this.getSteamLib()
+    }, 500)
   }
 }
 </script>

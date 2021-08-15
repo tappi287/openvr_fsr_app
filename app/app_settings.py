@@ -3,7 +3,7 @@ import logging
 from pathlib import Path, WindowsPath
 from typing import Optional, Union
 
-from .globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir
+from .globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME
 from .utils import JsonRepr
 
 
@@ -21,6 +21,10 @@ class AppSettings(JsonRepr):
     @staticmethod
     def _get_settings_file() -> Path:
         return get_settings_dir() / SETTINGS_FILE_NAME
+
+    @staticmethod
+    def _get_steam_apps_file() -> Path:
+        return get_settings_dir() / APPS_STORE_FILE_NAME
 
     @classmethod
     def save(cls):
@@ -50,6 +54,34 @@ class AppSettings(JsonRepr):
             return False
 
         return True
+
+    @classmethod
+    def save_steam_apps(cls, steam_apps: dict):
+        file = cls._get_steam_apps_file()
+
+        try:
+            with open(file.as_posix(), 'w') as f:
+                # noinspection PyTypeChecker
+                f.write(json.dumps(steam_apps))
+        except Exception as e:
+            logging.error('Could not store steam apps to file! %s', e)
+            return False
+        return True
+
+    @classmethod
+    def load_steam_apps(cls) -> dict:
+        file = cls._get_steam_apps_file()
+        if not file.exists():
+            return dict()
+
+        try:
+            with open(file.as_posix(), 'r') as f:
+                # noinspection PyTypeChecker
+                steam_apps = json.load(f)
+        except Exception as e:
+            logging.error('Could not load steam apps from file! %s', e)
+            return dict()
+        return steam_apps
 
     @staticmethod
     def update_fsr_dir(fsr_plugin_dir: Union[str, Path]) -> bool:
