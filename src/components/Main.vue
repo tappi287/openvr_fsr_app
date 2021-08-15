@@ -1,15 +1,57 @@
 <template>
   <div id="main" class="text-left">
-    <div>
-      <b-img width="32px" key="1" src="@/assets/app_logo_inkscape.svg" class="float-left"></b-img>
-      <h4 class="display-inline pl-5 mt-3">OpenVR FSR App</h4>
-    </div>
+    <b-navbar type="dark" class="pl-0 pr-0">
+      <b-navbar-brand href="#" class="mr-2">
+        <b-img width="32px" key="1" src="@/assets/app_logo_inkscape.svg"></b-img>
+      </b-navbar-brand>
+      <h4 class="mt-2">OpenVR FSR App v{{ version }}</h4>
+
+      <b-navbar-nav class="ml-auto">
+        <!-- Folder -->
+        <!-- FSR Folder Select -->
+        <b-button variant="secondary" size="sm" id="fsr-folder">
+          <b-icon icon="folder-fill"></b-icon>
+        </b-button>
+
+        <!-- Folder Select Message Hover -->
+        <b-popover target="fsr-folder" triggers="hover">
+          <template v-if="openFsrDir !== null">
+            OpenVR FSR found at <i>{{ openFsrDir }}</i>. Click to customize PlugIn source path.
+          </template>
+          <template v-else>
+            <b>OpenVR FSR PlugIn not found!</b> Download
+            <b-link href="https://github.com/fholger/openvr_fsr/releases/latest" target="_blank">OpenVR FSR</b-link>
+            extract it to a folder and provide the path to that folder here.
+          </template>
+        </b-popover>
+
+        <!-- Folder Select Popover -->
+        <b-popover target="fsr-folder" triggers="click">
+          <h5>OpenVR FSR PlugIn Folder</h5>
+          <p>Paste a path in the Format <i>C:\Dir\MyDir</i> where you want to copy the PlugIn dll from.</p>
+          <b-form-input size="sm" v-model="fsrDirInput"
+                        placeholder="Paste a folder location">
+          </b-form-input>
+          <div class="text-right mt-1">
+            <b-button @click="setFsrDir" size="sm" variant="primary"
+                      aria-label="Save">
+              Update
+            </b-button>
+            <b-button @click="$root.$emit('bv::hide::popover', 'fsr-folder')"
+                      size="sm" aria-label="Close" class="ml-2">
+              Close
+            </b-button>
+          </div>
+        </b-popover>
+
+        <!-- Info Toggle -->
+        <b-button size="sm" variant="secondary" v-b-toggle.info-collapse class="ml-2">
+          <b-icon icon="info-square-fill" />
+        </b-button>
+      </b-navbar-nav>
+    </b-navbar>
 
     <!-- Info -->
-    <b-button size="sm" variant="secondary" v-b-toggle.info-collapse
-              style="position: absolute; top: 0.75rem; right: 0.75rem;">
-      <b-icon icon="info-square-fill" />
-    </b-button>
     <b-collapse id="info-collapse">
       <b-card class="setting-card mt-3" bg-variant="dark" text-variant="white" footer-class="pt-0">
         <p>Browse through your Steam library, let this app install the
@@ -67,46 +109,8 @@
       </b-card>
     </b-collapse>
 
-    <!-- Folder -->
-    <div class="text-center mt-3">
-      <!-- FSR Folder Select -->
-      <b-button variant="secondary" size="sm" id="fsr-folder" v-b-popover.hover.auto="'Customize PlugIn source path.'">
-        <b-icon icon="folder-fill"></b-icon>
-      </b-button>
-
-      <span class="ml-2">
-        <template v-if="openFsrDir !== null">
-          OpenVR FSR found at <i>{{ openFsrDir }}</i>
-        </template>
-        <template v-else>
-          <b>OpenVR FSR PlugIn not found!</b> Download
-          <b-link href="https://github.com/fholger/openvr_fsr/releases/latest" target="_blank">OpenVR FSR</b-link>
-          extract it to a folder and provide the path to that folder here.
-        </template>
-      </span>
-
-      <!-- Folder Select Popover -->
-      <b-popover target="fsr-folder" triggers="click">
-        <h5>OpenVR FSR PlugIn Folder</h5>
-        <p>Paste a path in the Format <i>C:\Dir\MyDir</i> where you want to copy the PlugIn dll from.</p>
-        <b-form-input size="sm" v-model="fsrDirInput"
-                      placeholder="Paste a folder location">
-        </b-form-input>
-        <div class="text-right mt-1">
-          <b-button @click="setFsrDir" size="sm" variant="primary"
-                    aria-label="Save">
-            Update
-          </b-button>
-          <b-button @click="$root.$emit('bv::hide::popover', 'fsr-folder')"
-                    size="sm" aria-label="Close" class="ml-2">
-            Close
-          </b-button>
-        </div>
-      </b-popover>
-    </div>
-
     <!-- Steam Library -->
-    <SteamLibTable class="mt-3"></SteamLibTable>
+    <SteamLibTable class="mt-1"></SteamLibTable>
 
     <!-- Footer -->
     <Footer class="mt-4"></Footer>
@@ -123,6 +127,7 @@
 import SteamLibTable from "@/components/SteamLibTable";
 import {getEelJsonObject} from "@/main";
 import Footer from "@/components/Footer";
+import {version} from '../../package.json';
 
 export default {
   name: 'Main',
@@ -130,20 +135,7 @@ export default {
     return {
       fsrDirInput: '',
       openFsrDir: null,
-      renderScaleSetting: {
-        'key': 'renderScale', 'value': 0.75, 'name': 'Render Scale',
-        'desc': 'Per-dimension render scale. If <1, will lower the game\'s render resolution ' +
-          'accordingly and afterwards upscale to the "native" resolution set in SteamVR. ' +
-          'If >1, the game will render at its "native" resolution, and afterwards the ' +
-          'image is upscaled to a higher resolution as per the given value. ' +
-          'If =1, effectively disables upsampling, but you\'ll still get the sharpening stage. ' +
-          'AMD presets: ' +
-          'Ultra Quality => 0.77 ' +
-          'Quality       => 0.67 ' +
-          'Balanced      => 0.59 ' +
-          'Performance   => 0.50',
-        'settings': [{'settingType': 'range', 'min': 0.10, 'max': 3.0, 'step': 0.01, 'display': 'floatpercent'}]
-      },
+      version: version,
       isBusy: false,
     }
   },

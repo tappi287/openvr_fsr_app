@@ -3,7 +3,7 @@
     <h6>Credits</h6>
     <h6>
       <b-icon icon="caret-right-fill" />
-      <b-link class="ml-2" v-b-toggle="'openvr-credits'">OpenVR FSR by fholger</b-link>
+      <b-link class="ml-2 text-light" v-b-toggle="'openvr-credits'">OpenVR FSR by fholger</b-link>
     </h6>
     <b-collapse id="openvr-credits">
       <b-link href="https://github.com/fholger/openvr_fsr/" target="_blank">
