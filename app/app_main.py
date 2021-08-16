@@ -4,11 +4,10 @@ import subprocess
 from pathlib import WindowsPath, Path
 
 import eel
-import gevent
 import gevent.event
 
 from .app_settings import AppSettings
-from .fsr import FsrSettings, Fsr
+from .fsr import Fsr, reduce_steam_apps_for_export
 from .globals import OPEN_VR_FSR_CFG
 from .manifest_worker import ManifestWorker
 from .runasadmin import run_as_admin
@@ -36,11 +35,26 @@ def close_request():
     request_close()
 
 
+def _load_steam_apps_with_fsr_settings():
+    """ Load SteamApps from disk and restore complete settings entries """
+    steam_apps = AppSettings.load_steam_apps()
+    for app_id, entry in steam_apps.items():
+        fsr = Fsr(entry)
+        entry['settings'] = fsr.settings.to_js(export=False)
+    return steam_apps
+
+
 @eel.expose
 def load_steam_lib():
     """ Load saved SteamApps from disk """
-    steam_apps = AppSettings.load_steam_apps()
+    steam_apps = _load_steam_apps_with_fsr_settings()
     return json.dumps({'result': True, 'data': steam_apps})
+
+
+@eel.expose
+def save_steam_lib(steam_apps):
+    logging.info('Updating SteamApp disk cache.')
+    AppSettings.save_steam_apps(reduce_steam_apps_for_export(steam_apps))
 
 
 @eel.expose
@@ -67,8 +81,22 @@ def get_steam_lib():
     logging.debug('Acquiring OpenVR Dll locations for %s Steam Apps.', len(steam_apps.keys()))
     steam_apps = ManifestWorker.update_steam_apps(steam_apps)
 
+    # -- Restore FSR settings cached on disk and determine if cache and disk are out of sync
+    update_required = False
+    cached_steam_apps = _load_steam_apps_with_fsr_settings()
+    for app_id, entry in cached_steam_apps.items():
+        if app_id in steam_apps:
+            steam_apps[app_id]['settings'] = entry['settings']
+
+    # -- Apps on disk have changed, prompt user to update
+    if set(steam_apps.keys()).symmetric_difference(cached_steam_apps.keys()):
+        update_required = True
+
+    # -- Cache updated SteamApps to disk
+    AppSettings.save_steam_apps(reduce_steam_apps_for_export(steam_apps))
+
     logging.debug('Providing Front End with Steam Library [%s]', len(steam_apps.keys()))
-    return json.dumps({'result': True, 'data': steam_apps})
+    return json.dumps({'result': True, 'data': steam_apps, 'update': update_required})
 
 
 @eel.expose
@@ -101,13 +129,13 @@ def update_fsr(manifest: dict):
 @eel.expose
 def install_fsr(manifest: dict):
     fsr = Fsr(manifest)
-    return json.dumps({'result': fsr.install(), 'msg': fsr.error})
+    return json.dumps({'result': fsr.install(), 'msg': fsr.error, 'manifest': fsr.manifest})
 
 
 @eel.expose
 def uninstall_fsr(manifest: dict):
     fsr = Fsr(manifest)
-    return json.dumps({'result': fsr.uninstall(), 'msg': fsr.error})
+    return json.dumps({'result': fsr.uninstall(), 'msg': fsr.error, 'manifest': fsr.manifest})
 
 
 @eel.expose

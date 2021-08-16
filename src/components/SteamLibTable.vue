@@ -7,6 +7,12 @@
           <b-icon icon="filter" aria-hidden="true"></b-icon>
           <b-spinner class="ml-2" small v-if="backgroundBusy"></b-spinner>
         </b-input-group-text>
+        <!-- Update Prompt -->
+        <b-button @click="applyScannedLib" variant="success" v-if="libUpdateRequired"
+                  v-b-popover.hover="'Apps on disk have changed. Click to update the list of installed Steam Apps.'">
+          <b-icon icon="arrow-clockwise" animation="spin"></b-icon>
+          <span class="ml-2">Update</span>
+        </b-button>
       </b-input-group-prepend>
 
       <b-form-input v-model="textFilter" type="search" debounce="1000" placeholder="Search..." spellcheck="false"
@@ -63,7 +69,7 @@
                     @click="installFsr(row.item)">
             {{ row.item.fsrInstalled ? 'Uninstall PlugIn' : 'Install PlugIn'}}
           </b-button>
-          <div class="mt-2">
+          <div class="mt-2" v-if="row.item.fsrInstalled">
             <Setting v-for="s in row.item.settings" :key="s.key" :setting="s" :app-id="row.item.id"
                      :disabled="!row.item.fsrInstalled" @setting-changed="updateFsr(row.item)"
                      class="mr-3 mb-3" />
@@ -105,7 +111,12 @@
             </p>
           </template>
           <template v-else>
-            <p>Steam library could not be found.</p>
+            <template v-if="Object.keys(steamApps).length !== 0">
+              <p>No results for current filter</p>
+            </template>
+            <template v-else>
+              <p>Steam library could not be found</p>
+            </template>
           </template>
         </div>
       </template>
@@ -123,7 +134,8 @@ export default {
   data: function () {
     return {
       textFilter: null, filterVr: true, filterInstalled: false,
-      steamApps: {}, steamlibBusy: false, backgroundBusy: false,
+      steamApps: {}, scannedApps: {}, libUpdateRequired: false,
+      steamlibBusy: false, backgroundBusy: false,
       fields: [
         { key: 'id', label: 'App Id', sortable: true, class: 'text-left' },
         { key: 'name', label: 'Name', sortable: true, class: 'text-left' },
@@ -146,19 +158,26 @@ export default {
       // Set un-busy if actual data returned
       if (Object.keys(this.steamApps).length !== 0) { this.steamlibBusy = false }
     },
-    getSteamLib: async function() {
-      // this.$eventHub.$emit('set-busy', true)
+    scanSteamLib: async function() {
+      // Scan the disk in the background
       this.backgroundBusy = true
       const r = await getEelJsonObject(window.eel.get_steam_lib()())
       if (!r.result) {
         this.$eventHub.$emit('make-toast',
             'Could not load Steam Library!', 'danger', 'Steam Library', true, -1)
       } else {
-        this.steamApps = r.data
+        if (Object.keys(this.steamApps).length !== 0) {
+          // Keep the scan results and prompt the user to update
+          this.scannedApps = r.data
+          this.libUpdateRequired = r.update
+        } else {
+          // No disk cache was present or empty
+          this.steamApps = r.data
+        }
       }
-      // this.$eventHub.$emit('set-busy', false)
       this.backgroundBusy = false; this.steamlibBusy = false
     },
+    applyScannedLib: function() { this.steamApps = this.scannedApps; this.libUpdateRequired = false },
     filterEntries: function (tableData) {
       let filterText = ''
       let filteredList = []
@@ -192,9 +211,12 @@ export default {
       if (!r.result) {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
-        this.$eventHub.$emit('make-toast', 'Updated Fsr Cfg for ' + manifest.name, 'success',
+        this.$eventHub.$emit('make-toast', 'Updated Fsr Cfg for ' + manifest.name, 'success', manifest.name,
             false, 1200)
       }
+
+      // Update disk cache
+      await window.eel.save_steam_lib(this.steamApps)()
       this.$eventHub.$emit('set-busy', false)
     },
     installFsr: async function (manifest) {
@@ -210,6 +232,10 @@ export default {
         this.$eventHub.$emit('make-toast',
             r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
+        // Update settings
+        manifest.settings = r.manifest.settings
+
+        // Update install state
         manifest.fsrInstalled = !manifest.fsrInstalled
         if (manifest.fsrInstalled) {
           this.$eventHub.$emit('make-toast', 'Installed PlugIn to ' + manifest.name, 'success',
@@ -218,6 +244,9 @@ export default {
           this.$eventHub.$emit('make-toast', 'Uninstalled PlugIn from ' + manifest.name, 'success',
           'PlugIn Uninstalled')
         }
+
+        // Update disk cache
+        await window.eel.save_steam_lib(this.steamApps)()
       }
       this.$eventHub.$emit('set-busy', false)
     },
@@ -236,7 +265,7 @@ export default {
   async mounted() {
     await this.loadSteamLib()
     setTimeout(() => {
-      this.getSteamLib()
+      this.scanSteamLib()
     }, 500)
   }
 }
