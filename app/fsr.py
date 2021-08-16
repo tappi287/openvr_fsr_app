@@ -9,7 +9,30 @@ from app.globals import OPEN_VR_DLL, OPEN_VR_FSR_CFG
 from app.utils import JsonRepr
 
 
+def reduce_steam_apps_for_export(steam_apps) -> dict:
+    reduced_dict = dict()
+
+    for app_id, entry in steam_apps.items():
+        fsr = Fsr(entry)
+
+        reduced_dict[app_id] = dict()
+        # Add only necessary data
+        reduced_dict[app_id]['settings'] = fsr.settings.to_js(export=True)
+        reduced_dict[app_id]['fsrInstalled'] = entry['fsrInstalled']
+        reduced_dict[app_id]['name'] = entry['name']
+        reduced_dict[app_id]['sizeGb'] = entry['sizeGb']
+        reduced_dict[app_id]['path'] = entry['path']
+        reduced_dict[app_id]['openVrDllPaths'] = entry['openVrDllPaths']
+        reduced_dict[app_id]['openVr'] = entry['openVr']
+        reduced_dict[app_id]['SizeOnDisk'] = entry['SizeOnDisk']
+        reduced_dict[app_id]['appid'] = entry['appid']
+
+    return reduced_dict
+
+
 class FsrSetting(JsonRepr):
+    export_skip_keys = ['settings']
+
     def __init__(self, key=None, name=None, value=None, settings=None):
         self.key = key
         self.name = name
@@ -91,6 +114,7 @@ class FsrSettings(JsonRepr):
         try:
             with open(cfg, 'w') as f:
                 json.dump({'fsr': {s.key: s.value for s in self._get_options()}}, f, indent=2)
+            logging.info('Updated config at: %s', plugin_path)
         except Exception as e:
             logging.error('Error writing FSR settings to cfg file: %s', e)
             return False
@@ -104,19 +128,20 @@ class FsrSettings(JsonRepr):
 
         try:
             cfg.unlink()
+            logging.info('Deleted config at: %s', plugin_path)
         except Exception as e:
             logging.error('Error deleting FSR settings cfg file: %s', e)
             return False
         return True
 
-    def to_js(self) -> list:
-        return [s.to_js_object() for s in self._get_options()]
+    def to_js(self, export: bool = False) -> list:
+        return [s.to_js_object(export) for s in self._get_options()]
 
     def from_js_dict(self, json_list):
         for s in json_list:
-            setting = FsrSetting()
-            setting.from_js_dict(s)
-            setattr(self, setting.key, setting)
+            for setting in self._get_options():
+                if setting.key == s.get('key'):
+                    setting.value = s.get('value')
 
 
 class Fsr:
