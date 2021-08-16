@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Optional, List
 
 from .fsr import FsrSettings
-from .app_settings import AppSettings
 from .globals import OPEN_VR_DLL
 
 
@@ -56,7 +55,6 @@ class ManifestWorker:
                     for manifest in manifest_ls:
                         steam_apps[manifest.get('appid')] = manifest
 
-        AppSettings.save_steam_apps(steam_apps)
         return steam_apps
 
     @staticmethod
