@@ -64,12 +64,29 @@
           <b>Note:</b> This app has absolutely no knowledge which Steam apps will work with the FSR PlugIn.
           But this app might be the quickest way to find out <b-icon icon="emoji-sunglasses-fill" />.
         </p>
-        <h5 class="mt-4">Installation</h5>
+        <h5 class="mt-4 text-primary">Installation</h5>
         <p>
           Hit the <i>install plugin</i> button in the menu for your Steam app of choice.
-          That will enable AMD FidelityFX Super Resolution.
+          That will enable the AMD FidelityFX Super Resolution plugin.
         </p>
-        <h5 class="mt-4">Render Scale</h5>
+
+        <h5 class="mt-4 text-primary">Install Location</h5>
+        <p>
+          Find the location of the openvr_api.dll in the game's installation folder that are listed with checkboxes
+          in each entry:<br /><br />
+
+          It might be located right next to the main executable (e.g. Skyrim, FO4).<br />
+          For Unity games, look in: [GameDir]\[]Game]_Data\Plugins<br />
+          For Unreal 4 games, look in: [GameDir]\Engine\Binaries\ThirdParty\OpenVR\OpenVRvX_Y_Z<br /><br />
+          Take care if there are folders like [SteamVRInput] which might not be used for rendering and should
+          not be replaced.<br />
+          In that case simply uncheck that locations checkbox before installing the plugin.<br /><br />
+
+          In case you run into issues, the log file (openvr_mod.log) may provide clues to what's going on.
+        </p>
+
+        <h3 class="mt-5 text-primary">Plugin Configuration</h3>
+        <h5 class="text-info">Render Scale</h5>
         <p>
           Per-dimension render scale. If smaller than 1 / 100%, will lower the game's render resolution
           accordingly and afterwards upscale to the "native" resolution set in SteamVR.<br />
@@ -82,8 +99,8 @@
           Balanced      => 0.59<br />
           Performance   => 0.50<br />
         </p>
-        <h5 class="mt-4">Sharpness</h5><p>Tune sharpness, values range from 0 to 1</p>
-        <h5 class="mt-4">Radius</h5>
+        <h5 class="mt-4 text-info">Sharpness</h5><p>Tune sharpness, values range from 0 to 1</p>
+        <h5 class="mt-4 text-info">Radius</h5>
         <p>
           Only apply FSR to the given radius around the center of the image.
           Anything outside this radius is upscaled by simple bilinear filtering,
@@ -95,12 +112,12 @@
           skips some pixels in the corner of the image, so if you want to completely
           disable this optimization, you can choose a value of 2.
         </p>
-        <h5 class="mt-4">Apply MIP Bias</h5>
+        <h5 class="mt-4 text-info">Apply MIP Bias</h5>
         <p>
           If enabled, applies a negative LOD bias to texture MIP levels
           should theoretically improve texture detail in the upscaled image
         </p>
-        <h5 class="mt-4">Debug Mode</h5>
+        <h5 class="mt-4 text-info">Debug Mode</h5>
         <p>
           If enabled, will visualize the radius to which FSR is applied.
           Will also periodically log the GPU cost for applying FSR in the
