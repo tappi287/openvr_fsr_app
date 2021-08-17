@@ -19,7 +19,7 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         # Add only necessary data
         reduced_dict[app_id]['settings'] = fsr.settings.to_js(export=True)
         reduced_dict[app_id]['fsrInstalled'] = entry['fsrInstalled']
-        reduced_dict[app_id]['fsr_compatible'] = entry['fsr_compatible']
+        reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
         reduced_dict[app_id]['name'] = entry['name']
         reduced_dict[app_id]['sizeGb'] = entry['sizeGb']
         reduced_dict[app_id]['path'] = entry['path']
