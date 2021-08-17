@@ -8,7 +8,7 @@ import Axios from "axios"
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.config.productionTip = false
-Vue.config.devtools = true
+Vue.config.devtools = false
 
 Vue.prototype.$eventHub = new Vue(); // Global event bus
 
