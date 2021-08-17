@@ -125,7 +125,7 @@ def get_version() -> str:
         except Exception as e:
             print('Duh!', e)
 
-    f = Path('../modules') / 'version.txt'
+    f = Path('.') / 'version.txt'
     try:
         with open(f.as_posix(), 'r') as f:
             version = f.read()

@@ -8,7 +8,7 @@ import eel
 from app import expose_app_methods
 from app.app_main import CLOSE_EVENT
 from app.app_settings import AppSettings
-from app.globals import FROZEN
+from app.globals import FROZEN, get_version
 from app.log import setup_logging
 from app.runasadmin import run_as_admin
 from app.utils import AppExceptionHook, capture_app_exceptions
@@ -93,6 +93,8 @@ def start_eel():
     # -- Shutdown Greenlets
     # logging.debug('Shutting down Greenlets.')
     # gevent.joinall((cg, hg, rg), timeout=15.0, raise_error=True)
+    AppSettings.previous_version = get_version()
+    AppSettings.save()
 
     # -- Shutdown logging
     logging.info('\n\n\n')

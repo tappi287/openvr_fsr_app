@@ -3,13 +3,14 @@ import logging
 from pathlib import Path, WindowsPath
 from typing import Optional, Union
 
-from .globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME
+from .globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME, get_version
 from .utils import JsonRepr
 
 
 class AppSettings(JsonRepr):
     backup_created = False
     needs_admin = False
+    previous_version = str()
 
     # Default plugin path
     openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
@@ -72,6 +73,10 @@ class AppSettings(JsonRepr):
     def load_steam_apps(cls) -> dict:
         file = cls._get_steam_apps_file()
         if not file.exists():
+            return dict()
+
+        # -- Re-create disk cache between versions
+        if get_version() != cls.previous_version:
             return dict()
 
         try:
