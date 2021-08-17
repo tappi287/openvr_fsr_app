@@ -23,6 +23,7 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id]['sizeGb'] = entry['sizeGb']
         reduced_dict[app_id]['path'] = entry['path']
         reduced_dict[app_id]['openVrDllPaths'] = entry['openVrDllPaths']
+        reduced_dict[app_id]['openVrDllPathsSelected'] = entry['openVrDllPathsSelected']
         reduced_dict[app_id]['openVr'] = entry['openVr']
         reduced_dict[app_id]['SizeOnDisk'] = entry['SizeOnDisk']
         reduced_dict[app_id]['appid'] = entry['appid']
@@ -165,7 +166,7 @@ class Fsr:
 
     def update_cfg(self) -> bool:
         results = list()
-        for open_vr_dll in self.manifest.get('openVrDllPaths'):
+        for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
             if not self._update_open_vr_dll_path(open_vr_dll):
                 results.append(False)
                 continue
@@ -198,7 +199,7 @@ class Fsr:
 
     def install(self, uninstall: bool = False) -> bool:
         results = list()
-        for open_vr_dll in self.manifest.get('openVrDllPaths'):
+        for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
             if not self._update_open_vr_dll_path(open_vr_dll):
                 results.append(False)
                 continue

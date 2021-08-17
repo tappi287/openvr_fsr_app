@@ -56,16 +56,32 @@
 
       <!-- Row Details -->
       <template #row-details="row">
-        <b-card :title="row.item.name" :sub-title="row.item.appid"
+        <b-card :title="row.item.name"
                 bg-variant="dark" text-variant="white" class="text-left m-1">
-
+          <b-card-sub-title>
+            {{ row.item.appid }} | {{ row.item.path }}
+          </b-card-sub-title>
           <b-card-text>
-            {{ row.item.path }}<br />
-            <p v-for="p in row.item.openVrDllPaths" :key="p" class="m-0">
-              {{ p }}
-            </p>
+            <!-- Install Path Selection -->
+            <div class="mt-2">
+              <h6>
+                Install locations
+                <b-icon icon="info-square-fill"
+                        v-b-popover.top.hover="'If your tracking stops working or is misbehaving with the ' +
+                         'mod applied, there is a chance that you copied the mod DLL to the wrong place. ' +
+                         'Please re-read the installation instructions and take special note of the plugin ' +
+                         'subfolders for Unity and Unreal engines.'"
+                />
+              </h6>
+            </div>
+            <b-form-checkbox-group stacked
+                                   :disabled="row.item.fsrInstalled"
+                                   :options="row.item.openVrDllPaths"
+                                   v-model="row.item.openVrDllPathsSelected"
+            />
           </b-card-text>
           <b-button :variant="row.item.fsrInstalled ? 'success' : 'primary'"
+                    :disabled="row.item.openVrDllPathsSelected.length === 0"
                     @click="installFsr(row.item)">
             {{ row.item.fsrInstalled ? 'Uninstall PlugIn' : 'Install PlugIn'}}
           </b-button>

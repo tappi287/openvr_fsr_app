@@ -60,7 +60,8 @@ class ManifestWorker:
     @staticmethod
     def worker(manifest_ls):
         for manifest in manifest_ls:
-            manifest['openVrDllPaths'] = ''
+            manifest['openVrDllPaths'] = list()
+            manifest['openVrDllPathsSelected'] = list()
             manifest['openVr'] = False
             manifest['settings'] = list()
             manifest['fsrInstalled'] = False
@@ -73,6 +74,7 @@ class ManifestWorker:
                 if open_vr_dll_path_ls:
                     # -- Add OpenVr path info
                     manifest['openVrDllPaths'] = [p.as_posix() for p in open_vr_dll_path_ls]
+                    manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
                     manifest['openVr'] = True
 
                     # -- Read settings and set 'fsrInstalled' prop

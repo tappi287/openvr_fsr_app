@@ -87,6 +87,7 @@ def get_steam_lib():
     for app_id, entry in cached_steam_apps.items():
         if app_id in steam_apps:
             steam_apps[app_id]['settings'] = entry['settings']
+            steam_apps[app_id]['openVrDllPathsSelected'] = entry['openVrDllPathsSelected']
 
     # -- Apps on disk have changed, prompt user to update
     if set(steam_apps.keys()).symmetric_difference(cached_steam_apps.keys()):
