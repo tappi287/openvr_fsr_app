@@ -18,10 +18,8 @@ SETTINGS_DIR_NAME = 'openvr_fsr_app'
 
 BASE_PATH = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__ + '/..')))
 
-GIT_RELEASE_URL = 'https://api.github.com/repos/tappi287/rf2_video_settings/releases/latest'
-
 UPDATE_VERSION_FILE = 'version.txt'
-UPDATE_INSTALL_FILE = 'rF2_Settings_Wizard_{version}_win64.exe'
+UPDATE_INSTALL_FILE = 'OpenVR-FSR-App_{version}_win64'
 
 DEFAULT_LOG_LEVEL = 'DEBUG'
 
@@ -38,19 +36,32 @@ KNOWN_APPS = {
         "executable": "fpsVR.exe",
         "exe_sub_path": ""
     },
-    "546560": {"name": "Half-Life: Alyx", "fsr_compatible": False},
-    "1222730": {"name": "STAR WARS: Squadrons", "fsr_compatible": False},
-    "1066890": {"name": "Automobilista 2", "fsr_compatible": False},
-    "378860": {"name": "Project CARS 2", "fsr_compatible": False},
-    "650000": {"name": "DOOM VFR", "fsr_compatible": False},
-    "1250410": {"name": "Microsoft Flight Simulator", "fsr_compatible": False},
-    "218620": {"name": "PAYDAY 2", "fsr_compatible": False},
-    "227300": {"name": "Euro Truck Simulator 2", "fsr_compatible": True},
-    "270880": {"name": "American Truck Simulator", "fsr_compatible": True},
-    "330770": {"name": "Radial-G : Racing Revolved", "fsr_compatible": False},
-    "804490": {"name": "Creed: Rise to Glory", "fsr_compatible": False},
-    "211500": {"name": "RaceRoom Racing Experience", "fsr_compatible": False},
-    "496240": {"name": "Onward", "fsr_compatible": False},
+    # "Half-Life: Alyx"
+    "546560": {"fsr_compatible": False},
+    # "STAR WARS: Squadrons"
+    "1222730": {"fsr_compatible": False},
+    # "Automobilista 2"
+    "1066890": {"fsr_compatible": False},
+    # "Project CARS 2"
+    "378860": {"fsr_compatible": False},
+    # "DOOM VFR"
+    "650000": {"fsr_compatible": False},
+    # "Microsoft Flight Simulator"
+    "1250410": {"fsr_compatible": False},
+    # "PAYDAY 2"
+    "218620": {"fsr_compatible": False},
+    # "Euro Truck Simulator 2"
+    "227300": {"fsr_compatible": True},
+    # "American Truck Simulator"
+    "270880": {"fsr_compatible": True},
+    # "Radial-G : Racing Revolved"
+    "330770": {"fsr_compatible": False},
+    # "Creed: Rise to Glory"
+    "804490": {"fsr_compatible": False},
+    # "RaceRoom Racing Experience"
+    "211500": {"fsr_compatible": False},
+    # "Onward"
+    "496240": {"fsr_compatible": False},
 }
 
 RF2_APPID = [k for k in KNOWN_APPS.keys()][0]
