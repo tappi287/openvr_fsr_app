@@ -16,30 +16,28 @@
         <!-- Folder Select Message Hover -->
         <b-popover target="fsr-folder" triggers="hover">
           <template v-if="openFsrDir !== null">
-            OpenVR FSR found at <i>{{ openFsrDir }}</i>. Click to customize PlugIn source path.
+            <span v-html="$t('main.folderSelect', { folder: openFsrDir })" />
           </template>
           <template v-else>
-            <b>OpenVR FSR PlugIn not found!</b> Download
-            <b-link href="https://github.com/fholger/openvr_fsr/releases/latest" target="_blank">OpenVR FSR</b-link>
-            extract it to a folder and provide the path to that folder here.
+            <span v-html="$t('main.folderSelectError')" />
           </template>
         </b-popover>
 
         <!-- Folder Select Popover -->
         <b-popover target="fsr-folder" triggers="click">
-          <h5>OpenVR FSR PlugIn Folder</h5>
-          <p>Paste a path in the Format <i>C:\Dir\MyDir</i> where you want to copy the PlugIn dll from.</p>
+          <h5>{{ $t('main.folderPop') }}</h5>
+          <p v-html="$t('main.folderPopText')" />
           <b-form-input size="sm" v-model="fsrDirInput"
-                        placeholder="Paste a folder location">
+                        :placeholder="$t('main.folderPopHint')">
           </b-form-input>
           <div class="text-right mt-1">
             <b-button @click="setFsrDir" size="sm" variant="primary"
                       aria-label="Save">
-              Update
+              {{ $t('main.folderPopUpdate') }}
             </b-button>
             <b-button @click="$root.$emit('bv::hide::popover', 'fsr-folder')"
                       size="sm" aria-label="Close" class="ml-2">
-              Close
+              {{ $t('main.folderPopClose') }}
             </b-button>
           </div>
         </b-popover>
@@ -48,81 +46,45 @@
         <b-button size="sm" variant="secondary" v-b-toggle.info-collapse class="ml-2">
           <b-icon icon="info-square-fill" />
         </b-button>
+
+        <!-- Languages -->
+        <LanguageSwitcher class="ml-2" />
       </b-navbar-nav>
     </b-navbar>
 
     <!-- Info -->
     <b-collapse id="info-collapse">
       <b-card class="setting-card mt-3" bg-variant="dark" text-variant="white" footer-class="pt-0">
-        <p>Browse through your Steam library, let this app install the
+        <p>
+          {{ $t('main.infoDesc1') }}
           <b-link href="https://github.com/fholger/openvr_fsr#modified-openvr-dll-with-amd-fidelityfx-superresolution-upscaler"
                   target="_blank">
-            Modified OpenVR DLL with AMD FidelityFX SuperResolution Upscaler
+            {{ $t('main.infoDesc2') }}
           </b-link>
-        and adjust the plugin settings per app.</p>
-        <p>
-          <b>Note:</b> This app has absolutely no knowledge which Steam apps will work with the FSR PlugIn.
-          But this app might be the quickest way to find out <b-icon icon="emoji-sunglasses-fill" />.
+          {{ $t('main.infoDesc3') }}
         </p>
-        <h5 class="mt-4 text-primary">Installation</h5>
         <p>
-          Hit the <i>install plugin</i> button in the menu for your Steam app of choice.
-          That will enable the AMD FidelityFX Super Resolution plugin.
+          <span v-html="$t('main.infoDesc4')"></span> <b-icon icon="emoji-sunglasses-fill" />.
         </p>
+        <h5 class="mt-4 text-primary">{{ $t('main.install') }}</h5>
+        <p v-html="$t('main.installText')" />
 
-        <h5 class="mt-4 text-primary">Install Location</h5>
-        <p>
-          Find the location of the openvr_api.dll in the game's installation folder that are listed with checkboxes
-          in each entry:<br /><br />
+        <h5 class="mt-4 text-primary">{{ $t('main.installLoc') }}</h5>
+        <p v-html="$t('main.installLocText')" />
 
-          It might be located right next to the main executable (e.g. Skyrim, FO4).<br />
-          For Unity games, look in: [GameDir]\[]Game]_Data\Plugins<br />
-          For Unreal 4 games, look in: [GameDir]\Engine\Binaries\ThirdParty\OpenVR\OpenVRvX_Y_Z<br /><br />
-          Take care if there are folders like [SteamVRInput] which might not be used for rendering and should
-          not be replaced.<br />
-          In that case simply uncheck that locations checkbox before installing the plugin.<br /><br />
-
-          In case you run into issues, the log file (openvr_mod.log) may provide clues to what's going on.
+        <h3 class="mt-5 text-primary">{{ $t('main.plugIn') }}</h3>
+        <h5 class="text-info">{{ $t('main.renderScale') }}</h5>
+        <p v-html="$t('main.renderScaleText')">
+          <!-- will be overwritten by translation -->
         </p>
-
-        <h3 class="mt-5 text-primary">Plugin Configuration</h3>
-        <h5 class="text-info">Render Scale</h5>
-        <p>
-          Per-dimension render scale. If smaller than 1 / 100%, will lower the game's render resolution
-          accordingly and afterwards upscale to the "native" resolution set in SteamVR.<br />
-          If greater than 1 / 100%, the game will render at its "native" resolution, and afterwards the
-          image is upscaled to a higher resolution as per the given value.<br />
-          If equals 1 / 100%, effectively disables upsampling, but you'll still get the sharpening stage.<br /><br />
-          AMD presets:<br />
-          Ultra Quality => 0.77<br />
-          Quality       => 0.67<br />
-          Balanced      => 0.59<br />
-          Performance   => 0.50<br />
+        <h5 class="mt-4 text-info">{{ $t('main.sharp') }}</h5><p>{{ $t('main.sharpText') }}</p>
+        <h5 class="mt-4 text-info">{{ $t('main.radius') }}</h5>
+        <p v-html="$t('main.radiusText')">
         </p>
-        <h5 class="mt-4 text-info">Sharpness</h5><p>Tune sharpness, values range from 0 to 1</p>
-        <h5 class="mt-4 text-info">Radius</h5>
-        <p>
-          Only apply FSR to the given radius around the center of the image.
-          Anything outside this radius is upscaled by simple bilinear filtering,
-          which is cheaper and thus saves a bit of performance. Due to the design
-          of current HMD lenses, you can experiment with fairly small radii and may
-          still not see a noticeable difference.
-          Sensible values probably lie somewhere between [0.2, 1.0]. However, note
-          that, since the image is not spheric, even a value of 1.0 technically still
-          skips some pixels in the corner of the image, so if you want to completely
-          disable this optimization, you can choose a value of 2.
-        </p>
-        <h5 class="mt-4 text-info">Apply MIP Bias</h5>
-        <p>
-          If enabled, applies a negative LOD bias to texture MIP levels
-          should theoretically improve texture detail in the upscaled image
-        </p>
-        <h5 class="mt-4 text-info">Debug Mode</h5>
-        <p>
-          If enabled, will visualize the radius to which FSR is applied.
-          Will also periodically log the GPU cost for applying FSR in the
-          current configuration.
-        </p>
+        <h5 class="mt-4 text-info">{{ $t('main.mip') }}</h5>
+        <p v-html="$t('main.mipText')"/>
+        <h5 class="mt-4 text-info">{{ $t('main.debug') }}</h5>
+        <p v-html="$t('main.debugText')" />
       </b-card>
     </b-collapse>
 
@@ -145,6 +107,7 @@ import SteamLibTable from "@/components/SteamLibTable";
 import {getEelJsonObject} from "@/main";
 import Footer from "@/components/Footer";
 import {version} from '../../package.json';
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default {
   name: 'Main',
@@ -202,6 +165,7 @@ export default {
     this.$eventHub.$off('set-busy')
   },
   components: {
+    LanguageSwitcher,
     Footer,
     SteamLibTable
   },

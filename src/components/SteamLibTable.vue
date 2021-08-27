@@ -6,16 +6,17 @@
         <b-input-group-text>
           <b-icon icon="filter" aria-hidden="true"></b-icon>
           <b-spinner class="ml-2" small v-if="backgroundBusy"></b-spinner>
+          <span class="ml-2" v-if="backgroundBusy">{{ $t('lib.bgSearch') }}</span>
         </b-input-group-text>
         <!-- Update Prompt -->
         <b-button @click="applyScannedLib" variant="success" v-if="libUpdateRequired"
-                  v-b-popover.hover="'Apps on disk have changed. Click to update the list of installed Steam Apps.'">
+                  v-b-popover.hover="$t('lib.updateHint')">
           <b-icon icon="arrow-clockwise" animation="spin"></b-icon>
-          <span class="ml-2">Update</span>
+          <span class="ml-2">{{ $t('lib.update') }}</span>
         </b-button>
       </b-input-group-prepend>
 
-      <b-form-input v-model="textFilter" type="search" debounce="1000" placeholder="Search..." spellcheck="false"
+      <b-form-input v-model="textFilter" type="search" debounce="1000" :placeholder="$t('search')" spellcheck="false"
                     :class="textFilter !== '' && textFilter !== null ? 'filter-warn no-border' : 'no-border'">
       </b-form-input>
 
@@ -23,15 +24,15 @@
         <b-button-group>
           <b-button @click="filterVr = !filterVr" :variant="filterVr ? 'dark' : ''">
             <b-icon :icon="filterVr ? 'plug-fill' : 'plug'" :variant="filterVr ? 'success' : 'white'" />
-            <span class="ml-2">OpenVR</span>
+            <span class="ml-2">{{ $t('openVr') }}</span>
           </b-button>
           <b-button @click="filterInstalled = !filterInstalled" :variant="filterInstalled ? 'dark' : ''">
             <b-icon :icon="filterInstalled ? 'square-fill' : 'square'"
                     :variant="filterInstalled ? 'success' : 'white'" />
-            <span class="ml-2">Installed</span>
+            <span class="ml-2">{{ $t('lib.installed') }}</span>
           </b-button>
           <b-button @click="textFilter=''; filterVr=false;filterInstalled=false;" variant="secondary">
-              <b-icon class="mr-2 ml-1" icon="backspace-fill" aria-hidden="true"></b-icon>Reset
+              <b-icon class="mr-2 ml-1" icon="backspace-fill" aria-hidden="true"></b-icon> {{ $t('lib.reset') }}
           </b-button>
         </b-button-group>
       </b-input-group-append>
@@ -41,6 +42,12 @@
     <b-table :items="computedList" :fields="fields" :busy="steamlibBusy"
              table-variant="dark" small borderless show-empty
              primary-key="id" class="server-list" thead-class="bg-dark text-white">
+      <!-- DYNAMIC HEADER FIELD NAMES -->
+      <template #head(id)>{{ $t('lib.appId') }}</template>
+      <template #head(name)>{{ $t('lib.name') }}</template>
+      <template #head(sizeGb)>{{ $t('lib.sizeGb') }}</template>
+      <template #head(openVr)>{{ $t('openVr') }}</template>
+
       <!-- Name Column -->
       <template v-slot:cell(name)="row">
         <b-link @click="row.toggleDetails()" :class="row.item.fsrInstalled ? 'text-success' : 'text-light'">
@@ -65,12 +72,9 @@
             <!-- Install Path Selection -->
             <div class="mt-2">
               <h6>
-                Install locations
+                {{ $t('lib.installLoc') }}
                 <b-icon icon="info-square-fill"
-                        v-b-popover.top.hover="'If your tracking stops working or is misbehaving with the ' +
-                         'mod applied, there is a chance that you copied the mod DLL to the wrong place. ' +
-                         'Please re-read the installation instructions and take special note of the plugin ' +
-                         'subfolders for Unity and Unreal engines.'"
+                        v-b-popover.top.hover="$t('lib.installHint')"
                 />
               </h6>
             </div>
@@ -83,7 +87,7 @@
           <b-button :variant="row.item.fsrInstalled ? 'success' : 'primary'"
                     :disabled="row.item.openVrDllPathsSelected.length === 0"
                     @click="installFsr(row.item)">
-            {{ row.item.fsrInstalled ? 'Uninstall PlugIn' : 'Install PlugIn'}}
+            {{ row.item.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
           </b-button>
           <div class="mt-2" v-if="row.item.fsrInstalled">
             <Setting v-for="s in row.item.settings" :key="s.key" :setting="s" :app-id="row.item.id"
@@ -95,23 +99,17 @@
           <div style="position: absolute; top: 1.25rem; right: 1.25rem;">
             <template v-if="row.item.fsr_compatible !== undefined && row.item.fsr_compatible === false">
               <div class="btn btn-sm btn-warning mr-2" :id="row.item.id + '-warn'">
-                OpenVR FSR Incompatible
+                OpenVR FSR {{ $t('lib.incomp') }}
               </div>
               <b-popover :target="row.item.id + '-warn'" triggers="hover">
-                <template #title>{{ row.item.name }} Compatibility Report</template>
-                This app was reported to be not compatible with the way the OpenVr Fsr PlugIn injects itself into
-                the render pipeline.<br/><br/>
-                In case you run into issues, the log file (openvr_mod.log) may provide clues to what's going on.
-                Report errors and consult this page for troubleshooting:<br/><br/>
-                <b-link href="https://github.com/fholger/openvr_fsr/issues" target="_blank">
-                  https://github.com/fholger/openvr_fsr/issues
-                </b-link>
+                <template #title>{{ row.item.name }} {{ $t('lib.incompReport') }}</template>
+                <span v-html="$t('lib.incompReportText')" />
               </b-popover>
             </template>
             <b-button @click="launchApp(row.item)"
                       variant="primary" size="sm">
               <b-icon variant="light" icon="play"></b-icon>
-              <span class="ml-1 mr-1">Launch Steam App</span>
+              <span class="ml-1 mr-1">{{ $t('lib.launch') }}</span>
             </b-button>
           </div>
         </b-card>
@@ -123,15 +121,15 @@
           <template v-if="steamlibBusy">
             <b-spinner></b-spinner>
             <p>
-              Steam library is being scanned ...
+              {{ $t('lib.busy') }}
             </p>
           </template>
           <template v-else>
             <template v-if="Object.keys(steamApps).length !== 0">
-              <p>No results for current filter</p>
+              <p>{{ $t('lib.noResults') }}</p>
             </template>
             <template v-else>
-              <p>Steam library could not be found</p>
+              <p>{{ $t('lib.noLib') }}</p>
             </template>
           </template>
         </div>
@@ -153,9 +151,9 @@ export default {
       steamApps: {}, scannedApps: {}, libUpdateRequired: false,
       steamlibBusy: false, backgroundBusy: false,
       fields: [
-        { key: 'id', label: 'App Id', sortable: true, class: 'text-left' },
-        { key: 'name', label: 'Name', sortable: true, class: 'text-left' },
-        { key: 'sizeGb', label: 'Size', sortable: true, class: 'text-right' },
+        { key: 'id', label: '', sortable: true, class: 'text-left' },
+        { key: 'name', label: '', sortable: true, class: 'text-left' },
+        { key: 'sizeGb', label: '', sortable: true, class: 'text-right' },
         { key: 'openVr', label: 'Open VR', sortable: true, class: 'text-right' },
       ],
     }

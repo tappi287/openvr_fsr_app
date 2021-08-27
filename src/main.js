@@ -4,16 +4,30 @@ import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Axios from "axios"
+import VueI18n from 'vue-i18n';
+import messages from './lang';
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.config.productionTip = false
 Vue.config.devtools = false
 
+// --- i18n support
+Vue.use(VueI18n)
+export const i18n = new VueI18n({
+  locale: 'en',
+  fallbackLocale: 'en',
+  messages
+})
+let _l = []
+for (const lang in messages) { _l.push(lang) }
+export const languages = _l
+
 Vue.prototype.$eventHub = new Vue(); // Global event bus
 
 new Vue({
   render: h => h(App),
+  i18n
 }).$mount('#app')
 
 export async function getEelJsonObject (promise) {
