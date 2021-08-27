@@ -3,7 +3,7 @@ import logging
 from pathlib import Path, WindowsPath
 from typing import Optional, Union
 
-from .globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME, get_version
+from .globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME, get_version, KNOWN_APPS
 from .utils import JsonRepr
 
 
@@ -86,6 +86,12 @@ class AppSettings(JsonRepr):
         except Exception as e:
             logging.error('Could not load steam apps from file! %s', e)
             return dict()
+
+        # -- Add Known Apps data
+        for app_id, entry in steam_apps.items():
+            if app_id in KNOWN_APPS:
+                entry.update(KNOWN_APPS[app_id])
+
         return steam_apps
 
     @staticmethod
