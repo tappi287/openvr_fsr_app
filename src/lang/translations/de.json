@@ -36,6 +36,7 @@
     "noResults": "Keine Ergebnisse mit aktuellen Filter Einstellungen",
     "noLib": "Steam Bibliothek konnte nicht gefunden werden",
     "update": "Aktualisieren",
+    "updateManualHint": "Steam Bibliothek erneut scannen für den Fall das neue Steam Anwendungen installiert wurden.",
     "updateHint": "Steam Bibliothek hat sich geändert. Klicken um die Liste zu aktualisieren.",
     "installLoc": "Installationspfad",
     "incomp": "Inkompatibel",
@@ -46,7 +47,19 @@
     "installPlugin": "Plugin installieren",
     "installHint": "Wenn nach der Installation des PlugIns das Tracking nicht mehr richtig funktioniert ist es möglich dass die Dll an die falsche Stelle installiert wurde. Bitte die Installationshinweise erneut lesen und den Installationspfaden von Unity und Unreal spezielle Beachtung schenken.",
     "launch": "Steam Anwendung starten",
-    "reset": "Reset"
+    "reset": "Reset",
+    "addAppHint": "Füge eine eigene Anwendung außerhalb der Steam Bibliothek hinzu.",
+    "addAppTitle": "Benutzer App hinzufügen",
+    "addAppText": "Einen Pfad zur externen Anwendung im Format: <i>C:\\Dir\\MyDir</i> eingeben.<br /><br />",
+    "addAppName": "Anwendungs Name",
+    "addAppNameHint": "Namen angeben um Anwendung in der Liste wieder zu finden",
+    "addAppNamePlace": "Namen eingeben",
+    "addAppPath": "Pfad",
+    "addAppPathHint": "Pfad zum Stammverzeichnis der Anwendung angeben",
+    "addAppPathPlace": "Pfad einfügen",
+    "addAppSubmit": "Hinzufügen",
+    "addAppReset": "Abbrechen",
+    "addAppRemove": "Eintrag entfernen"
   },
   "openVr": "Open VR",
   "search": "Suche..."

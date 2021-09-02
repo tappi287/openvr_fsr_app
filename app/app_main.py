@@ -7,8 +7,8 @@ import eel
 import gevent.event
 
 from .app_settings import AppSettings
-from .fsr import Fsr, reduce_steam_apps_for_export
-from .globals import OPEN_VR_FSR_CFG
+from .fsr import Fsr, reduce_steam_apps_for_export, FsrSettings
+from .globals import OPEN_VR_FSR_CFG, USER_APP_PREFIX
 from .manifest_worker import ManifestWorker
 from .runasadmin import run_as_admin
 from .valve import steam
@@ -48,13 +48,29 @@ def _load_steam_apps_with_fsr_settings():
 def load_steam_lib():
     """ Load saved SteamApps from disk """
     steam_apps = _load_steam_apps_with_fsr_settings()
+
+    # -- Add User Apps
+    steam_apps.update(AppSettings.user_apps)
+
     return json.dumps({'result': True, 'data': steam_apps})
 
 
 @eel.expose
 def save_steam_lib(steam_apps):
     logging.info('Updating SteamApp disk cache.')
+
+    # -- Save disk cache without User Apps
+    #    and update AppSettings User App entries
+    remove_ids = set()
+    for app_id, entry in steam_apps.items():
+        if entry.get('userApp', False) is True or app_id.startswith(USER_APP_PREFIX):
+            remove_ids.add(app_id)
+    for app_id in remove_ids:
+        user_entry = steam_apps.pop(app_id)
+        AppSettings.user_apps[app_id] = user_entry
+
     AppSettings.save_steam_apps(reduce_steam_apps_for_export(steam_apps))
+    AppSettings.save()
 
 
 @eel.expose
@@ -93,11 +109,71 @@ def get_steam_lib():
     if set(steam_apps.keys()).symmetric_difference(cached_steam_apps.keys()):
         update_required = True
 
+    # -- Add User Apps
+    steam_apps.update(AppSettings.user_apps)
+
     # -- Cache updated SteamApps to disk
-    AppSettings.save_steam_apps(reduce_steam_apps_for_export(steam_apps))
+    save_steam_lib(steam_apps)
 
     logging.debug('Providing Front End with Steam Library [%s]', len(steam_apps.keys()))
     return json.dumps({'result': True, 'data': steam_apps, 'update': update_required})
+
+
+@eel.expose
+def remove_custom_app(app: dict):
+    if app.get('appid') not in AppSettings.user_apps:
+        return json.dumps({'result': False, 'msg': f'Could not find app with Id: {app.get("appid")}'})
+
+    entry = AppSettings.user_apps.pop(app.get('appid'))
+    AppSettings.save()
+    logging.debug('App entry: %s %s removed', entry.get('name'), entry.get('appid'))
+    return json.dumps({'result': True, 'msg': f'App entry {entry.get("name")} {entry.get("appid")} created.'})
+
+
+@eel.expose
+def add_custom_app(app: dict):
+    # -- Check path
+    if app.get('path') in (None, ''):
+        return json.dumps({'result': False, 'msg': 'No valid path provided.'})
+
+    path = Path(app.get('path'))
+    if not path.exists():
+        return json.dumps({'result': False, 'msg': 'Provided path does not exist.'})
+
+    for app_id, entry in AppSettings.user_apps.items():
+        if entry.get('path') == path.as_posix():
+            return json.dumps({'result': False, 'msg': f'Entry already exists as '
+                                                       f'{entry.get("name")}, Id: {app_id}.'})
+
+    # -- Check and find OpenVR
+    openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(path)]
+    if not openvr_paths:
+        return json.dumps({'result': False, 'msg': f'No OpenVR dll found in: {path.as_posix()} or any sub directory.'})
+
+    # -- Find installed FSR
+    f = FsrSettings()
+    cfg_results = list()
+    for p in openvr_paths:
+        cfg_results.append(f.read_from_cfg(p.parent))
+
+    # -- Add User App entry
+    app_id = f'{USER_APP_PREFIX}{len(AppSettings.user_apps.keys()):03d}'
+    logging.debug('Creating User App entry %s', app_id)
+    AppSettings.user_apps[app_id] = {
+            'appid': app_id,
+            "name": app.get('name', app_id),
+            'path': path.as_posix(),
+            'openVrDllPaths': [p.as_posix() for p in openvr_paths],
+            'openVrDllPathsSelected': [p.as_posix() for p in openvr_paths],
+            'openVr': True,
+            'settings': f.to_js(),
+            'fsrInstalled': any(cfg_results),
+            'sizeGb': 0, 'SizeOnDisk': 0,
+            'userApp': True,
+    }
+    AppSettings.save()
+
+    return json.dumps({'result': True, 'msg': f'App entry {app_id} created.'})
 
 
 @eel.expose

@@ -3,17 +3,30 @@
     <!-- Filter -->
     <b-input-group size="md" class="mt-2">
       <b-input-group-prepend>
-        <b-input-group-text>
-          <b-icon icon="filter" aria-hidden="true"></b-icon>
-          <b-spinner class="ml-2" small v-if="backgroundBusy"></b-spinner>
-          <span class="ml-2" v-if="backgroundBusy">{{ $t('lib.bgSearch') }}</span>
-        </b-input-group-text>
+        <!-- Add User App -->
+        <b-button @click="showAddAppModal=!showAddAppModal" variant="primary"
+                  :disabled="backgroundBusy || steamlibBusy"
+                  v-b-popover.hover.bottom="$t('lib.addAppHint')">
+          <b-icon icon="plus-square"></b-icon>
+        </b-button>
+        <!-- Manual Update -->
+        <b-button @click="scanSteamLib" v-if="!libUpdateRequired"
+                  v-b-popover.hover.bottom="$t('lib.updateManualHint')">
+          <b-icon icon="arrow-clockwise"></b-icon>
+        </b-button>
         <!-- Update Prompt -->
         <b-button @click="applyScannedLib" variant="success" v-if="libUpdateRequired"
-                  v-b-popover.hover="$t('lib.updateHint')">
+                  v-b-popover.hover.bottom="$t('lib.updateHint')">
           <b-icon icon="arrow-clockwise" animation="spin"></b-icon>
           <span class="ml-2">{{ $t('lib.update') }}</span>
         </b-button>
+        <!-- Filter Icon -->
+        <b-input-group-text>
+          <!-- Background Busy Indicator -->
+          <b-spinner class="ml-2" small v-if="backgroundBusy"></b-spinner>
+          <span class="ml-2" v-if="backgroundBusy">{{ $t('lib.bgSearch') }}</span>
+          <b-icon icon="filter" aria-hidden="true"></b-icon>
+        </b-input-group-text>
       </b-input-group-prepend>
 
       <b-form-input v-model="textFilter" type="search" debounce="1000" :placeholder="$t('search')" spellcheck="false"
@@ -106,10 +119,19 @@
                 <span v-html="$t('lib.incompReportText')" />
               </b-popover>
             </template>
+            <!-- Launch -->
             <b-button @click="launchApp(row.item)"
+                      v-if="row.item.userApp === undefined || row.item.userApp === false"
                       variant="primary" size="sm">
               <b-icon variant="light" icon="play"></b-icon>
               <span class="ml-1 mr-1">{{ $t('lib.launch') }}</span>
+            </b-button>
+            <!-- Remove User App -->
+            <b-button @click="removeUsrApp(row.item)"
+                      v-if="row.item.userApp !== undefined || row.item.userApp === true"
+                      variant="danger" size="sm">
+              <b-icon variant="light" icon="x-square"></b-icon>
+              <span class="ml-1 mr-1">{{ $t('lib.addAppRemove') }}</span>
             </b-button>
           </div>
         </b-card>
@@ -135,6 +157,27 @@
         </div>
       </template>
     </b-table>
+
+    <!-- Add App modal -->
+    <b-modal v-model="showAddAppModal" :title="$t('lib.addAppTitle')">
+      <div v-html="$t('lib.addAppText')" />
+
+      <b-form @submit.prevent @reset.prevent>
+        <b-form-group id="input-group-1" :label="$t('lib.addAppName')" label-for="input-1"
+                      :description="$t('lib.addAppNameHint')">
+          <b-form-input id="input-1" v-model="addApp.name" required :placeholder="$t('lib.addAppNamePlace')" />
+        </b-form-group>
+
+        <b-form-group id="input-group-2" :label="$t('lib.addAppPath')" label-for="input-1"
+                      :description="$t('lib.addAppPathHint')">
+          <b-form-input id="input-2" v-model="addApp.path" required :placeholder="$t('lib.addAppPathPlace')" />
+        </b-form-group>
+      </b-form>
+      <template #modal-footer>
+        <b-button variant="primary" @click="submitApp">{{ $t('lib.addAppSubmit') }}</b-button>
+        <b-button variant="secondary" @click="resetApp" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -150,6 +193,8 @@ export default {
       textFilter: null, filterVr: true, filterInstalled: false,
       steamApps: {}, scannedApps: {}, libUpdateRequired: false,
       steamlibBusy: false, backgroundBusy: false,
+      showAddAppModal: false,
+      addApp: { name: '', path: '' },
       fields: [
         { key: 'id', label: '', sortable: true, class: 'text-left' },
         { key: 'name', label: '', sortable: true, class: 'text-left' },
@@ -159,7 +204,9 @@ export default {
     }
   },
   methods: {
+    isBusy: function () { return this.backgroundBusy || this.steamlibBusy },
     loadSteamLib: async function() {
+      if (this.isBusy()) { return }
       // Load Steam Lib from disk if available
       this.steamlibBusy = true
       const r = await getEelJsonObject(window.eel.load_steam_lib()())
@@ -173,6 +220,7 @@ export default {
       if (Object.keys(this.steamApps).length !== 0) { this.steamlibBusy = false }
     },
     scanSteamLib: async function() {
+      if (this.isBusy()) { return }
       // Scan the disk in the background
       this.backgroundBusy = true
       const r = await getEelJsonObject(window.eel.get_steam_lib()())
@@ -219,7 +267,38 @@ export default {
       }
       this.$eventHub.$emit('set-busy', false)
     },
+    submitApp: async function() {
+      if (this.isBusy()) { return }
+      const r = await getEelJsonObject(window.eel.add_custom_app(this.addApp)())
+      if (!r.result) {
+        // Error
+        this.$eventHub.$emit('make-toast',
+            'Error adding custom app entry: ' + r.msg, 'danger', 'Add App Entry', true, -1)
+      } else {
+        // Success
+        await this.loadSteamLib()
+        this.textFilter = this.addApp.name
+      }
+
+      await this.resetApp(event)
+    },
+    resetApp: async function() {
+      this.addApp = { name: '', path: '' }
+      this.$nextTick(() => { this.showAddAppModal = false })
+    },
+    removeUsrApp: async function(app) {
+      if (this.isBusy()) { return }
+      const r = await getEelJsonObject(window.eel.remove_custom_app(app)())
+      if (!r.result) {
+        // Error
+        this.$eventHub.$emit('make-toast',
+            'Error removing app entry: ' + r.msg, 'danger', 'Remove App Entry', true, -1)
+      } else {
+        await this.loadSteamLib()
+      }
+    },
     updateFsr: async function (manifest) {
+      if (this.isBusy()) { return }
       this.$eventHub.$emit('set-busy', true)
       const r = await getEelJsonObject(window.eel.update_fsr(manifest)())
       if (!r.result) {
@@ -234,6 +313,7 @@ export default {
       this.$eventHub.$emit('set-busy', false)
     },
     installFsr: async function (manifest) {
+      if (this.isBusy()) { return }
       this.$eventHub.$emit('set-busy', true)
       let r = {}
       if (manifest.fsrInstalled) {
@@ -278,9 +358,9 @@ export default {
   },
   async mounted() {
     await this.loadSteamLib()
-    setTimeout(() => {
-      this.scanSteamLib()
-    }, 500)
+    if (Object.keys(this.steamApps).length === 0) {
+      await this.scanSteamLib()
+    }
   }
 }
 </script>

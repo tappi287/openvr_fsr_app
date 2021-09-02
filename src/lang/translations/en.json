@@ -36,6 +36,7 @@
     "noResults": "No results with current filter settings",
     "noLib": "Steam library could not be found",
     "update": "Update",
+    "updateManualHint": "Re-scan your Steam library for changes if you installed or removed Steam Apps.",
     "updateHint": "Apps on disk have changed. Click to update the list of installed Steam Apps.",
     "installLoc": "Install locations",
     "incomp": "Incompatible",
@@ -46,7 +47,19 @@
     "installPlugin": "Install Plugin",
     "installHint": "If your tracking stops working or is misbehaving with the mod applied, there is a chance that you copied the mod DLL to the wrong place. Please re-read the installation instructions and take special note of the plugin sub folders for Unity and Unreal engines.",
     "launch": "Launch Steam App",
-    "reset": "Reset"
+    "reset": "Reset",
+    "addAppHint": "Add a custom app outside your Steam library.",
+    "addAppTitle": "Add User App",
+    "addAppText": "Provide the path to an application outside your Steam library in the format: <i>C:\\Dir\\MyDir</i>.<br /><br />",
+    "addAppName": "Application Name",
+    "addAppNameHint": "Provide a name so you'll be able to find this entry",
+    "addAppNamePlace": "Enter name",
+    "addAppPath": "Path",
+    "addAppPathHint": "Provide the path to the root directory of the application",
+    "addAppPathPlace": "Paste a path",
+    "addAppSubmit": "Add App",
+    "addAppReset": "Cancel",
+    "addAppRemove": "Remove User App Entry"
   },
   "openVr": "Open VR",
   "search": "Search..."

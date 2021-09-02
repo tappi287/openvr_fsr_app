@@ -18,16 +18,16 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id] = dict()
         # Add only necessary data
         reduced_dict[app_id]['settings'] = fsr.settings.to_js(export=True)
-        reduced_dict[app_id]['fsrInstalled'] = entry['fsrInstalled']
+        reduced_dict[app_id]['fsrInstalled'] = entry.get('fsrInstalled')
         reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
-        reduced_dict[app_id]['name'] = entry['name']
-        reduced_dict[app_id]['sizeGb'] = entry['sizeGb']
-        reduced_dict[app_id]['path'] = entry['path']
-        reduced_dict[app_id]['openVrDllPaths'] = entry['openVrDllPaths']
-        reduced_dict[app_id]['openVrDllPathsSelected'] = entry['openVrDllPathsSelected']
-        reduced_dict[app_id]['openVr'] = entry['openVr']
-        reduced_dict[app_id]['SizeOnDisk'] = entry['SizeOnDisk']
-        reduced_dict[app_id]['appid'] = entry['appid']
+        reduced_dict[app_id]['name'] = entry.get('name')
+        reduced_dict[app_id]['sizeGb'] = entry.get('sizeGb')
+        reduced_dict[app_id]['path'] = entry.get('path')
+        reduced_dict[app_id]['openVrDllPaths'] = entry.get('openVrDllPaths')
+        reduced_dict[app_id]['openVrDllPathsSelected'] = entry.get('openVrDllPathsSelected')
+        reduced_dict[app_id]['openVr'] = entry.get('openVr')
+        reduced_dict[app_id]['SizeOnDisk'] = entry.get('SizeOnDisk')
+        reduced_dict[app_id]['appid'] = entry.get('appid')
 
     return reduced_dict
 

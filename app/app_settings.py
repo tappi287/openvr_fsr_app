@@ -11,6 +11,7 @@ class AppSettings(JsonRepr):
     backup_created = False
     needs_admin = False
     previous_version = str()
+    user_apps = dict()
 
     # Default plugin path
     openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
@@ -75,9 +76,11 @@ class AppSettings(JsonRepr):
         if not file.exists():
             return dict()
 
+        """
         # -- Re-create disk cache between versions
         if get_version() != cls.previous_version:
             return dict()
+        """
 
         try:
             with open(file.as_posix(), 'r') as f:
