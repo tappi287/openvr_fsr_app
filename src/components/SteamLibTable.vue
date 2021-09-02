@@ -220,7 +220,7 @@ export default {
       if (Object.keys(this.steamApps).length !== 0) { this.steamlibBusy = false }
     },
     scanSteamLib: async function() {
-      if (this.isBusy()) { return }
+      if (this.backgroundBusy) { return }
       // Scan the disk in the background
       this.backgroundBusy = true
       const r = await getEelJsonObject(window.eel.get_steam_lib()())
