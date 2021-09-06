@@ -125,6 +125,11 @@ class SteamApps:
                         if manifest is not None:
                             manifest = manifest.get('AppState')
 
+                            # -- Skip invalid manifests
+                            if manifest is None:
+                                logging.warning('Skipping invalid App entry: %s', manifest_file.as_posix())
+                                continue
+
                             # -- Add human readable size
                             manifest['sizeGb'] = f"{convert_unit(manifest.get('SizeOnDisk', 0), SizeUnit.GB):.0f} GB"
 
@@ -133,6 +138,12 @@ class SteamApps:
 
                             # -- Add known apps entries data
                             app_id = manifest.get('appid')
+
+                            # -- Skip invalid IDs
+                            if app_id is None:
+                                logging.warning('Skipping App entry without id: %s', manifest_file.as_posix())
+                                continue
+
                             if app_id in _known_apps:
                                 for k, v in _known_apps[app_id].items():
                                     manifest[k] = v
