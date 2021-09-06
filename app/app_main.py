@@ -63,6 +63,8 @@ def save_steam_lib(steam_apps):
     #    and update AppSettings User App entries
     remove_ids = set()
     for app_id, entry in steam_apps.items():
+        if not app_id:
+            continue
         if entry.get('userApp', False) is True or app_id.startswith(USER_APP_PREFIX):
             remove_ids.add(app_id)
     for app_id in remove_ids:
@@ -113,7 +115,12 @@ def get_steam_lib():
     steam_apps.update(AppSettings.user_apps)
 
     # -- Cache updated SteamApps to disk
-    save_steam_lib(steam_apps)
+    try:
+        save_steam_lib(steam_apps)
+    except Exception as e:
+        msg = f'Error saving Steam Lib data: {e}'
+        logging.error(msg)
+        return json.dumps({'result': False, 'msg': msg})
 
     logging.debug('Providing Front End with Steam Library [%s]', len(steam_apps.keys()))
     return json.dumps({'result': True, 'data': steam_apps, 'update': update_required})
