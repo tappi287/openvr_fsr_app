@@ -66,22 +66,35 @@ class ManifestWorker:
             manifest['settings'] = list()
             manifest['fsrInstalled'] = False
             f = FsrSettings()
+            manifest['settings'] = f.to_js()
+
+            # -- Test for valid path
+            try:
+                if not manifest['path'] or not Path(manifest['path']).exists():
+                    logging.error('Skipping app with invalid paths: %s', manifest.get('name', 'Unknown'))
+                    continue
+            except Exception as e:
+                logging.error('Error reading path for: %s %s', manifest.get('name', 'Unknown'), e)
+                continue
 
             # -- LookUp OpenVr Api location
-            if manifest['path'] and Path(manifest['path']).exists():
+            try:
                 open_vr_dll_path_ls = ManifestWorker.find_open_vr_dll(Path(manifest['path']))
+            except Exception as e:
+                logging.error('Error locating OpenVR dll for: %s %s', manifest.get('name', 'Unknown'), e)
+                continue
 
-                if open_vr_dll_path_ls:
-                    # -- Add OpenVr path info
-                    manifest['openVrDllPaths'] = [p.as_posix() for p in open_vr_dll_path_ls]
-                    manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
-                    manifest['openVr'] = True
+            if open_vr_dll_path_ls:
+                # -- Add OpenVr path info
+                manifest['openVrDllPaths'] = [p.as_posix() for p in open_vr_dll_path_ls]
+                manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
+                manifest['openVr'] = True
 
-                    # -- Read settings and set 'fsrInstalled' prop
-                    cfg_results = list()
-                    for p in open_vr_dll_path_ls:
-                        cfg_results.append(f.read_from_cfg(p.parent))
-                    manifest['fsrInstalled'] = any(cfg_results)
+                # -- Read settings and set 'fsrInstalled' prop
+                cfg_results = list()
+                for p in open_vr_dll_path_ls:
+                    cfg_results.append(f.read_from_cfg(p.parent))
+                manifest['fsrInstalled'] = any(cfg_results)
 
             # -- Save Fsr settings to manifest as json serializable string
             manifest['settings'] = f.to_js()
