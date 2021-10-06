@@ -112,6 +112,7 @@ def get_steam_lib():
         update_required = True
 
     # -- Add User Apps
+    AppSettings.load()
     steam_apps.update(AppSettings.user_apps)
 
     # -- Cache updated SteamApps to disk
@@ -164,7 +165,8 @@ def add_custom_app(app: dict):
         cfg_results.append(f.read_from_cfg(p.parent))
 
     # -- Add User App entry
-    app_id = f'{USER_APP_PREFIX}{len(AppSettings.user_apps.keys()):03d}'
+    AppSettings.user_app_counter += 1
+    app_id = f'{USER_APP_PREFIX}{AppSettings.user_app_counter:03d}'
     logging.debug('Creating User App entry %s', app_id)
     AppSettings.user_apps[app_id] = {
             'appid': app_id,

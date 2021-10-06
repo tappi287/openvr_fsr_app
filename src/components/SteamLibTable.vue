@@ -191,7 +191,7 @@ export default {
   data: function () {
     return {
       textFilter: null, filterVr: true, filterInstalled: false,
-      steamApps: {}, scannedApps: {}, libUpdateRequired: false,
+      steamApps: {}, libUpdateRequired: false,
       steamlibBusy: false, backgroundBusy: false,
       showAddAppModal: false,
       addApp: { name: '', path: '' },
@@ -230,8 +230,11 @@ export default {
       } else {
         if (Object.keys(this.steamApps).length !== 0) {
           // Keep the scan results and prompt the user to update
-          this.scannedApps = r.data
           this.libUpdateRequired = r.update
+          if (!this.libUpdateRequired) {
+            this.$eventHub.$emit('make-toast',
+                'No changes found', 'warning', 'Steam Library Scan', true, -1)
+          }
         } else {
           // No disk cache was present or empty
           this.steamApps = r.data
@@ -239,7 +242,7 @@ export default {
       }
       this.backgroundBusy = false; this.steamlibBusy = false
     },
-    applyScannedLib: function() { this.steamApps = this.scannedApps; this.libUpdateRequired = false },
+    applyScannedLib: async function() { await this.loadSteamLib(); this.libUpdateRequired = false },
     filterEntries: function (tableData) {
       let filterText = ''
       let filteredList = []

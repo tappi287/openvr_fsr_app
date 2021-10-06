@@ -12,6 +12,7 @@ class AppSettings(JsonRepr):
     needs_admin = False
     previous_version = str()
     user_apps = dict()
+    user_app_counter = len(user_apps.keys())
 
     # Default plugin path
     openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))

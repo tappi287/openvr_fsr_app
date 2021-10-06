@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "OpenVR-FSR-App"
-#define MyAppVersion "0.5.1"
+#define MyAppVersion "0.5.2"
 #define MyAppPublisher "Stefan Tapper"
 #define MyAppURL "https://ilikeviecher.com"
 #define MyAppDistDirName "openvr_fsr_app"
