@@ -59,7 +59,7 @@ class FsrSettings(JsonRepr):
         self.sharpness = FsrSetting(
             key='sharpness',
             name='Sharpness',
-            value=0.75,
+            value=0.9,
             settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.0, 'step': 0.01, 'display': 'floatpercent'}]
         )
         self.radius = FsrSetting(
