@@ -50,9 +50,9 @@ class FsrSettings(JsonRepr):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.use_nis = FsrSetting(
+        self.useNIS = FsrSetting(
             key='useNIS',
-            name='Use NVIDIAs Image Scaling',
+            name="Use NVIDIA's Image Scaling",
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
@@ -86,7 +86,7 @@ class FsrSettings(JsonRepr):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.options = [self.enabled.key, self.renderScale.key, self.sharpness.key, self.radius.key,
+        self.options = [self.enabled.key, self.useNIS.key, self.renderScale.key, self.sharpness.key, self.radius.key,
                         self.applyMIPBias.key, self.debugMode.key]
 
     def _get_options(self):
