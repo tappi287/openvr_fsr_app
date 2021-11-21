@@ -50,6 +50,12 @@ class FsrSettings(JsonRepr):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
+        self.use_nis = FsrSetting(
+            key='useNIS',
+            name='Use NVIDIAs Image Scaling',
+            value=False,
+            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
+        )
         self.renderScale = FsrSetting(
             key='renderScale',
             name='Render Scale',
