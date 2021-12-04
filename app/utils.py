@@ -1,4 +1,5 @@
 import enum
+import hashlib
 import logging
 import os
 import os.path
@@ -267,3 +268,11 @@ def convert_unit(size_in_bytes, unit):
         return size_in_bytes / (1024 * 1024 * 1024)
     else:
         return size_in_bytes
+
+
+def get_file_hash(file):
+    md5 = hashlib.md5()
+    with open(file, 'rb') as f:
+        buf = f.read()
+        md5.update(buf)
+    return md5.hexdigest()

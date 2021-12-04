@@ -14,6 +14,20 @@ class AppSettings(JsonRepr):
     user_apps = dict()
     user_app_counter = len(user_apps.keys())
 
+    open_vr_fsr_versions = {
+        'v0.5': 'd74d3083e3506d83fac0d95520625eab',
+        'v0.6': '18c46267b042cac7c21a2059786e660c',
+        'v0.7': 'f3a0706ea3929234a73bdfde58493601',
+        'v0.8': '68fcb526c619103e4d9775e4fba2b747',
+        'v0.9': 'ddccc71f8239bf17ead5df1db43eeedb',
+        'v1.0': 'da03ca34b51587addebd78422f4d5c39',
+        'v1.1': '628a13f0faae439229237c3b44e5426c',
+        'v1.2': '2d551d67a642d3edba3e8467b00667cb',
+        'v1.3': 'ea417d2480b9a285ea9f6a3e9aa703b3',
+        'v2.0': 'b173ef3e95283c47f840152786d6ebf9'
+    }
+    current_fsr_version = 'v2.0'
+
     # Default plugin path
     openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
 
@@ -77,11 +91,9 @@ class AppSettings(JsonRepr):
         if not file.exists():
             return dict()
 
-        """
         # -- Re-create disk cache between versions
         if get_version() != cls.previous_version:
             return dict()
-        """
 
         try:
             with open(file.as_posix(), 'r') as f:

@@ -25,7 +25,9 @@
     "mip": "MIP Bias Anwenden",
     "mipText": "Wendet einen negativen Detailstufen Index auf Texturen an. \n Dies sollte in der Theorie zur Anzeige von höher aufgelösten Texturen führen.",
     "debug": "Debug Mode",
-    "debugText": " Visualisiert den angewendeten Radius und wird regelmäßig den Leistungsverlust durch FSR dokumentieren."
+    "debugText": " Visualisiert den angewendeten Radius und wird regelmäßig den Leistungsverlust durch FSR dokumentieren.",
+    "versionMismatch": "Installierte OpenVR FSR Version wird von dieser Version der App nicht unterstützt. Einige FSR Konfigurationseinstellungen sind möglicherweise nicht verfügbar oder haben möglicherweise keine auswirkung.",
+    "versionMatch": "Diese Version von OpenVR FSR wird von dieser App unterstützt."
   },
   "lib": {
     "appId": "App ID",

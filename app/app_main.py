@@ -202,26 +202,34 @@ def set_fsr_dir(directory_str):
 def update_fsr(manifest: dict):
     fsr = Fsr(manifest)
     result = fsr.update_cfg()
+
     if result:
         logging.debug('Updated %s enabled %s renderScale %s sharpness %s', fsr.open_vr_dll.parent / OPEN_VR_FSR_CFG,
                       fsr.settings.enabled.value,
                       fsr.settings.renderScale.value,
                       fsr.settings.sharpness.value)
+        fsr.manifest['fsrVersion'] = fsr.get_fsr_version()
     else:
         logging.error('Error updating Fsr config!')
-    return json.dumps({'result': result, 'msg': fsr.error})
+    return json.dumps({'result': result, 'msg': fsr.error, 'manifest': fsr.manifest})
 
 
 @eel.expose
 def install_fsr(manifest: dict):
     fsr = Fsr(manifest)
-    return json.dumps({'result': fsr.install(), 'msg': fsr.error, 'manifest': fsr.manifest})
+    install_result = fsr.install()
+    if install_result:
+        fsr.manifest['fsrVersion'] = fsr.get_fsr_version()
+    return json.dumps({'result': install_result, 'msg': fsr.error, 'manifest': fsr.manifest})
 
 
 @eel.expose
 def uninstall_fsr(manifest: dict):
     fsr = Fsr(manifest)
-    return json.dumps({'result': fsr.uninstall(), 'msg': fsr.error, 'manifest': fsr.manifest})
+    uninstall_result = fsr.uninstall()
+    if uninstall_result:
+        fsr.manifest['fsrVersion'] = str()
+    return json.dumps({'result': uninstall_result, 'msg': fsr.error, 'manifest': fsr.manifest})
 
 
 @eel.expose
@@ -237,6 +245,11 @@ def launch_app(manifest: dict):
 
     subprocess.Popen(cmd)
     return json.dumps({'result': True, 'msg': f'Launched: {cmd}'})
+
+
+@eel.expose
+def get_current_fsr_version():
+    return AppSettings.current_fsr_version
 
 
 @eel.expose

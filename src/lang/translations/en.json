@@ -25,7 +25,9 @@
     "mip": "Apply MIP Bias",
     "mipText": "If enabled, applies a negative LOD bias to texture MIP levels\n should theoretically improve texture detail in the upscaled image",
     "debug": "Debug Mode",
-    "debugText": "If enabled, will visualize the radius to which FSR is applied.\n Will also periodically log the GPU cost for applying FSR in the\n current configuration."
+    "debugText": "If enabled, will visualize the radius to which FSR is applied.\n Will also periodically log the GPU cost for applying FSR in the\n current configuration.",
+    "versionMismatch": "Installed OpenVR FSR version doesn't match the version supported by this app. Some FSR configuration settings may not be available or may have no effect.",
+    "versionMatch": "This version of OpenVR FSR is supported by this version of the app."
   },
   "lib": {
     "appId": "App ID",

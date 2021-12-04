@@ -63,7 +63,8 @@
 
       <!-- Name Column -->
       <template v-slot:cell(name)="row">
-        <b-link @click="row.toggleDetails()" :class="row.item.fsrInstalled ? 'text-success' : 'text-light'">
+        <b-link @click="row.toggleDetails();updateFsr(row.item, row.detailsShowing)"
+                :class="getRowLinkClass(row.item)">
           <b-icon :icon="row.detailsShowing ? 'caret-down-fill': 'caret-right-fill'" variant="secondary">
           </b-icon>
           <span class="ml-1">{{ row.item.name }}</span>
@@ -102,6 +103,17 @@
                     @click="installFsr(row.item)">
             {{ row.item.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
           </b-button>
+          <div class="float-right" v-if="row.item.fsrInstalled">
+            <span :class="row.item.fsrVersion !== currentFsrVersion ? 'text-warning' : ''">
+              OpenVR FSR {{ row.item.fsrVersion }}
+              <template v-if="row.item.fsrVersion !== currentFsrVersion">
+                <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
+              </template>
+              <template v-else>
+                <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
+              </template>
+            </span>
+          </div>
           <div class="mt-2" v-if="row.item.fsrInstalled">
             <Setting v-for="s in row.item.settings" :key="s.key" :setting="s" :app-id="row.item.id"
                      :disabled="!row.item.fsrInstalled" @setting-changed="updateFsr(row.item)"
@@ -201,10 +213,21 @@ export default {
         { key: 'sizeGb', label: '', sortable: true, class: 'text-right' },
         { key: 'openVr', label: 'Open VR', sortable: true, class: 'text-right' },
       ],
+      currentFsrVersion: '',
     }
   },
   methods: {
     isBusy: function () { return this.backgroundBusy || this.steamlibBusy },
+    getRowLinkClass: function (manifest) {
+      let textClass = 'text-light'
+      if (manifest.fsrInstalled) {
+        textClass = 'text-success'
+        if (manifest.fsrVersion !== undefined) {
+          if (manifest.fsrVersion !== this.currentFsrVersion) { textClass = 'text-warning' }
+        }
+      }
+      return textClass
+    },
     loadSteamLib: async function() {
       if (this.isBusy()) { return }
       // Load Steam Lib from disk if available
@@ -300,15 +323,22 @@ export default {
         await this.loadSteamLib()
       }
     },
-    updateFsr: async function (manifest) {
+    updateFsr: async function (manifest, rowNotExpanded=false) {
       if (this.isBusy()) { return }
+      if (rowNotExpanded) { return }
       this.$eventHub.$emit('set-busy', true)
       const r = await getEelJsonObject(window.eel.update_fsr(manifest)())
       if (!r.result) {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
-        this.$eventHub.$emit('make-toast', 'Updated Fsr Cfg for ' + manifest.name, 'success', manifest.name,
-            false, 1200)
+        // this.$eventHub.$emit('make-toast', 'Updated Fsr Cfg for ' + manifest.name, 'success', manifest.name,
+        //  false, 1200)
+
+        // Update Entry
+        manifest.settings = r.manifest.settings
+        manifest.fsrVersion = r.manifest.fsrVersion
+        manifest.versionMismatch = r.versionMismatch
+        console.log(this.$t('main.versionMismatch'))
       }
 
       // Update disk cache
@@ -342,6 +372,9 @@ export default {
           'PlugIn Uninstalled')
         }
 
+        // Update FSR version
+        manifest.fsrVersion = r.manifest.fsrVersion
+
         // Update disk cache
         await window.eel.save_steam_lib(this.steamApps)()
       }
@@ -361,6 +394,8 @@ export default {
   },
   async mounted() {
     await this.loadSteamLib()
+    this.currentFsrVersion = await window.eel.get_current_fsr_version()()
+    console.log('Current FSR App compatible version:', this.currentFsrVersion)
     if (Object.keys(this.steamApps).length === 0) {
       await this.scanSteamLib()
     }

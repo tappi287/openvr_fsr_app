@@ -6,7 +6,7 @@ from typing import Optional
 
 from app.app_settings import AppSettings
 from app.globals import OPEN_VR_DLL, OPEN_VR_FSR_CFG
-from app.utils import JsonRepr
+from app.utils import JsonRepr, get_file_hash
 
 
 def reduce_steam_apps_for_export(steam_apps) -> dict:
@@ -19,6 +19,7 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         # Add only necessary data
         reduced_dict[app_id]['settings'] = fsr.settings.to_js(export=True)
         reduced_dict[app_id]['fsrInstalled'] = entry.get('fsrInstalled')
+        reduced_dict[app_id]['fsrVersion'] = entry.get('fsrVersion')
         reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
         reduced_dict[app_id]['name'] = entry.get('name')
         reduced_dict[app_id]['sizeGb'] = entry.get('sizeGb')
@@ -170,6 +171,32 @@ class Fsr:
     @error.setter
     def error(self, value):
         self._error_ls.append(value)
+
+    @staticmethod
+    def get_version_from_dll(openvr_dll: Path) -> Optional[str]:
+        file_hash = get_file_hash(openvr_dll.as_posix())
+        for version, hash_str in AppSettings.open_vr_fsr_versions.items():
+            if file_hash != hash_str:
+                continue
+            return version
+
+    def get_fsr_version(self) -> str:
+        results = list()
+        for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
+            if not self._update_open_vr_dll_path(open_vr_dll):
+                continue
+            results.append(self.get_version_from_dll(self.open_vr_dll))
+
+        version = ''
+        for result in results:
+            if version and result != version:
+                logging.warning('Found multiple installed OpenVR FSR versions for the same app!')
+            version = result
+
+        if not version:
+            version = 'Unknown Version'
+
+        return version
 
     def update_cfg(self) -> bool:
         results = list()
