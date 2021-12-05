@@ -123,7 +123,7 @@ class FsrSettings(JsonRepr):
         try:
             with open(cfg, 'w') as f:
                 json.dump({'fsr': {s.key: s.value for s in self._get_options()}}, f, indent=2)
-            logging.info('Updated config at: %s', plugin_path)
+            logging.info('Written updated config at: %s', plugin_path)
         except Exception as e:
             logging.error('Error writing FSR settings to cfg file: %s', e)
             return False

@@ -331,10 +331,11 @@ export default {
       }
     },
     updateFsr: async function (manifest, rowNotExpanded=false) {
-      if (this.isBusy()) { return }
-      if (rowNotExpanded) { return }
+      if (this.isBusy() || rowNotExpanded || !manifest['fsrInstalled']) { return }
       this.$eventHub.$emit('set-busy', true)
+
       const r = await getEelJsonObject(window.eel.update_fsr(manifest)())
+
       if (!r.result) {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
