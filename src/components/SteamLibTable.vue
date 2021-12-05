@@ -186,7 +186,7 @@
         </b-form-group>
       </b-form>
       <template #modal-footer>
-        <b-button variant="primary" @click="submitApp">{{ $t('lib.addAppSubmit') }}</b-button>
+        <b-button variant="primary" @click="addUsrApp">{{ $t('lib.addAppSubmit') }}</b-button>
         <b-button variant="secondary" @click="resetApp" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
       </template>
     </b-modal>
@@ -289,9 +289,10 @@ export default {
       }
       this.$eventHub.$emit('set-busy', false)
     },
-    submitApp: async function() {
+    addUsrApp: async function() {
       if (this.isBusy()) { return }
       this.$eventHub.$emit('set-busy', true)
+      this.showAddAppModal = false
       const r = await getEelJsonObject(window.eel.add_custom_app(this.addApp)())
       if (!r.result) {
         // Error
@@ -303,12 +304,8 @@ export default {
         this.textFilter = this.addApp.name
       }
 
-      await this.resetApp(event)
-      this.$eventHub.$emit('set-busy', false)
-    },
-    resetApp: async function() {
       this.addApp = { name: '', path: '' }
-      this.$nextTick(() => { this.showAddAppModal = false })
+      this.$eventHub.$emit('set-busy', false)
     },
     removeUsrApp: async function(app) {
       if (this.isBusy()) { return }
