@@ -8,7 +8,7 @@ import gevent.event
 
 from .app_settings import AppSettings
 from .fsr import Fsr, reduce_steam_apps_for_export, FsrSettings
-from .globals import USER_APP_PREFIX, get_data_dir
+from .globals import USER_APP_PREFIX, get_data_dir, get_version
 from .manifest_worker import ManifestWorker
 from .runasadmin import run_as_admin
 from .valve import steam
@@ -49,10 +49,18 @@ def load_steam_lib():
     """ Load saved SteamApps from disk """
     steam_apps = _load_steam_apps_with_fsr_settings()
 
+    re_scan_required = False
+
+    # -- Re-create disk cache between versions
+    if get_version() != AppSettings.previous_version:
+        re_scan_required = True
+
+    logging.debug(f'Loaded {len(steam_apps.keys())} Steam Apps from disk.')
+
     # -- Add User Apps
     steam_apps.update(AppSettings.user_apps)
 
-    return json.dumps({'result': True, 'data': steam_apps})
+    return json.dumps({'result': True, 'data': steam_apps, 'reScanRequired': re_scan_required})
 
 
 @eel.expose

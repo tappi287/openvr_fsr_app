@@ -212,7 +212,7 @@ export default {
   data: function () {
     return {
       textFilter: null, filterVr: true, filterInstalled: false,
-      steamApps: {}, libUpdateRequired: false,
+      steamApps: {}, libUpdateRequired: false, reScanRequired: false,
       steamlibBusy: false, backgroundBusy: false,
       showAddAppModal: false,
       addApp: { name: '', path: '' },
@@ -239,6 +239,7 @@ export default {
     },
     loadSteamLib: async function() {
       if (this.isBusy()) { return }
+
       // Load Steam Lib from disk if available
       this.steamlibBusy = true
       const r = await getEelJsonObject(window.eel.load_steam_lib()())
@@ -247,7 +248,9 @@ export default {
             'Could not load Steam Library!', 'danger', 'Steam Library', true, -1)
       } else {
         this.steamApps = r.data
+        this.reScanRequired = r.reScanRequired
       }
+
       // Set un-busy if actual data returned
       if (Object.keys(this.steamApps).length !== 0) { this.steamlibBusy = false }
     },
@@ -398,7 +401,7 @@ export default {
     await this.loadSteamLib()
     this.currentFsrVersion = await window.eel.get_current_fsr_version()()
     console.log('Current FSR App compatible version:', this.currentFsrVersion)
-    if (Object.keys(this.steamApps).length === 0) {
+    if (Object.keys(this.steamApps).length === 0 || this.reScanRequired) {
       await this.scanSteamLib()
     }
   }

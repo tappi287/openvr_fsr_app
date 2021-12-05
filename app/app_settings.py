@@ -91,10 +91,6 @@ class AppSettings(JsonRepr):
         if not file.exists():
             return dict()
 
-        # -- Re-create disk cache between versions
-        if get_version() != cls.previous_version:
-            return dict()
-
         try:
             with open(file.as_posix(), 'r') as f:
                 # noinspection PyTypeChecker
