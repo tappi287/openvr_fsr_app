@@ -8,7 +8,7 @@ import gevent.event
 
 from .app_settings import AppSettings
 from .fsr import Fsr, reduce_steam_apps_for_export, FsrSettings
-from .globals import USER_APP_PREFIX
+from .globals import USER_APP_PREFIX, get_data_dir
 from .manifest_worker import ManifestWorker
 from .runasadmin import run_as_admin
 from .valve import steam
@@ -190,6 +190,8 @@ def get_fsr_dir():
 
 @eel.expose
 def set_fsr_dir(directory_str):
+    if not directory_str:
+        directory_str = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
     return json.dumps({'result': AppSettings.update_fsr_dir(directory_str)})
 
 

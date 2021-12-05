@@ -6,6 +6,7 @@
     "folderPopText": "Quellpfad im Format <i>C:\\Dir\\MyDir</i> einfügen von dem die Plugin dll kopiert werden soll..",
     "folderPopHint": "Pfad einfügen",
     "folderPopUpdate": "Aktualisieren",
+    "folderPopReset": "Reset",
     "folderPopClose": "Schließen",
     "infoDesc1": "Durchsuche deine Steam Bibliothek und installiere mit dieser App die",
     "infoDesc2": "Modifizierte OpenVR DLL mit AMD FidelityFX SuperResolution Upscaler",

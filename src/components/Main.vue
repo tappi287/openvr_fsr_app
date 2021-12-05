@@ -35,6 +35,10 @@
                       aria-label="Save">
               {{ $t('main.folderPopUpdate') }}
             </b-button>
+            <b-button @click="resetFsrDir" size="sm" variant="warning"
+                      class="ml-2">
+              {{ $t('main.folderPopReset') }}
+            </b-button>
             <b-button @click="$root.$emit('bv::hide::popover', 'fsr-folder')"
                       size="sm" aria-label="Close" class="ml-2">
               {{ $t('main.folderPopClose') }}
@@ -137,6 +141,10 @@ export default {
     getFsrDir: async function () {
       const r = await window.eel.get_fsr_dir()()
       if (r !== undefined) { this.openFsrDir = r }
+    },
+    resetFsrDir: async function() {
+      this.fsrDirInput = ''
+      await this.setFsrDir()
     },
     setFsrDir: async function () {
       const r = await getEelJsonObject(window.eel.set_fsr_dir(this.fsrDirInput)())

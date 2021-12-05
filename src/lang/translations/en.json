@@ -6,6 +6,7 @@
     "folderPopText": "Paste a path in the Format <i>C:\\Dir\\MyDir</i> where you want to copy the PlugIn dll from.",
     "folderPopHint": "Paste a folder location",
     "folderPopUpdate": "Update",
+    "folderPopReset": "Reset",
     "folderPopClose": "Close",
     "infoDesc1": "Browse through your Steam library, let this app install the",
     "infoDesc2": "Modified OpenVR DLL with AMD FidelityFX SuperResolution Upscaler",
