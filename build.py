@@ -1,13 +1,11 @@
-from pathlib import Path
-from typing import Union
-
-from subprocess import Popen
-from app.globals import UPDATE_INSTALL_FILE, UPDATE_VERSION_FILE, get_version
-from distutils.dir_util import copy_tree
-
 import shutil
 import winreg
+from distutils.dir_util import copy_tree
+from pathlib import Path
+from subprocess import Popen
+from typing import Union
 
+from app.globals import UPDATE_INSTALL_FILE, UPDATE_VERSION_FILE, get_version
 
 VERSION = get_version()
 EXTERNAL_APP_DIRS = []
@@ -16,12 +14,13 @@ SPEC_FILE = "openvr_fsr_app.spec"
 ISS_FILE = "openvr_fsr_app_win64_setup.iss"
 ISS_VER_LINE = '#define MyAppVersion'
 ISS_SETUP_EXE_FILE = UPDATE_INSTALL_FILE.format(version=VERSION)
+PORTABLE_ZIP_NAME = f'{UPDATE_INSTALL_FILE.format(version=VERSION)}_portable'
 
 BUILD_DIR = "build"
 DIST_DIR = "dist"
-DIST_EXE_DIR = "simmon"
+DIST_EXE_DIR = "openvr_fsr_app"
 
-REMOTE_DIR = '/simmon'
+REMOTE_DIR = '/openvr_fsr_app'
 
 
 class FindInnoSetup:
@@ -155,18 +154,46 @@ def run_pyinstaller(spec_file: str):
     return p.returncode
 
 
+def remove_dist_info_dirs():
+    dist_dir = Path(DIST_DIR) / Path(DIST_EXE_DIR)
+    for d in dist_dir.glob('*.dist-info'):
+        if not d.is_dir():
+            continue
+        shutil.rmtree(d)
+
+
+def create_portable_archive():
+    archive_file = Path(DIST_DIR) / PORTABLE_ZIP_NAME
+    dist_exe_dir = Path(DIST_DIR) / DIST_EXE_DIR
+    portable_dist_dir = Path(DIST_DIR) / 'portable' / PORTABLE_ZIP_NAME
+    archive_root_dir = Path(DIST_DIR) / 'portable'
+
+    portable_dist_dir.mkdir(parents=True)
+    copy_tree(dist_exe_dir.as_posix(), portable_dist_dir.as_posix())
+
+    old_archive = Path(DIST_DIR) / f'{PORTABLE_ZIP_NAME}.zip'
+    old_archive.unlink(missing_ok=True)
+
+    print('Creating portable archive:', archive_file.as_posix())
+    shutil.make_archive(archive_file.as_posix(), format='zip', root_dir=archive_root_dir)
+
+    shutil.rmtree(archive_root_dir, ignore_errors=True)
+
+
 def main(process: int = 0):
     if process == -1:
         print('Aborting process.')
         return
 
-    print('\n### STARTING rF2 Settings Widget BUILD ###')
+    print('\n### STARTING OpenVR FSR App BUILD ###')
 
     # Remove build dir
     print('Removing build dir to avoid building with outdated web dir.')
     build_dir = Path(BUILD_DIR)
     if build_dir.exists():
         shutil.rmtree(build_dir)
+
+    dist_dir = Path(DIST_DIR) / Path(DIST_EXE_DIR)
 
     build_dir.mkdir()
 
@@ -183,13 +210,13 @@ def main(process: int = 0):
             return
 
         # Copy/Add external applications
-        dist_dir = Path(DIST_DIR) / Path(DIST_EXE_DIR)
-
         for src_dir in EXTERNAL_APP_DIRS:
             print('Adding external application from dir: ', src_dir.as_posix())
             result = copy_tree(src_dir.absolute().as_posix(), dist_dir.absolute().as_posix(), update=1)
             if result:
                 print('Added app folder: ', src_dir.name)
+
+        remove_dist_info_dirs()
 
     if process in (1, 2):
         iss_path = FindInnoSetup.compiler_path()
@@ -207,6 +234,9 @@ def main(process: int = 0):
         if p.returncode != 0:
             print('Inno Script Studio encountered an error!')
             return
+
+        # -- Create Portable Archive
+        create_portable_archive()
 
         rm_dir = Path(DIST_DIR) / Path(DIST_EXE_DIR)
         for dist_dir in [rm_dir, *EXTERNAL_APP_DIRS]:
