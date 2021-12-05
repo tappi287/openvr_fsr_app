@@ -6,17 +6,17 @@
         <!-- Add User App -->
         <b-button @click="showAddAppModal=!showAddAppModal" variant="primary"
                   :disabled="backgroundBusy || steamlibBusy"
-                  v-b-popover.hover.bottom="$t('lib.addAppHint')">
+                  v-b-popover.hover.top="$t('lib.addAppHint')">
           <b-icon icon="plus-square"></b-icon>
         </b-button>
         <!-- Manual Update -->
         <b-button @click="scanSteamLib" v-if="!libUpdateRequired"
-                  v-b-popover.hover.bottom="$t('lib.updateManualHint')">
+                  v-b-popover.hover.top="$t('lib.updateManualHint')">
           <b-icon icon="arrow-clockwise"></b-icon>
         </b-button>
         <!-- Update Prompt -->
         <b-button @click="applyScannedLib" variant="success" v-if="libUpdateRequired"
-                  v-b-popover.hover.bottom="$t('lib.updateHint')">
+                  v-b-popover.hover.top="$t('lib.updateHint')">
           <b-icon icon="arrow-clockwise" animation="spin"></b-icon>
           <span class="ml-2">{{ $t('lib.update') }}</span>
         </b-button>
@@ -84,28 +84,32 @@
           </b-card-sub-title>
           <b-card-text>
             <!-- Install Path Selection -->
-            <div class="mt-2">
+            <div class="mt-4 mb-4">
               <h6>
                 {{ $t('lib.installLoc') }}
                 <b-icon icon="info-square-fill"
                         v-b-popover.top.hover="$t('lib.installHint')"
                 />
               </h6>
+              <b-form-checkbox-group stacked switches
+                                     :disabled="row.item.fsrInstalled"
+                                     :options="row.item.openVrDllPaths"
+                                     v-model="row.item.openVrDllPathsSelected"
+              />
             </div>
-            <b-form-checkbox-group stacked
-                                   :disabled="row.item.fsrInstalled"
-                                   :options="row.item.openVrDllPaths"
-                                   v-model="row.item.openVrDllPathsSelected"
-            />
-          </b-card-text>
-          <b-button :variant="row.item.fsrInstalled ? 'success' : 'primary'"
-                    :disabled="row.item.openVrDllPathsSelected.length === 0"
-                    @click="installFsr(row.item)">
-            {{ row.item.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
-          </b-button>
-          <div class="float-right" v-if="row.item.fsrInstalled">
-            <span :class="row.item.fsrVersion !== currentFsrVersion ? 'text-warning' : ''">
-              OpenVR FSR {{ row.item.fsrVersion }}
+
+            <!-- PlugIn Install / Uninstall Button -->
+            <b-button :variant="row.item.fsrInstalled ? 'success' : 'primary'"
+                      :disabled="row.item.openVrDllPathsSelected.length === 0"
+                      @click="installFsr(row.item)" class="mr-2">
+              <b-icon class="mr-1" :icon="row.item.fsrInstalled ? 'square-fill' : 'square'" />
+              {{ row.item.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
+            </b-button>
+
+            <!-- Version Report -->
+            <span v-if="row.item.fsrInstalled"
+                  :class="row.item.fsrVersion !== currentFsrVersion ? 'text-warning' : ''">
+              OpenVR FSR: {{ row.item.fsrVersion }}
               <template v-if="row.item.fsrVersion !== currentFsrVersion">
                 <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
               </template>
@@ -113,12 +117,17 @@
                 <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
               </template>
             </span>
-          </div>
-          <div class="mt-2" v-if="row.item.fsrInstalled">
-            <Setting v-for="s in row.item.settings" :key="s.key" :setting="s" :app-id="row.item.id"
-                     :disabled="!row.item.fsrInstalled" @setting-changed="updateFsr(row.item)"
-                     class="mr-3 mb-3" />
-          </div>
+          </b-card-text>
+
+          <!-- FSR Settings -->
+          <template v-if="row.item.fsrInstalled">
+            <h6 class="mt-4">{{ $t('lib.settingsTitle') }}</h6>
+            <div class="mt-1">
+              <Setting v-for="s in row.item.settings" :key="s.key" :setting="s" :app-id="row.item.id"
+                       :disabled="!row.item.fsrInstalled" @setting-changed="updateFsr(row.item)"
+                       class="mr-3 mb-3" />
+            </div>
+          </template>
 
           <!-- Actions -->
           <div style="position: absolute; top: 1.25rem; right: 1.25rem;">
@@ -187,7 +196,7 @@
       </b-form>
       <template #modal-footer>
         <b-button variant="primary" @click="addUsrApp">{{ $t('lib.addAppSubmit') }}</b-button>
-        <b-button variant="secondary" @click="resetApp" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
+        <b-button variant="secondary" @click="showAddAppModal=false" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
       </template>
     </b-modal>
   </div>
