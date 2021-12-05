@@ -253,11 +253,7 @@ export default {
       } else {
         if (Object.keys(this.steamApps).length !== 0) {
           // Keep the scan results and prompt the user to update
-          this.libUpdateRequired = r.update
-          if (!this.libUpdateRequired) {
-            this.$eventHub.$emit('make-toast',
-                'No changes found', 'warning', 'Steam Library Scan', true, -1)
-          }
+          this.libUpdateRequired = true
         } else {
           // No disk cache was present or empty
           this.steamApps = r.data
@@ -337,8 +333,6 @@ export default {
         // Update Entry
         manifest.settings = r.manifest.settings
         manifest.fsrVersion = r.manifest.fsrVersion
-        manifest.versionMismatch = r.versionMismatch
-        console.log(this.$t('main.versionMismatch'))
       }
 
       // Update disk cache

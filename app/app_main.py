@@ -8,7 +8,7 @@ import gevent.event
 
 from .app_settings import AppSettings
 from .fsr import Fsr, reduce_steam_apps_for_export, FsrSettings
-from .globals import OPEN_VR_FSR_CFG, USER_APP_PREFIX
+from .globals import USER_APP_PREFIX
 from .manifest_worker import ManifestWorker
 from .runasadmin import run_as_admin
 from .valve import steam
@@ -100,16 +100,11 @@ def get_steam_lib():
     steam_apps = ManifestWorker.update_steam_apps(steam_apps)
 
     # -- Restore FSR settings cached on disk and determine if cache and disk are out of sync
-    update_required = False
     cached_steam_apps = _load_steam_apps_with_fsr_settings()
     for app_id, entry in cached_steam_apps.items():
         if app_id in steam_apps:
             steam_apps[app_id]['settings'] = entry['settings']
             steam_apps[app_id]['openVrDllPathsSelected'] = entry['openVrDllPathsSelected']
-
-    # -- Apps on disk have changed, prompt user to update
-    if set(steam_apps.keys()).symmetric_difference(cached_steam_apps.keys()):
-        update_required = True
 
     # -- Add User Apps
     AppSettings.load()
@@ -124,7 +119,7 @@ def get_steam_lib():
         return json.dumps({'result': False, 'msg': msg})
 
     logging.debug('Providing Front End with Steam Library [%s]', len(steam_apps.keys()))
-    return json.dumps({'result': True, 'data': steam_apps, 'update': update_required})
+    return json.dumps({'result': True, 'data': steam_apps})
 
 
 @eel.expose
@@ -204,10 +199,6 @@ def update_fsr(manifest: dict):
     result = fsr.update_cfg()
 
     if result:
-        logging.debug('Updated %s enabled %s renderScale %s sharpness %s', fsr.open_vr_dll.parent / OPEN_VR_FSR_CFG,
-                      fsr.settings.enabled.value,
-                      fsr.settings.renderScale.value,
-                      fsr.settings.sharpness.value)
         fsr.manifest['fsrVersion'] = fsr.get_fsr_version()
     else:
         logging.error('Error updating Fsr config!')
