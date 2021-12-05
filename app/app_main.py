@@ -55,6 +55,10 @@ def load_steam_lib():
     if get_version() != AppSettings.previous_version:
         re_scan_required = True
 
+    # -- Re-scan lib if no cached apps other than user apps
+    if not len(steam_apps.keys()):
+        re_scan_required = True
+
     logging.debug(f'Loaded {len(steam_apps.keys())} Steam Apps from disk.')
 
     # -- Add User Apps
