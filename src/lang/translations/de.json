@@ -48,7 +48,7 @@
     "installed": "Installiert",
     "uninstallPlugin": "Plugin deinstallieren",
     "installPlugin": "Plugin installieren",
-    "installHint": "Selektiere die Checkboxen an denen die OpenVR dll mit dem PlugIn ersetzt werden soll. Wenn nach der Installation des PlugIns das Tracking nicht mehr richtig funktioniert ist es möglich dass die Dll an die falsche Stelle installiert wurde. Bitte die Installationshinweise erneut lesen und den Installationspfaden von Unity und Unreal spezielle Beachtung schenken.",
+    "installHint": "Selektiere die OpenVR dll Pfade an denen die dll mit dem PlugIn ersetzt werden soll. Wenn nach der Installation des PlugIns das Tracking nicht mehr richtig funktioniert ist es möglich dass die Dll an die falsche Stelle installiert wurde. Bitte die Installationshinweise erneut lesen und den Installationspfaden von Unity und Unreal spezielle Beachtung schenken.",
     "settingsTitle": "FSR Einstellungen",
     "launch": "Steam Anwendung starten",
     "reset": "Reset",
