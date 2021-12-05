@@ -291,6 +291,7 @@ export default {
     },
     submitApp: async function() {
       if (this.isBusy()) { return }
+      this.$eventHub.$emit('set-busy', true)
       const r = await getEelJsonObject(window.eel.add_custom_app(this.addApp)())
       if (!r.result) {
         // Error
@@ -303,6 +304,7 @@ export default {
       }
 
       await this.resetApp(event)
+      this.$eventHub.$emit('set-busy', false)
     },
     resetApp: async function() {
       this.addApp = { name: '', path: '' }
