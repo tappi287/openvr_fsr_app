@@ -12,7 +12,7 @@ from typing import Tuple, Union, Optional
 import eel
 import gevent.event
 
-from .globals import get_settings_dir, OPEN_VR_DLL
+from .globals import get_settings_dir, APP_NAME
 
 
 def create_file_safe_name(filename: str, allow_spaces: bool = False) -> str:
@@ -100,7 +100,7 @@ class AppExceptionHook:
         logging.critical(exception_msg)
 
         # Write to exception log file
-        exception_file_name = datetime.now().strftime('rf2-settings-widget_Exception_%Y-%m-%d_%H%M%S.log')
+        exception_file_name = datetime.now().strftime(f'{APP_NAME}_Exception_%Y-%m-%d_%H%M%S.log')
         exception_file = Path(get_settings_dir()) / exception_file_name
 
         with open(exception_file, 'w') as f:
