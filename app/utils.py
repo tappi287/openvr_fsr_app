@@ -120,7 +120,7 @@ class AppExceptionHook:
     @staticmethod
     def exception_event_loop():
         if AppExceptionHook.event.is_set():
-            logging.debug('Reporting App exception to front end')
+            logging.warning('Reporting App exception to front end')
             eel.app_exception(AppExceptionHook.gui_msg)
             AppExceptionHook.event.clear()
 
@@ -129,7 +129,7 @@ def capture_app_exceptions(func):
     """ Decorator to capture exceptions at app level """
     def func_wrapper(*args, **kwargs):
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except Exception as e:
             AppExceptionHook.set_exception(e)
 
