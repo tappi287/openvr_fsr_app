@@ -1,8 +1,6 @@
 <template>
   <div id="app">
-    <!-- Main component -->
-    <Main v-on:error="setError" ref="main"></Main>
-
+    <!-- Exception component -->
     <template v-if="error !== ''">
       <b-container fluid="sm">
         <b-card class="mt-3" bg-variant="dark" text-variant="white">
@@ -29,6 +27,10 @@
         </div>
       </b-container>
     </template>
+
+    <!-- Main component -->
+    <Main v-on:error="setError" ref="main"></Main>
+
     <!-- Footer -->
     <div class="mt-3 main-footer small font-weight-lighter">
       <Updater></Updater>
@@ -59,6 +61,7 @@ export default {
   methods: {
     setException: function (event) {
       this.setError(event.detail)
+      this.$refs.main.setBusy(false)
     },
     setError: function (error) {
       console.error(error)
