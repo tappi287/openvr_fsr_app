@@ -269,7 +269,8 @@ class Fsr:
 
         if org_open_vr_dll.exists() or legacy_dll_bak.exists():
             # Remove Fsr dll
-            self.open_vr_dll.unlink()
+            self.open_vr_dll.unlink(missing_ok=True)
+
             # Rename original open vr dll
             if org_open_vr_dll.exists():
                 org_open_vr_dll.rename(self.open_vr_dll)
