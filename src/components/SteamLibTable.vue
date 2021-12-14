@@ -339,9 +339,6 @@ export default {
       if (!r.result) {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
-        // this.$eventHub.$emit('make-toast', 'Updated Fsr Cfg for ' + manifest.name, 'success', manifest.name,
-        //  false, 1200)
-
         // Update Entry
         manifest.settings = r.manifest.settings
         manifest.fsrVersion = r.manifest.fsrVersion

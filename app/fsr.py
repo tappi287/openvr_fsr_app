@@ -185,7 +185,12 @@ class Fsr:
         for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
             if not self._update_open_vr_dll_path(open_vr_dll):
                 continue
-            results.append(self.get_version_from_dll(self.open_vr_dll))
+            try:
+                results.append(self.get_version_from_dll(self.open_vr_dll))
+            except Exception as e:
+                msg = f'Error reading dll version: {e}'
+                self.error = msg
+                logging.error(msg)
 
         version = ''
         for result in results:

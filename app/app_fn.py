@@ -187,13 +187,15 @@ def set_fsr_dir_fn(directory_str):
 @capture_app_exceptions
 def update_fsr_fn(manifest: dict):
     fsr = Fsr(manifest)
-    result = fsr.update_cfg()
+    cfg_result = fsr.update_cfg()
 
-    if result:
+    if cfg_result:
         fsr.manifest['fsrVersion'] = fsr.get_fsr_version()
     else:
         logging.error('Error updating Fsr config!')
-    return json.dumps({'result': result, 'msg': fsr.error, 'manifest': fsr.manifest})
+
+    return json.dumps({'result': all((cfg_result, not fsr.error)),
+                       'msg': fsr.error, 'manifest': fsr.manifest})
 
 
 @capture_app_exceptions
