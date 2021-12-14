@@ -42,6 +42,11 @@ def get_steam_lib():
 
 
 @eel.expose
+def save_steam_lib(steam_apps):
+    return app_fn._save_steam_lib(steam_apps)
+
+
+@eel.expose
 def remove_custom_app(app: dict):
     return app_fn.remove_custom_app_fn(app)
 
