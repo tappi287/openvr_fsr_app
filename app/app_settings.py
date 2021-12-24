@@ -26,10 +26,15 @@ class AppSettings(JsonRepr):
         'v1.3': 'ea417d2480b9a285ea9f6a3e9aa703b3',
         'v2.0': 'b173ef3e95283c47f840152786d6ebf9'
     }
+    open_vr_foveated_versions = {
+        'v0.1': 'f113aa2bbc9e13603fdc99c3944fcc48',
+    }
     current_fsr_version = 'v2.0'
+    current_foveated_version = 'v0.1'
 
     # Default plugin path
     openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
+    openvr_foveated_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_foveated'))
 
     def __init__(self):
         self.needs_admin = AppSettings.needs_admin
