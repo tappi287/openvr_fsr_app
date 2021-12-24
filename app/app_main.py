@@ -6,7 +6,6 @@ import gevent.event
 from . import app_fn
 from .app_settings import AppSettings
 from .runasadmin import run_as_admin
-from .utils import capture_app_exceptions
 
 CLOSE_EVENT = gevent.event.Event()
 
