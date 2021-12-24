@@ -56,6 +56,8 @@ def _save_steam_lib(steam_apps):
     for app_id, entry in steam_apps.items():
         if not app_id:
             continue
+        if entry.get('_showDetails'):
+            entry.pop('_showDetails')
         if entry.get('userApp', False) is True or app_id.startswith(USER_APP_PREFIX):
             remove_ids.add(app_id)
     for app_id in remove_ids:
