@@ -18,7 +18,7 @@ class OpenVRModCfgSetting(JsonRepr):
 
 
 class OpenVRModSettings(JsonRepr):
-    def __init__(self, options: List[OpenVRModCfgSetting], cfg_key: str):
+    def __init__(self, options: List[str], cfg_key: str):
         """ OpenVR Mod cfg base class to handle settings in openvr_mod.cfg configurations.
 
         :param options:
@@ -45,6 +45,11 @@ class OpenVRModSettings(JsonRepr):
                         json_str += line
 
                 json_dict = json.loads(json_str)
+
+                # -- Check if the cfg key e.g. 'fsr' is defined inside the CFG
+                if self.cfg_key not in json_dict:
+                    return False
+
                 for s in self._get_options():
                     json_value = json_dict[self.cfg_key].get(s.key)
                     if json_value is not None:

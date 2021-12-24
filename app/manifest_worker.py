@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional, List
 
+from .foveated_cfg import FoveatedSettings
 from .fsr_cfg import FsrSettings
 from .fsr_mod import FsrMod
 from .globals import OPEN_VR_DLL
@@ -66,8 +67,11 @@ class ManifestWorker:
             manifest['openVr'] = False
             manifest['settings'] = list()
             manifest['fsrInstalled'] = False
+            manifest['fovInstalled'] = False
             f = FsrSettings()
+            fov = FoveatedSettings()
             manifest['settings'] = f.to_js()
+            manifest['fov_settings'] = fov.to_js()
             manifest['fsrVersion'] = str()
 
             # -- Test for valid path
@@ -92,6 +96,8 @@ class ManifestWorker:
                 manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
                 manifest['openVr'] = True
 
+                # --
+                # -- FSR
                 # -- Read settings and set 'fsrInstalled' prop
                 cfg_results = list()
                 for p in open_vr_dll_path_ls:
@@ -100,6 +106,17 @@ class ManifestWorker:
 
                 # -- Save Fsr settings to manifest as json serializable string
                 manifest['settings'] = f.to_js()
+
+                # --
+                # -- Foveated
+                # -- Read settings and set 'fovInstalled' prop
+                cfg_results = list()
+                for p in open_vr_dll_path_ls:
+                    cfg_results.append(fov.read_from_cfg(p.parent))
+                manifest['fovInstalled'] = any(cfg_results)
+
+                # -- Save Fsr settings to manifest as json serializable string
+                manifest['fov_settings'] = f.to_js()
 
             # -- Read Fsr version
             if manifest['fsrInstalled']:
