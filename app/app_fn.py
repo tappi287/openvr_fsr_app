@@ -4,11 +4,36 @@ import subprocess
 from pathlib import WindowsPath, Path
 
 from .app_settings import AppSettings
-from .fsr import Fsr, reduce_steam_apps_for_export, FsrSettings
+from .fsr_cfg import FsrSettings
+from .fsr_mod import FsrMod
 from .globals import USER_APP_PREFIX, get_data_dir, get_version
 from .manifest_worker import ManifestWorker
 from .utils import capture_app_exceptions
 from .valve import steam
+
+
+def reduce_steam_apps_for_export(steam_apps) -> dict:
+    reduced_dict = dict()
+
+    for app_id, entry in steam_apps.items():
+        fsr = FsrMod(entry)
+
+        reduced_dict[app_id] = dict()
+        # Add only necessary data
+        reduced_dict[app_id]['settings'] = fsr.settings.to_js(export=True)
+        reduced_dict[app_id]['fsrInstalled'] = entry.get('fsrInstalled')
+        reduced_dict[app_id]['fsrVersion'] = entry.get('fsrVersion')
+        reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
+        reduced_dict[app_id]['name'] = entry.get('name')
+        reduced_dict[app_id]['sizeGb'] = entry.get('sizeGb')
+        reduced_dict[app_id]['path'] = entry.get('path')
+        reduced_dict[app_id]['openVrDllPaths'] = entry.get('openVrDllPaths')
+        reduced_dict[app_id]['openVrDllPathsSelected'] = entry.get('openVrDllPathsSelected')
+        reduced_dict[app_id]['openVr'] = entry.get('openVr')
+        reduced_dict[app_id]['SizeOnDisk'] = entry.get('SizeOnDisk')
+        reduced_dict[app_id]['appid'] = entry.get('appid')
+
+    return reduced_dict
 
 
 @capture_app_exceptions
@@ -16,7 +41,7 @@ def _load_steam_apps_with_fsr_settings():
     """ Load SteamApps from disk and restore complete settings entries """
     steam_apps = AppSettings.load_steam_apps()
     for app_id, entry in steam_apps.items():
-        fsr = Fsr(entry)
+        fsr = FsrMod(entry)
         entry['settings'] = fsr.settings.to_js(export=False)
     return steam_apps
 
@@ -186,7 +211,7 @@ def set_fsr_dir_fn(directory_str):
 
 @capture_app_exceptions
 def update_fsr_fn(manifest: dict):
-    fsr = Fsr(manifest)
+    fsr = FsrMod(manifest)
     cfg_result = fsr.update_cfg()
 
     if cfg_result:
@@ -200,7 +225,7 @@ def update_fsr_fn(manifest: dict):
 
 @capture_app_exceptions
 def install_fsr_fn(manifest: dict):
-    fsr = Fsr(manifest)
+    fsr = FsrMod(manifest)
     install_result = fsr.install()
     if install_result:
         fsr.manifest['fsrVersion'] = fsr.get_fsr_version()
@@ -209,7 +234,7 @@ def install_fsr_fn(manifest: dict):
 
 @capture_app_exceptions
 def uninstall_fsr_fn(manifest: dict):
-    fsr = Fsr(manifest)
+    fsr = FsrMod(manifest)
     uninstall_result = fsr.uninstall()
     if uninstall_result:
         fsr.manifest['fsrVersion'] = str()

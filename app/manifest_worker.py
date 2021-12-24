@@ -4,7 +4,8 @@ import os
 from pathlib import Path
 from typing import Optional, List
 
-from .fsr import FsrSettings, Fsr
+from .fsr_cfg import FsrSettings
+from .fsr_mod import FsrMod
 from .globals import OPEN_VR_DLL
 
 
@@ -97,12 +98,12 @@ class ManifestWorker:
                     cfg_results.append(f.read_from_cfg(p.parent))
                 manifest['fsrInstalled'] = any(cfg_results)
 
-            # -- Save Fsr settings to manifest as json serializable string
-            manifest['settings'] = f.to_js()
+                # -- Save Fsr settings to manifest as json serializable string
+                manifest['settings'] = f.to_js()
 
             # -- Read Fsr version
             if manifest['fsrInstalled']:
-                fsr = Fsr(manifest)
+                fsr = FsrMod(manifest)
                 manifest['fsrVersion'] = fsr.get_fsr_version()
 
         return manifest_ls
