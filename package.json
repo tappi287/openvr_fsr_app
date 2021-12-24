@@ -8,19 +8,19 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@popperjs/core": "^2.9.2",
-    "@vue/compiler-sfc": "^3.1.4",
-    "axios": "^0.21.1",
+    "@popperjs/core": "^2.11.0",
+    "@vue/compiler-sfc": "^3.2.26",
+    "axios": "^0.21.4",
     "bootstrap-vue": "^2.21.2",
-    "core-js": "^3.6.5",
+    "core-js": "^3.20.1",
     "vue": "^2.6.11",
-    "vue-i18n": "^8.25.0",
-    "vue-loader": "^16.3.0"
+    "vue-i18n": "^8.26.7",
+    "vue-loader": "^16.8.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
+    "@vue/cli-plugin-babel": "^4.5.15",
+    "@vue/cli-plugin-eslint": "^4.5.15",
+    "@vue/cli-service": "^4.5.15",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
