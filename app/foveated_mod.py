@@ -25,7 +25,7 @@ class FoveatedMod(OpenVRMod):
                 continue
             return version
 
-    def get_foveated_version(self) -> str:
+    def get_version(self) -> str:
         results = list()
         for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
             if not self._update_open_vr_dll_path(open_vr_dll):

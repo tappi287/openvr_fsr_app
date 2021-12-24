@@ -7,6 +7,11 @@ from app.globals import OPEN_VR_FSR_CFG
 from app.utils import JsonRepr
 
 
+class OpenVRModType:
+    fsr = 0
+    foveated = 1
+
+
 class OpenVRModCfgSetting(JsonRepr):
     export_skip_keys = ['settings']
 

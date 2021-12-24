@@ -67,18 +67,18 @@ def set_fsr_dir(directory_str):
 
 
 @eel.expose
-def update_fsr(manifest: dict):
-    return app_fn.update_fsr_fn(manifest)
+def update_mod(manifest: dict, mod_type: int = 0):
+    return app_fn.update_mod_fn(manifest, mod_type)
 
 
 @eel.expose
-def install_fsr(manifest: dict):
-    return app_fn.install_fsr_fn(manifest)
+def install_mod(manifest: dict, mod_type: int = 0):
+    return app_fn.install_mod_fn(manifest, mod_type)
 
 
 @eel.expose
-def uninstall_fsr(manifest: dict):
-    return app_fn.uninstall_fsr_fn(manifest)
+def uninstall_mod(manifest: dict, mod_type: int = 0):
+    return app_fn.uninstall_mod_fn(manifest, mod_type)
 
 
 @eel.expose

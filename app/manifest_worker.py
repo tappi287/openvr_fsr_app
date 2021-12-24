@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional, List
 
 from .foveated_cfg import FoveatedSettings
+from .foveated_mod import FoveatedMod
 from .fsr_cfg import FsrSettings
 from .fsr_mod import FsrMod
 from .globals import OPEN_VR_DLL
@@ -72,6 +73,7 @@ class ManifestWorker:
             fov = FoveatedSettings()
             manifest['settings'] = f.to_js()
             manifest['fov_settings'] = fov.to_js()
+            manifest['fovVersion'] = str()
             manifest['fsrVersion'] = str()
 
             # -- Test for valid path
@@ -121,7 +123,11 @@ class ManifestWorker:
             # -- Read Fsr version
             if manifest['fsrInstalled']:
                 fsr = FsrMod(manifest)
-                manifest['fsrVersion'] = fsr.get_fsr_version()
+                manifest['fsrVersion'] = fsr.get_version()
+            # -- Read Foveated version
+            if manifest['fovInstalled']:
+                fov = FoveatedMod(manifest)
+                manifest['fovVersion'] = fov.get_version()
 
         return manifest_ls
 

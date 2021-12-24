@@ -4,10 +4,13 @@ import subprocess
 from pathlib import WindowsPath, Path
 
 from .app_settings import AppSettings
+from .foveated_cfg import FoveatedSettings
+from .foveated_mod import FoveatedMod
 from .fsr_cfg import FsrSettings
 from .fsr_mod import FsrMod
 from .globals import USER_APP_PREFIX, get_data_dir, get_version
 from .manifest_worker import ManifestWorker
+from .openvr_mod_cfg import OpenVRModType
 from .utils import capture_app_exceptions
 from .valve import steam
 
@@ -24,6 +27,9 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id]['fsrInstalled'] = entry.get('fsrInstalled')
         reduced_dict[app_id]['fsrVersion'] = entry.get('fsrVersion')
         reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
+        reduced_dict[app_id]['fovInstalled'] = entry.get('fovInstalled')
+        reduced_dict[app_id]['fov_settings'] = entry.get('fov_settings')
+        reduced_dict[app_id]['fovVersion'] = entry.get('fovVersion')
         reduced_dict[app_id]['name'] = entry.get('name')
         reduced_dict[app_id]['sizeGb'] = entry.get('sizeGb')
         reduced_dict[app_id]['path'] = entry.get('path')
@@ -34,6 +40,20 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id]['appid'] = entry.get('appid')
 
     return reduced_dict
+
+
+def get_mod(manifest: dict, mod_type: int = 0):
+    if mod_type == OpenVRModType.fsr:
+        return FsrMod(manifest)
+    elif mod_type == OpenVRModType.foveated:
+        return FoveatedMod(manifest)
+
+
+def update_mod_version(mod, mod_type):
+    if mod_type == OpenVRModType.fsr:
+        mod.manifest['fsrVersion'] = mod.get_version()
+    elif mod_type == OpenVRModType.foveated:
+        mod.manifest['fovVersion'] = mod.get_version()
 
 
 @capture_app_exceptions
@@ -175,21 +195,29 @@ def add_custom_app_fn(app: dict):
     for p in openvr_paths:
         cfg_results.append(f.read_from_cfg(p.parent))
 
+    # -- Find installed Foveated
+    fov = FoveatedSettings()
+    fov_cfg_results = list()
+    for p in openvr_paths:
+        fov_cfg_results.append(fov.read_from_cfg(p.parent))
+
     # -- Add User App entry
     AppSettings.user_app_counter += 1
     app_id = f'{USER_APP_PREFIX}{AppSettings.user_app_counter:03d}'
     logging.debug('Creating User App entry %s', app_id)
     AppSettings.user_apps[app_id] = {
-            'appid': app_id,
-            "name": app.get('name', app_id),
-            'path': path.as_posix(),
-            'openVrDllPaths': [p.as_posix() for p in openvr_paths],
-            'openVrDllPathsSelected': [p.as_posix() for p in openvr_paths],
-            'openVr': True,
-            'settings': f.to_js(),
-            'fsrInstalled': any(cfg_results),
-            'sizeGb': 0, 'SizeOnDisk': 0,
-            'userApp': True,
+        'appid': app_id,
+        "name": app.get('name', app_id),
+        'path': path.as_posix(),
+        'openVrDllPaths': [p.as_posix() for p in openvr_paths],
+        'openVrDllPathsSelected': [p.as_posix() for p in openvr_paths],
+        'openVr': True,
+        'settings': f.to_js(),
+        'fov_settings': fov.to_js(),
+        'fsrInstalled': any(cfg_results),
+        'fovInstalled': any(fov_cfg_results),
+        'sizeGb': 0, 'SizeOnDisk': 0,
+        'userApp': True,
     }
     AppSettings.save()
 
@@ -212,35 +240,44 @@ def set_fsr_dir_fn(directory_str):
 
 
 @capture_app_exceptions
-def update_fsr_fn(manifest: dict):
-    fsr = FsrMod(manifest)
-    cfg_result = fsr.update_cfg()
+def update_mod_fn(manifest: dict, mod_type: int = 0):
+    mod = get_mod(manifest, mod_type)
+    if not mod:
+        return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
+
+    cfg_result = mod.update_cfg()
 
     if cfg_result:
-        fsr.manifest['fsrVersion'] = fsr.get_fsr_version()
+        update_mod_version(mod, mod_type)
     else:
         logging.error('Error updating Fsr config!')
 
-    return json.dumps({'result': all((cfg_result, not fsr.error)),
-                       'msg': fsr.error, 'manifest': fsr.manifest})
+    return json.dumps({'result': all((cfg_result, not mod.error)),
+                       'msg': mod.error, 'manifest': mod.manifest})
 
 
 @capture_app_exceptions
-def install_fsr_fn(manifest: dict):
-    fsr = FsrMod(manifest)
-    install_result = fsr.install()
+def install_mod_fn(manifest: dict, mod_type: int = 0):
+    mod = get_mod(manifest, mod_type)
+    if not mod:
+        return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
+
+    install_result = mod.install()
     if install_result:
-        fsr.manifest['fsrVersion'] = fsr.get_fsr_version()
-    return json.dumps({'result': install_result, 'msg': fsr.error, 'manifest': fsr.manifest})
+        update_mod_version(mod, mod_type)
+    return json.dumps({'result': install_result, 'msg': mod.error, 'manifest': mod.manifest})
 
 
 @capture_app_exceptions
-def uninstall_fsr_fn(manifest: dict):
-    fsr = FsrMod(manifest)
-    uninstall_result = fsr.uninstall()
+def uninstall_mod_fn(manifest: dict, mod_type: int = 0):
+    mod = get_mod(manifest, mod_type)
+    if not mod:
+        return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
+
+    uninstall_result = mod.uninstall()
     if uninstall_result:
-        fsr.manifest['fsrVersion'] = str()
-    return json.dumps({'result': uninstall_result, 'msg': fsr.error, 'manifest': fsr.manifest})
+        mod.manifest['fsrVersion'], mod.manifest['fovVersion'] = str(), str()
+    return json.dumps({'result': uninstall_result, 'msg': mod.error, 'manifest': mod.manifest})
 
 
 @capture_app_exceptions
