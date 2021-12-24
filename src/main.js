@@ -10,7 +10,7 @@ import messages from './lang';
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.config.productionTip = false
-Vue.config.devtools = false
+Vue.config.devtools = true
 
 // --- i18n support
 Vue.use(VueI18n)
