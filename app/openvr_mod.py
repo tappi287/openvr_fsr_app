@@ -3,21 +3,20 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Optional
 
-from app.app_settings import AppSettings
-from app.globals import OPEN_VR_DLL
-
 
 class OpenVRMod:
-    def __init__(self, manifest: dict, settings):
+    def __init__(self, manifest, settings, mod_dll_location):
         """ Open VR Mod base class to handle installation/uninstallation
         
-        :param manifest: 
-        :param app.fsr_cfg.FsrSettings settings: 
+        :param dict manifest: The app's Steam manifest with additional settings dict
+        :param app.openvr_mod_cfg.OpenVRModSettings settings: Cfg settings handler
+        :param Path mod_dll_location: Path to the OpenVRMod dll to install
         """
         self.manifest = manifest
         self.settings = settings
 
         self.open_vr_dll: Optional[Path] = None
+        self.mod_dll_location = mod_dll_location
         self._error_ls = list()
 
     @property
@@ -40,7 +39,7 @@ class OpenVRMod:
 
     def _update_cfg_single(self) -> bool:
         if not self.settings.write_cfg(self.open_vr_dll.parent):
-            msg = 'Error writing OpenVRMod cfg file.'
+            msg = 'Error writing OpenVRMod CFG file.'
             self.error = msg
             return False
         return True
@@ -79,7 +78,7 @@ class OpenVRMod:
             # --- Uninstallation or Restore if installation failed
             self._uninstall_fsr(org_open_vr_dll)
         except Exception as e:
-            msg = f'Error during fsr install/uninstall: {e}'
+            msg = f'Error during OpenVRMod install/uninstall: {e}'
             logging.error(msg)
             self.error = msg
             return False
@@ -104,8 +103,6 @@ class OpenVRMod:
         return True
 
     def _install_fsr(self, org_open_vr_dll: Path):
-        fsr_open_vr_dll = Path(AppSettings.openvr_fsr_dir) / OPEN_VR_DLL
-
         # Rename / Create backUp
         if not org_open_vr_dll.exists() and self.open_vr_dll.exists():
             self.open_vr_dll.rename(org_open_vr_dll)
@@ -114,7 +111,7 @@ class OpenVRMod:
             self.open_vr_dll.unlink()
 
         # Copy
-        copyfile(fsr_open_vr_dll, self.open_vr_dll)
+        copyfile(self.mod_dll_location, self.open_vr_dll)
 
         if not self.settings.write_cfg(self.open_vr_dll.parent):
             msg = 'Error writing OpenVR-Mod CFG file.'
