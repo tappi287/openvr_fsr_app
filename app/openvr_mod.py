@@ -3,8 +3,22 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Optional
 
+from app.app_settings import AppSettings
+from app.utils import get_file_hash
+
+
+class OpenVRModType:
+    fsr = 0
+    foveated = 1
+
 
 class OpenVRMod:
+    TYPE = OpenVRModType.fsr
+    VAR_NAMES = {
+        'installed': 'installed',
+        'version': 'version'
+    }
+
     def __init__(self, manifest, settings, mod_dll_location):
         """ Open VR Mod base class to handle installation/uninstallation
         
@@ -64,6 +78,9 @@ class OpenVRMod:
                 continue
             results.append(self._install_single(uninstall))
 
+        if all(results):
+            self.manifest[self.VAR_NAMES['installed']] = not uninstall
+
         return all(results)
 
     def _install_single(self, uninstall: bool = False) -> bool:
@@ -118,3 +135,46 @@ class OpenVRMod:
             self.error = msg
             return False
         return True
+
+    @staticmethod
+    def get_fsr_version_from_dll(openvr_dll: Path) -> Optional[str]:
+        file_hash = get_file_hash(openvr_dll.as_posix())
+        for version, hash_str in AppSettings.open_vr_fsr_versions.items():
+            if file_hash != hash_str:
+                continue
+            return version
+
+    @staticmethod
+    def get_foveated_version_from_dll(openvr_dll: Path) -> Optional[str]:
+        file_hash = get_file_hash(openvr_dll.as_posix())
+        for version, hash_str in AppSettings.open_vr_foveated_versions.items():
+            if file_hash != hash_str:
+                continue
+            return version
+
+    def get_version(self):
+        results = list()
+        for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
+            if not self._update_open_vr_dll_path(open_vr_dll):
+                continue
+            try:
+                if self.TYPE == OpenVRModType.fsr:
+                    results.append(self.get_fsr_version_from_dll(self.open_vr_dll))
+                elif self.TYPE == OpenVRModType.foveated:
+                    results.append(self.get_foveated_version_from_dll(self.open_vr_dll))
+            except Exception as e:
+                msg = f'Error reading dll version: {e}'
+                self.error = msg
+                logging.error(msg)
+
+        version = ''
+        for result in results:
+            if version and result != version:
+                logging.warning('Found multiple installed OpenVR FSR versions for the same app!')
+            version = result
+
+        if not version:
+            version = 'Unknown Version'
+
+        self.manifest[self.VAR_NAMES['version']] = version
+        return version

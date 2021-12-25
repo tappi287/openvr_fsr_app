@@ -42,7 +42,7 @@
     "updateManualHint": "Re-scan your Steam library for changes if you installed or removed Steam Apps.",
     "updateHint": "Apps on disk have changed. Click to update the list of installed Steam Apps.",
     "installLoc": "Install locations",
-    "incomp": "Incompatible",
+    "incomp": "Open VR FSR Incompatible",
     "incompReport": "Compatibility Report",
     "incompReportText": "This app was reported to be not compatible with the way the OpenVr Fsr PlugIn injects itself into the render pipeline.<br/><br/> In case you run into issues, the log file (openvr_mod.log) may provide clues to what's going on. Report errors and consult this page for troubleshooting:<br/><br/><a href=\"https://github.com/fholger/openvr_fsr/issues\" target=\"_blank\">https://github.com/fholger/openvr_fsr/issues</a>",
     "installed": "Installed",

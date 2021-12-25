@@ -7,11 +7,6 @@ from app.globals import OPEN_VR_FSR_CFG
 from app.utils import JsonRepr
 
 
-class OpenVRModType:
-    fsr = 0
-    foveated = 1
-
-
 class OpenVRModCfgSetting(JsonRepr):
     export_skip_keys = ['settings']
 
@@ -94,6 +89,9 @@ class OpenVRModSettings(JsonRepr):
         return [s.to_js_object(export) for s in self._get_options()]
 
     def from_js_dict(self, json_list):
+        if not json_list:
+            return
+
         for s in json_list:
             for setting in self._get_options():
                 if setting.key == s.get('key'):

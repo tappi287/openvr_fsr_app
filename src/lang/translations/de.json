@@ -42,7 +42,7 @@
     "updateManualHint": "Steam Bibliothek erneut scannen für den Fall das neue Steam Anwendungen installiert wurden.",
     "updateHint": "Steam Bibliothek hat sich geändert. Klicken um die Liste zu aktualisieren.",
     "installLoc": "Installationspfade",
-    "incomp": "Inkompatibel",
+    "incomp": "Open VR FSR Inkompatibel",
     "incompReport": "Kompatibilitäts Hinweis",
     "incompReportText": "Diese Anwendung wurde als inkompatibel mit der Art wie sich das Plugin in die Darstellung einklinkt gemeldet.<br/><br/> Für den Fall das es Probleme verursacht in die Log Datei (openvr_mod.log) schauen. Fehler bitte an dieser Stelle berichten:<br/><br/><a href=\"https://github.com/fholger/openvr_fsr/issues\" target=\"_blank\">https://github.com/fholger/openvr_fsr/issues</a>",
     "installed": "Installiert",

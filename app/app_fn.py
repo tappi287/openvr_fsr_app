@@ -10,7 +10,7 @@ from .fsr_cfg import FsrSettings
 from .fsr_mod import FsrMod
 from .globals import USER_APP_PREFIX, get_data_dir, get_version
 from .manifest_worker import ManifestWorker
-from .openvr_mod_cfg import OpenVRModType
+from .openvr_mod import OpenVRModType
 from .utils import capture_app_exceptions
 from .valve import steam
 
@@ -20,16 +20,17 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
 
     for app_id, entry in steam_apps.items():
         fsr = FsrMod(entry)
+        fov = FoveatedMod(entry)
 
         reduced_dict[app_id] = dict()
         # Add only necessary data
         reduced_dict[app_id]['settings'] = fsr.settings.to_js(export=True)
-        reduced_dict[app_id]['fsrInstalled'] = entry.get('fsrInstalled')
-        reduced_dict[app_id]['fsrVersion'] = entry.get('fsrVersion')
+        reduced_dict[app_id]['fov_settings'] = fov.settings.to_js(export=True)
+        reduced_dict[app_id]['fsrInstalled'] = entry.get('fsrInstalled', False)
+        reduced_dict[app_id]['fsrVersion'] = entry.get('fsrVersion', '')
         reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
-        reduced_dict[app_id]['fovInstalled'] = entry.get('fovInstalled')
-        reduced_dict[app_id]['fov_settings'] = entry.get('fov_settings')
-        reduced_dict[app_id]['fovVersion'] = entry.get('fovVersion')
+        reduced_dict[app_id]['fovInstalled'] = entry.get('fovInstalled', False)
+        reduced_dict[app_id]['fovVersion'] = entry.get('fovVersion', '')
         reduced_dict[app_id]['name'] = entry.get('name')
         reduced_dict[app_id]['sizeGb'] = entry.get('sizeGb')
         reduced_dict[app_id]['path'] = entry.get('path')
@@ -62,7 +63,9 @@ def _load_steam_apps_with_fsr_settings():
     steam_apps = AppSettings.load_steam_apps()
     for app_id, entry in steam_apps.items():
         fsr = FsrMod(entry)
+        fov = FoveatedMod(entry)
         entry['settings'] = fsr.settings.to_js(export=False)
+        entry['fov_settings'] = fov.settings.to_js(export=False)
     return steam_apps
 
 
@@ -257,27 +260,26 @@ def update_mod_fn(manifest: dict, mod_type: int = 0):
 
 
 @capture_app_exceptions
-def install_mod_fn(manifest: dict, mod_type: int = 0):
+def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
     mod = get_mod(manifest, mod_type)
+    mod_installed = mod.manifest.get(mod.VAR_NAMES['installed'], False)
+
     if not mod:
-        return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
+        return json.dumps({'result': False, 'msg': 'No Mod Type provided or could not get install state.',
+                           'manifest': manifest})
 
-    install_result = mod.install()
-    if install_result:
-        update_mod_version(mod, mod_type)
-    return json.dumps({'result': install_result, 'msg': mod.error, 'manifest': mod.manifest})
-
-
-@capture_app_exceptions
-def uninstall_mod_fn(manifest: dict, mod_type: int = 0):
-    mod = get_mod(manifest, mod_type)
-    if not mod:
-        return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
-
-    uninstall_result = mod.uninstall()
-    if uninstall_result:
-        mod.manifest['fsrVersion'], mod.manifest['fovVersion'] = str(), str()
-    return json.dumps({'result': uninstall_result, 'msg': mod.error, 'manifest': mod.manifest})
+    # -- Install
+    if not mod_installed:
+        install_result = mod.install()
+        if install_result:
+            update_mod_version(mod, mod_type)
+        return json.dumps({'result': install_result, 'msg': mod.error, 'manifest': mod.manifest})
+    # -- Uninstall
+    elif mod_installed is True:
+        uninstall_result = mod.uninstall()
+        if uninstall_result:
+            mod.manifest['fsrVersion'], mod.manifest['fovVersion'] = str(), str()
+        return json.dumps({'result': uninstall_result, 'msg': mod.error, 'manifest': mod.manifest})
 
 
 @capture_app_exceptions

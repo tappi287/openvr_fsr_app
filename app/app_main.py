@@ -71,13 +71,8 @@ def update_mod(manifest: dict, mod_type: int = 0):
 
 
 @eel.expose
-def install_mod(manifest: dict, mod_type: int = 0):
-    return app_fn.install_mod_fn(manifest, mod_type)
-
-
-@eel.expose
-def uninstall_mod(manifest: dict, mod_type: int = 0):
-    return app_fn.uninstall_mod_fn(manifest, mod_type)
+def toggle_mod_install(manifest: dict, mod_type: int = 0):
+    return app_fn.toggle_mod_install_fn(manifest, mod_type)
 
 
 @eel.expose
@@ -88,6 +83,11 @@ def launch_app(manifest: dict):
 @eel.expose
 def get_current_fsr_version():
     return AppSettings.current_fsr_version
+
+
+@eel.expose
+def get_current_foveated_version():
+    return AppSettings.current_foveated_version
 
 
 @eel.expose
