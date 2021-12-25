@@ -24,13 +24,13 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
 
         reduced_dict[app_id] = dict()
         # Add only necessary data
-        reduced_dict[app_id]['settings'] = fsr.settings.to_js(export=True)
-        reduced_dict[app_id]['fov_settings'] = fov.settings.to_js(export=True)
-        reduced_dict[app_id]['fsrInstalled'] = entry.get('fsrInstalled', False)
-        reduced_dict[app_id]['fsrVersion'] = entry.get('fsrVersion', '')
+        reduced_dict[app_id][FsrMod.VAR_NAMES['settings']] = fsr.settings.to_js(export=True)
+        reduced_dict[app_id][FoveatedMod.VAR_NAMES['settings']] = fov.settings.to_js(export=True)
+        reduced_dict[app_id][FsrMod.VAR_NAMES['installed']] = entry.get(FsrMod.VAR_NAMES['installed'], False)
+        reduced_dict[app_id][FoveatedMod.VAR_NAMES['installed']] = entry.get(FoveatedMod.VAR_NAMES['installed'], False)
+        reduced_dict[app_id][FsrMod.VAR_NAMES['version']] = entry.get(FsrMod.VAR_NAMES['version'], '')
+        reduced_dict[app_id][FoveatedMod.VAR_NAMES['version']] = entry.get(FoveatedMod.VAR_NAMES['version'], '')
         reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
-        reduced_dict[app_id]['fovInstalled'] = entry.get('fovInstalled', False)
-        reduced_dict[app_id]['fovVersion'] = entry.get('fovVersion', '')
         reduced_dict[app_id]['name'] = entry.get('name')
         reduced_dict[app_id]['sizeGb'] = entry.get('sizeGb')
         reduced_dict[app_id]['path'] = entry.get('path')
@@ -50,27 +50,19 @@ def get_mod(manifest: dict, mod_type: int = 0):
         return FoveatedMod(manifest)
 
 
-def update_mod_version(mod, mod_type):
-    if mod_type == OpenVRModType.fsr:
-        mod.manifest['fsrVersion'] = mod.get_version()
-    elif mod_type == OpenVRModType.foveated:
-        mod.manifest['fovVersion'] = mod.get_version()
-
-
 @capture_app_exceptions
-def _load_steam_apps_with_fsr_settings():
-    """ Load SteamApps from disk and restore complete settings entries """
-    steam_apps = AppSettings.load_steam_apps()
+def _load_steam_apps_with_mod_settings(steam_apps):
+    """ Add or restore complete settings entries """
     for app_id, entry in steam_apps.items():
         fsr = FsrMod(entry)
         fov = FoveatedMod(entry)
-        entry['settings'] = fsr.settings.to_js(export=False)
-        entry['fov_settings'] = fov.settings.to_js(export=False)
+        entry[fsr.VAR_NAMES['settings']] = fsr.settings.to_js(export=False)
+        entry[fov.VAR_NAMES['settings']] = fov.settings.to_js(export=False)
     return steam_apps
 
 
 @capture_app_exceptions
-def _save_steam_lib(steam_apps):
+def save_steam_lib(steam_apps):
     logging.info('Updating SteamApp disk cache.')
 
     # -- Save disk cache without User Apps
@@ -83,10 +75,13 @@ def _save_steam_lib(steam_apps):
             entry.pop('_showDetails')
         if entry.get('userApp', False) is True or app_id.startswith(USER_APP_PREFIX):
             remove_ids.add(app_id)
+
+    user_apps = dict()
     for app_id in remove_ids:
         user_entry = steam_apps.pop(app_id)
-        AppSettings.user_apps[app_id] = user_entry
+        user_apps[app_id] = user_entry
 
+    AppSettings.user_apps = reduce_steam_apps_for_export(user_apps)
     AppSettings.save_steam_apps(reduce_steam_apps_for_export(steam_apps))
     AppSettings.save()
 
@@ -94,7 +89,7 @@ def _save_steam_lib(steam_apps):
 @capture_app_exceptions
 def load_steam_lib_fn():
     """ Load saved SteamApps from disk """
-    steam_apps = _load_steam_apps_with_fsr_settings()
+    steam_apps = _load_steam_apps_with_mod_settings(AppSettings.load_steam_apps())
 
     re_scan_required = False
 
@@ -109,7 +104,7 @@ def load_steam_lib_fn():
     logging.debug(f'Loaded {len(steam_apps.keys())} Steam Apps from disk.')
 
     # -- Add User Apps
-    steam_apps.update(AppSettings.user_apps)
+    steam_apps.update(_load_steam_apps_with_mod_settings(AppSettings.user_apps))
 
     return json.dumps({'result': True, 'data': steam_apps, 'reScanRequired': re_scan_required})
 
@@ -139,7 +134,7 @@ def get_steam_lib_fn():
     steam_apps = ManifestWorker.update_steam_apps(steam_apps)
 
     # -- Restore FSR settings cached on disk and determine if cache and disk are out of sync
-    cached_steam_apps = _load_steam_apps_with_fsr_settings()
+    cached_steam_apps = _load_steam_apps_with_mod_settings()
     for app_id, entry in cached_steam_apps.items():
         if app_id in steam_apps:
             steam_apps[app_id]['settings'] = entry['settings']
@@ -151,7 +146,7 @@ def get_steam_lib_fn():
 
     # -- Cache updated SteamApps to disk
     try:
-        _save_steam_lib(steam_apps)
+        save_steam_lib(steam_apps)
     except Exception as e:
         msg = f'Error saving Steam Lib data: {e}'
         logging.error(msg)
@@ -248,10 +243,14 @@ def update_mod_fn(manifest: dict, mod_type: int = 0):
     if not mod:
         return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
 
+    mod_installed = mod.manifest.get(mod.VAR_NAMES['installed'], False)
+    if not mod_installed:
+        return json.dumps({'result': True, 'msg': mod.error, 'manifest': mod.manifest})
+
     cfg_result = mod.update_cfg()
 
     if cfg_result:
-        update_mod_version(mod, mod_type)
+        mod.manifest[mod.VAR_NAMES['version']] = mod.get_version()
     else:
         logging.error('Error updating Fsr config!')
 
@@ -272,13 +271,13 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
     if not mod_installed:
         install_result = mod.install()
         if install_result:
-            update_mod_version(mod, mod_type)
+            mod.manifest[mod.VAR_NAMES['version']] = mod.get_version()
         return json.dumps({'result': install_result, 'msg': mod.error, 'manifest': mod.manifest})
     # -- Uninstall
     elif mod_installed is True:
         uninstall_result = mod.uninstall()
         if uninstall_result:
-            mod.manifest['fsrVersion'], mod.manifest['fovVersion'] = str(), str()
+            mod.manifest[mod.VAR_NAMES['version']] = str()
         return json.dumps({'result': uninstall_result, 'msg': mod.error, 'manifest': mod.manifest})
 
 

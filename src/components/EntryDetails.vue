@@ -148,6 +148,14 @@ export default {
         this.$emit('load-steam-lib')
       }
     },
+    updateEntry: function (manifest) {
+      this.entry.settings = manifest.settings
+      this.entry.fsrInstalled = manifest.fsrInstalled
+      this.entry.fsrVersion = manifest.fsrVersion
+      this.entry.fov_settings = manifest.fov_settings
+      this.entry.fovInstalled = manifest.fovInstalled
+      this.entry.fovVersion = manifest.fovVersion
+    },
     installMod: async function (modType) {
       this.$eventHub.$emit('set-busy', true)
       let r = {}
@@ -158,7 +166,7 @@ export default {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
         // Update settings
-        this.entry = r.manifest
+        this.updateEntry(r.manifest)
 
         // Update install state
         if (this.entry.fsrInstalled || this.entry.fovInstalled) {
@@ -180,9 +188,6 @@ export default {
       this.$emit('entry-updated')
     },
     updateFsr: async function (modType = 0) {
-      if (!this.entry['fsrInstalled'] && modType === 0) { return }
-      if (!this.entry['fovInstalled'] && modType === 1) { return }
-
       this.$eventHub.$emit('set-busy', true)
 
       const r = await getEelJsonObject(window.eel.update_mod(this.entry, modType)())
@@ -191,7 +196,7 @@ export default {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
         // Update Entry
-        this.entry = r.manifest
+        this.updateEntry(r.manifest)
       }
 
       this.$eventHub.$emit('set-busy', false)

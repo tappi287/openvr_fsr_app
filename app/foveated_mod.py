@@ -10,12 +10,13 @@ class FoveatedMod(OpenVRMod):
     TYPE = OpenVRModType.foveated
     VAR_NAMES = {
         'installed': 'fovInstalled',
-        'version': 'fovVersion'
+        'version': 'fovVersion',
+        'settings': 'fov_settings',
     }
 
     def __init__(self, manifest: dict):
         self.settings = FoveatedSettings()
-        self.settings.from_js_dict(manifest.get('fov_settings'))
+        self.settings.from_js_dict(manifest.get(self.VAR_NAMES['settings']))
         fov_mod_dll = Path(AppSettings.openvr_foveated_dir) / OPEN_VR_DLL
 
         super(FoveatedMod, self).__init__(manifest, self.settings, fov_mod_dll)

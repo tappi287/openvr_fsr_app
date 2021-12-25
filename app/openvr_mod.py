@@ -16,7 +16,8 @@ class OpenVRMod:
     TYPE = OpenVRModType.fsr
     VAR_NAMES = {
         'installed': 'installed',
-        'version': 'version'
+        'version': 'version',
+        'settings': 'settings',
     }
 
     def __init__(self, manifest, settings, mod_dll_location):
@@ -28,6 +29,9 @@ class OpenVRMod:
         """
         self.manifest = manifest
         self.settings = settings
+
+        if self.VAR_NAMES['settings'] not in self.manifest:
+            self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
 
         self.open_vr_dll: Optional[Path] = None
         self.mod_dll_location = mod_dll_location

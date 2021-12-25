@@ -42,7 +42,7 @@ def get_steam_lib():
 
 @eel.expose
 def save_steam_lib(steam_apps):
-    return app_fn._save_steam_lib(steam_apps)
+    return app_fn.save_steam_lib(steam_apps)
 
 
 @eel.expose
