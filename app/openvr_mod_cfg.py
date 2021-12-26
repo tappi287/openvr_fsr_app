@@ -10,11 +10,13 @@ from app.utils import JsonRepr
 class OpenVRModCfgSetting(JsonRepr):
     export_skip_keys = ['settings']
 
-    def __init__(self, key=None, name=None, value=None, settings=None):
+    def __init__(self, key=None, name=None, value=None, settings=None, parent=None, hidden=False):
         self.key = key
         self.name = name
         self.value = value
         self.settings = settings
+        self.parent = parent
+        self.hidden = hidden
 
 
 class OpenVRModSettings(JsonRepr):
@@ -29,7 +31,29 @@ class OpenVRModSettings(JsonRepr):
 
     def _get_options(self):
         for key in self.options:
+            option = getattr(self, key)
+            if not option.parent:
+                yield option
+
+    def _get_all_options(self):
+        for key in self.options:
             yield getattr(self, key)
+
+    def _get_option_parent(self, parent_key):
+        for o in self._get_all_options():
+            if o.key == parent_key:
+                return o
+
+    def _get_parented_options(self) -> dict:
+        parented_options = dict()
+        for o in self._get_all_options():
+            if o.parent:
+                parent_option = self._get_option_parent(o.parent)
+                if parent_option.key not in parented_options:
+                    parented_options[parent_option.key] = dict()
+                parented_options[parent_option.key][o.key] = o.value
+
+        return parented_options
 
     def read_from_cfg(self, plugin_path: Path) -> bool:
         cfg = plugin_path / OPEN_VR_FSR_CFG
@@ -54,6 +78,14 @@ class OpenVRModSettings(JsonRepr):
                     json_value = json_dict[self.cfg_key].get(s.key)
                     if json_value is not None:
                         s.value = json_value
+
+                # -- Read parented options
+                for parent_key, settings_dict in self._get_parented_options().items():
+                    for key, value in settings_dict.items():
+                        json_value = json_dict[self.cfg_key].get(parent_key, dict()).get(key)
+                        if json_value is not None:
+                            option = getattr(self, key)
+                            option.value = json_value
         except Exception as e:
             logging.error('Error reading FSR settings from cfg file: %s', e)
             return False
@@ -64,7 +96,7 @@ class OpenVRModSettings(JsonRepr):
 
         try:
             with open(cfg, 'w') as f:
-                json.dump({self.cfg_key: {s.key: s.value for s in self._get_options()}}, f, indent=2)
+                json.dump(self.to_ini_js(), f, indent=2)
             logging.info('Written updated config at: %s', plugin_path)
         except Exception as e:
             logging.error('Error writing FSR settings to cfg file: %s', e)
@@ -86,13 +118,19 @@ class OpenVRModSettings(JsonRepr):
         return True
 
     def to_js(self, export: bool = False) -> list:
-        return [s.to_js_object(export) for s in self._get_options()]
+        return [s.to_js_object(export) for s in self._get_all_options()]
+
+    def to_ini_js(self):
+        options = {s.key: s.value for s in self._get_options()}
+        options.update(self._get_parented_options())
+
+        return {self.cfg_key: options}
 
     def from_js_dict(self, json_list):
         if not json_list:
             return
 
         for s in json_list:
-            for setting in self._get_options():
+            for setting in self._get_all_options():
                 if setting.key == s.get('key'):
                     setting.value = s.get('value')
