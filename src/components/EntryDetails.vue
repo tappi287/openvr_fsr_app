@@ -18,6 +18,7 @@
                                :disabled="entry.fsrInstalled"
                                :options="entry.openVrDllPaths"
                                v-model="entry.openVrDllPathsSelected"
+                               @change="saveEntry"
         />
       </div>
 
@@ -181,6 +182,10 @@ export default {
         this.$emit('entry-updated', this.entry)
       }
       this.$eventHub.$emit('set-busy', false)
+    },
+    saveEntry: function() {
+      // Update disk cache
+      this.$emit('entry-updated')
     },
     updateFsrSetting: async function(modType = 0) {
       await this.updateFsr(modType)
