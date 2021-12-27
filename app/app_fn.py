@@ -134,10 +134,9 @@ def get_steam_lib_fn():
     steam_apps = ManifestWorker.update_steam_apps(steam_apps)
 
     # -- Restore FSR settings cached on disk and determine if cache and disk are out of sync
-    cached_steam_apps = _load_steam_apps_with_mod_settings()
+    cached_steam_apps = _load_steam_apps_with_mod_settings(AppSettings.load_steam_apps())
     for app_id, entry in cached_steam_apps.items():
         if app_id in steam_apps:
-            steam_apps[app_id]['settings'] = entry['settings']
             steam_apps[app_id]['openVrDllPathsSelected'] = entry['openVrDllPathsSelected']
 
     # -- Add User Apps
