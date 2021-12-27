@@ -45,8 +45,8 @@
       <!-- Foveated PlugIn Install / Uninstall Button -->
       <b-button :variant="entry.fovInstalled ? 'success' : 'primary'"
                 :disabled="entry.openVrDllPathsSelected.length === 0 || entry.fsrInstalled"
-                @click="installMod(1)" class="mr-2">
-        <b-icon class="mr-1" :icon="entry.fsrInstalled ? 'square-fill' : 'square'" />
+                @click="installMod(1)" class="mr-2 ml-2">
+        <b-icon class="mr-1" :icon="entry.fovInstalled ? 'square-fill' : 'square'" />
         Foveated {{ entry.fovInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
       </b-button>
 
@@ -68,7 +68,7 @@
       <h6 class="mt-4">{{ $t('lib.settingsTitle') }}</h6>
       <div class="mt-1">
         <Setting v-for="s in entry.settings" :key="s.key" :setting="s" :app-id="entry.id"
-                 :disabled="!entry.fsrInstalled" @setting-changed="updateFsrSetting(0)"
+                 :disabled="!entry.fsrInstalled" @setting-changed="updateModSetting(0)"
                  class="mr-3 mb-3" />
       </div>
     </template>
@@ -78,7 +78,7 @@
       <h6 class="mt-4">{{ $t('lib.settingsTitle') }}</h6>
       <div class="mt-1">
         <Setting v-for="s in entry.fov_settings" :key="s.key" :setting="s" :app-id="entry.id"
-                 :disabled="!entry.fovInstalled" @setting-changed="updateFsrSetting(1)"
+                 :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
                  class="mr-3 mb-3" />
       </div>
     </template>
@@ -126,10 +126,11 @@ export default {
     }
   },
   props: {
-    entry: Object, currentFsrVersion: String, currentFovVersion: String,
+    entry: Object, currentFsrVersion: String, currentFovVersion: String, steamLibBusy: Boolean
   },
   methods: {
     launchApp: async function() {
+      if (this.steamLibBusy) { return }
       this.$eventHub.$emit('set-busy', true)
       const r = await getEelJsonObject(window.eel.launch_app(this.entry)())
       if (!r.result) {
@@ -140,6 +141,7 @@ export default {
       this.$eventHub.$emit('set-busy', false)
     },
     removeUsrApp: async function() {
+      if (this.steamLibBusy) { return }
       const r = await getEelJsonObject(window.eel.remove_custom_app(this.entry)())
       if (!r.result) {
         // Error
@@ -158,6 +160,7 @@ export default {
       this.entry.fovVersion = manifest.fovVersion
     },
     installMod: async function (modType) {
+      if (this.steamLibBusy) { return }
       this.$eventHub.$emit('set-busy', true)
       let r = {}
       r = await getEelJsonObject(window.eel.toggle_mod_install(this.entry, modType)())
@@ -184,15 +187,17 @@ export default {
       this.$eventHub.$emit('set-busy', false)
     },
     saveEntry: function() {
+      if (this.steamLibBusy) { return }
       // Update disk cache
       this.$emit('entry-updated')
     },
-    updateFsrSetting: async function(modType = 0) {
-      await this.updateFsr(modType)
+    updateModSetting: async function(modType = 0) {
+      await this.updateMod(modType)
       // Update disk cache
       this.$emit('entry-updated')
     },
-    updateFsr: async function (modType = 0) {
+    updateMod: async function (modType = 0) {
+      if (this.steamLibBusy) { return }
       this.$eventHub.$emit('set-busy', true)
 
       const r = await getEelJsonObject(window.eel.update_mod(this.entry, modType)())
@@ -208,7 +213,7 @@ export default {
     },
   },
   async mounted() {
-    await this.updateFsr()
+    await this.updateMod()
   }
 }
 </script>

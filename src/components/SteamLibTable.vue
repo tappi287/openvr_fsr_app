@@ -80,6 +80,7 @@
         <EntryDetails :entry="steamApps[row.item.appid]"
                       :current-fsr-version="currentFsrVersion"
                       :current-fov-version="currentFovVersion"
+                      :steam-lib-busy="tableBusy"
                       @entry-updated="saveSteamApps"
                       @load-steam-lib="loadSteamLib"
         />
@@ -249,6 +250,9 @@ export default {
     },
   },
   computed: {
+    tableBusy() {
+      return this.isBusy()
+    },
     computedList() {
       let steamTableData = []
       for (const appId in this.steamApps) {
