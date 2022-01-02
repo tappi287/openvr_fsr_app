@@ -8,6 +8,9 @@ from .utils import JsonRepr
 
 
 class AppSettings(JsonRepr):
+    skip_keys = ['open_vr_fsr_versions', 'open_vr_foveated_versions',
+                 'current_fsr_version', 'current_foveated_version']
+
     backup_created = False
     needs_admin = False
     previous_version = str()
@@ -24,13 +27,15 @@ class AppSettings(JsonRepr):
         'v1.1': '628a13f0faae439229237c3b44e5426c',
         'v1.2': '2d551d67a642d3edba3e8467b00667cb',
         'v1.3': 'ea417d2480b9a285ea9f6a3e9aa703b3',
-        'v2.0': 'b173ef3e95283c47f840152786d6ebf9'
+        'v2.0': 'b173ef3e95283c47f840152786d6ebf9',
+        'v2.1.1': '1f15031338f117ccc8d68a98f71d6b65',
     }
     open_vr_foveated_versions = {
         'v0.1': 'f113aa2bbc9e13603fdc99c3944fcc48',
+        'v0.2': '51bec8ad9c6860615a71c2449feee780'
     }
-    current_fsr_version = 'v2.0'
-    current_foveated_version = 'v0.1'
+    current_fsr_version = 'v2.1.1'
+    current_foveated_version = 'v0.2'
 
     # Default plugin path
     openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
