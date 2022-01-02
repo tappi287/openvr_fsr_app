@@ -45,6 +45,5 @@ class FsrSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        options = [self.enabled.key, self.useNIS.key, self.renderScale.key, self.sharpness.key, self.radius.key,
-                   self.applyMIPBias.key, self.debugMode.key]
+        options = self.get_setting_fields()
         super(FsrSettings, self).__init__(options, 'fsr')

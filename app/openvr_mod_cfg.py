@@ -33,6 +33,14 @@ class OpenVRModSettings(JsonRepr):
         self.options = options
         self.cfg_key = cfg_key
 
+    def get_setting_fields(self):
+        options = list()
+        for attr_name in dir(self):
+            field = getattr(self, attr_name)
+            if hasattr(field, 'is_openvr_mod_cfg_setting'):
+                options.append(attr_name)
+        return options
+
     def _get_options(self):
         for key in self.options:
             option = getattr(self, key)
