@@ -9,6 +9,7 @@
           </b-icon>
         </b-input-group-text>
       </b-input-group-prepend>
+
       <b-input-group-append>
 
         <!-- Dropdown Menu -->
@@ -67,8 +68,47 @@
             </template>
           </b-popover>
         </template>
+
+        <!-- Keyboard Key -->
+        <template v-if="inputType === 'key'">
+          <div class="btn btn-secondary setting-item fixed-width-setting">
+            <b-icon shift-v="-1" icon="keyboard" class="text-white" />
+            <span class="ml-2">{{ settingKeyName }}</span>
+            <b-link @click="startListening" class="text-white ml-2">
+              <b-icon icon="pencil"></b-icon>
+            </b-link>
+          </div>
+        </template>
+
       </b-input-group-append>
     </b-input-group>
+
+    <!-- Keyboard Assign Modal -->
+    <b-modal v-model="listening" centered hide-header-close no-close-on-backdrop no-close-on-esc :id="modalId">
+      <template #modal-title>
+        <b-icon icon="keyboard" variant="primary"></b-icon>
+        <span class="ml-2">{{ setting.name }}</span>
+      </template>
+      <div class="d-block">
+        <p style="font-size: small;" v-if="settingDesc !== ''">{{ settingDesc }}</p>
+        <div :class="eventCaptured ? '' : 'old-setting'">
+          <h5>Hotkey Mapping</h5>
+          <p style="font-size: small;">{{ $t('setting.keyboardAssign') }}</p>
+          <p>
+            <span>Key</span>
+            <span class="ml-2">{{ capturedValueName }}</span>
+          </p>
+        </div>
+      </div>
+
+      <template #modal-footer>
+        <div class="d-block text-right">
+          <b-button v-if="eventCaptured" @click="confirmAssign" variant="success">Confirm</b-button>
+          <b-button class="ml-2" v-if="eventCaptured" @click="startListening" variant="primary">Retry</b-button>
+          <b-button class="ml-2" variant="secondary" @click="abortListening">Abort</b-button>
+        </div>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -93,6 +133,10 @@ export default {
       showSpinnerInputPopover: false,
       spinnerInputValue: 0,
       spinnerDebounceRate: 2000,
+      listening: false,
+      eventCaptured: false,
+      capturedEvent: null,
+      modalId: 'assign' + this._uid,
     }
   },
   props: {
@@ -154,6 +198,39 @@ export default {
       }
       return false
     },
+    handleKeyDownEvent: async function (event) {
+      if (this.listening && !this.eventCaptured) {
+        this.eventCaptured = true
+        console.log(event)
+        this.capturedEvent = {name: 'Keyboard', value: event.keyCode, keyName: event.key}
+      }
+    },
+    listenToKeyboard: function (remove = false) {
+      // Add or Remove Keydown event listener
+      const m = document.getElementById(this.modalId)
+      if (m !== null && !remove) {
+        console.log('Listening for keyboard events')
+        m.addEventListener('keydown', this.handleKeyDownEvent)
+      } else if (m !== null && remove) {
+        console.log('Removing Keyboard listener')
+        m.removeEventListener('keydown', this.handleKeyDownEvent)
+      }
+    },
+    startListening: function () {
+      this.eventCaptured = false; this.capturedEvent = null; this.listening = true
+      this.$nextTick(() => { this.listenToKeyboard(false) })
+    },
+    abortListening: function () {
+      this.listenToKeyboard(true); this.listening = false; this.eventCaptured = false
+    },
+    confirmAssign: async function () {
+      this.selectSetting(this.capturedEvent)
+      this.abortListening()
+    },
+    getKeyValueName: function(key) {
+      if (key !== undefined && key !== '' && key !== null) { return key.toUpperCase() }
+      return 'Not Set'
+    }
   },
   created: function () {
     // Set description
@@ -172,6 +249,9 @@ export default {
           this.spinnerInputValue = this.setting.value
           this.settingDesc = this.setting.desc || this.setting.settings[0].desc || ''
           this.$nextTick(() => { this.setupSpinnerDblClick() })
+        }
+        if (this.setting.settings[0].settingType === 'key') {
+          this.inputType = 'key'
         }
       }
     }
@@ -199,7 +279,15 @@ export default {
     },
     spinnerInputState: function () {
       return this.checkSpinnerInputValue(this.spinnerInputValue)
-    }
+    },
+    settingKeyName() {
+      if (this.setting === undefined) { return 'Undefined' }
+      return this.getKeyValueName(this.setting.keyName)
+    },
+    capturedValueName() {
+      if (!this.eventCaptured) { return this.settingKeyName }
+      return this.getKeyValueName(this.capturedEvent.keyName)
+    },
   }
 }
 </script>

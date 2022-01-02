@@ -30,6 +30,9 @@
     "versionMismatch": "Installed OpenVR FSR version doesn't match the version supported by this app. Some FSR configuration settings may not be available or may have no effect.",
     "versionMatch": "This version of OpenVR FSR is supported by this version of the app."
   },
+  "setting": {
+    "keyboardAssign": "Press a keyboard key to assign a Hotkey"
+  },
   "lib": {
     "appId": "App ID",
     "name": "Name",
