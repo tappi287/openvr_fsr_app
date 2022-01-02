@@ -31,6 +31,30 @@ Please refer to the [Wiki](https://github.com/fholger/openvr_foveated/wiki) for 
 about particular games that have been tested by myself or others. Feel free to add your own
 test results.
 
+### Modes of operation
+
+Currently two methods are implemented to achieve fixed foveated rendering:
+
+* the first is called "Radial Density Masking" and is based on a technique demoed by
+  Alex Vlachios from Valve. It is a universal technique that works with any graphics
+  card. However, injecting it externally into game engines is very hit or miss, as
+  it only really works under certain assumptions that many games may not meet. As a
+  consequence, expect to see rendering errors often. It is also possible to experience
+  *reduced* performance with this method enabled.
+* the second is using "Variable Rate Shading", a new GPU hardware feature that enables
+  GPUs to render certain areas of the image at reduced sampling rates. It is a very
+  recent feature and is only supported by NVIDIA Turing/Ampere or AMD RDNA2 cards.
+  Moreover, the feature is not natively supported by D3D11, the graphics API used by
+  most current VR games and the only one supported by this mod. Only NVIDIA has
+  released a proprietary extension for D3D11 to enable Variable Rate Shading. As about
+  consequence, this mode is currently only available on NVIDIA RTX or GTX16xx cards.
+  It generally looks better than Radial Density Masking and has a chance to work in
+  games where Radial Density Masking does not currently work correctly.
+
+You can select your preferred technique in the config file, by either enabling or
+disabling `useVariableRateShading`. Note: if VRS is not available, the mod will
+fall back to Radial Density Masking.
+
 ### Installation instructions
 
 First, download the `openvr_foveated.zip` file from the [latest release](https://github.com/fholger/openvr_foveated/releases/latest) under "Assets".
@@ -58,22 +82,17 @@ parameters `innerRadius`, `midRadius` and `outerRadius` determine the size of th
 rings as described above. The smaller the values for the radii, the fewer pixels are rendered,
 but visual fidelity will suffer. Experiment at will.
 
-If `enableHotkeys` is set to true, you can use hotkeys to toggle mod settings on the fly.
-Available hotkeys:
+Hotkeys are available to modify certain configuration settings on the fly. The hotkeys
+can be configured in the config file; they can also be globally disabled to prevent
+interference with game hotkeys. Note that any config changes done in-game via hotkeys
+will *not* be persisted and reset back to the values in the config file on the next
+game launch.
 
-* <F1> - toggle Fixed Foveated Rendering on or off.
+### Building the project
 
+To build the project, you need CMake and Visual Studio. You also need to download the
+[NVAPI SDK](https://developer.nvidia.com/nvapi) (requires NVIDIA developer account)
+and copy the nvapi64.lib to src/nvapi.
 
-OpenVR SDK
----
-
-OpenVR is an API and runtime that allows access to VR hardware from multiple 
-vendors without requiring that applications have specific knowledge of the 
-hardware they are targeting. This repository is an SDK that contains the API 
-and samples. The runtime is under SteamVR in Tools on Steam. 
-
-### Documentation
-
-Documentation for the API is available on the [GitHub Wiki](https://github.com/ValveSoftware/openvr/wiki/API-Documentation)
-
-More information on OpenVR and SteamVR can be found on http://steamvr.com
+Use CMake to generate project files for Visual Studio. Make sure to enable
+`BUILD_SHARED` in the CMake options.
