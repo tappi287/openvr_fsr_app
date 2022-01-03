@@ -8,11 +8,11 @@ from app.utils import JsonRepr
 
 
 class OpenVRModCfgSetting(JsonRepr):
-    export_skip_keys = ['settings']
+    export_skip_keys = ['settings', 'category']
     is_openvr_mod_cfg_setting = True
 
     def __init__(self, key=None, name=None, value=None, desc=None,
-                 keyName=None, settings=None, parent=None, hidden=False):
+                 keyName=None, settings=None, parent=None, category=None, hidden=False):
         self.key = key
         self.name = name
         self.desc = desc
@@ -20,6 +20,7 @@ class OpenVRModCfgSetting(JsonRepr):
         self.keyName = keyName
         self.settings = settings
         self.parent = parent
+        self.category = category
         self.hidden = hidden
 
 

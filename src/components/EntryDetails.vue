@@ -66,8 +66,11 @@
     <!-- FSR Settings -->
     <template v-if="entry.fsrInstalled">
       <h6 class="mt-4">{{ $t('lib.settingsTitle') }}</h6>
-      <div class="mt-1">
-        <Setting v-for="s in entry.settings" :key="s.key" :setting="s" :app-id="entry.id"
+      <!-- Categories -->
+      <div class="mt-1" v-for="category in settingsCategories(0)" :key="category">
+        <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
+        <!-- Settings -->
+        <Setting v-for="s in orderedSettings(0, category)" :key="s.key" :setting="s" :app-id="entry.id"
                  :disabled="!entry.fsrInstalled" @setting-changed="updateModSetting(0)"
                  class="mr-3 mb-3" />
       </div>
@@ -76,8 +79,11 @@
     <!-- Foveated Settings -->
     <template v-if="entry.fovInstalled">
       <h6 class="mt-4">{{ $t('lib.settingsTitle') }}</h6>
-      <div class="mt-1">
-        <Setting v-for="s in entry.fov_settings" :key="s.key" :setting="s" :app-id="entry.id"
+      <!-- Categories -->
+      <div class="mt-1" v-for="category in settingsCategories(1)" :key="category">
+        <template v-if="category !== null"><h6 class="mt-4">{{ category }}</h6></template>
+        <!-- Settings -->
+        <Setting v-for="s in orderedSettings(1, category)" :key="s.key" :setting="s" :app-id="entry.id"
                  :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
                  class="mr-3 mb-3" />
       </div>
@@ -211,6 +217,37 @@ export default {
 
       this.$eventHub.$emit('set-busy', false)
     },
+    _getSettingsByType(modType = 0) {
+      let settings = {}
+      if (modType === 0) {
+        settings = this.entry.settings
+      } else if (modType === 1) {
+        settings = this.entry.fov_settings
+      }
+      return settings
+    },
+    settingsCategories(modType = 0) {
+      let settings = this._getSettingsByType(modType)
+      let categorys = new Set()
+
+      for (const key in settings) {
+        const setting = settings[key]
+        if (setting.category !== undefined) { categorys.add(setting.category) }
+      }
+      if (categorys.size > 0) { return categorys.values() }
+      return [null]
+    },
+    orderedSettings(modType = 0, category = null) {
+      let settings = this._getSettingsByType(modType)
+      if (category === null) { return settings }
+
+      let orderedSettings = {}
+      for (const key in settings) {
+        let setting = settings[key]
+        if (setting.category === category) { orderedSettings[key] = setting }
+      }
+      return orderedSettings
+    }
   },
   async mounted() {
     await this.updateMod()
