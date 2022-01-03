@@ -1,7 +1,6 @@
 <template>
 <div>
-  <b-card :title="entry.name"
-          bg-variant="dark" text-variant="white" class="text-left m-1">
+  <b-card bg-variant="dark" text-variant="white" class="text-left m-1">
     <b-card-sub-title>
       {{ entry.appid }} | {{ entry.path }}
     </b-card-sub-title>
@@ -63,38 +62,42 @@
       </span>
     </b-card-text>
 
-    <!-- FSR Settings -->
-    <template v-if="entry.fsrInstalled">
-      <h4 class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
-      <!-- Categories -->
-      <div class="mt-1" v-for="(category, idx) in settingsCategories(0)" :key="category"
-           :id="'FSR' + idx">
-        <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
-        <!-- Settings -->
-        <Setting v-for="s in orderedSettings(0, category)" :key="s.key" :setting="s" :app-id="entry.id"
-                 :disabled="!entry.fsrInstalled" @setting-changed="updateModSetting(0)"
-                 :fixed-width="true" :group-id="'FSR' + idx"
-                 class="mr-3 mb-3" />
-      </div>
-    </template>
+    <!-- Settings Space -->
+    <div class="mt-4 card bg-dark">
 
-    <!-- Foveated Settings -->
-    <template v-if="entry.fovInstalled">
-      <h4 class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
-      <!-- Categories -->
-      <div class="mt-1" v-for="(category, idx) in settingsCategories(1)" :key="category"
-           :id="'FFR' + idx">
-        <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
-        <!-- Settings -->
-        <Setting v-for="s in orderedSettings(1, category)" :key="s.key" :setting="s" :app-id="entry.id"
-                 :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
-                 :fixed-width="true" :group-id="'FFR' + idx"
-                 class="mr-3 mb-3" />
-      </div>
-    </template>
+      <!-- FSR Settings -->
+      <template v-if="entry.fsrInstalled">
+        <h4 v-if="settingsCategories(0)[0] === null" class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
+        <!-- Categories -->
+        <div class="mt-1 mb-2 text-center" v-for="(category, idx) in settingsCategories(0)" :key="category"
+             :id="'FSR' + idx">
+          <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
+          <!-- Settings -->
+          <Setting v-for="s in orderedSettings(0, category)" :key="s.key" :setting="s" :app-id="entry.id"
+                   :disabled="!entry.fsrInstalled" @setting-changed="updateModSetting(0)"
+                   :fixed-width="true" :group-id="'FSR' + idx"
+                   class="mr-3 mb-3" />
+        </div>
+      </template>
+
+      <!-- Foveated Settings -->
+      <template v-if="entry.fovInstalled">
+        <h4 v-if="settingsCategories(1)[0] === null" class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
+        <!-- Categories -->
+        <div class="mt-1 mb-2 text-center" v-for="(category, idx) in settingsCategories(1)" :key="category"
+             :id="'FFR' + idx">
+          <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
+          <!-- Settings -->
+          <Setting v-for="s in orderedSettings(1, category)" :key="s.key" :setting="s" :app-id="entry.id"
+                   :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
+                   :fixed-width="true" :group-id="'FFR' + idx"
+                   class="mr-3 mb-3" />
+        </div>
+      </template>
+    </div>
 
     <!-- Actions -->
-    <div style="position: absolute; top: 1.25rem; right: 1.25rem;">
+    <div style="position: absolute; top: 0.5rem; right: 1.25rem;">
       <template v-if="entry.fsr_compatible !== undefined && entry.fsr_compatible === false">
         <div class="btn btn-sm btn-warning mr-2" :id="entry.id + '-warn'">
           {{ $t('lib.incomp') }}
@@ -241,7 +244,7 @@ export default {
         const setting = settings[key]
         if (setting.category !== undefined) { categorys.add(setting.category) }
       }
-      if (categorys.size > 0) { return categorys.values() }
+      if (categorys.size > 0) { return Array.from(categorys).sort() }
       return [null]
     },
     orderedSettings(modType = 0, category = null) {
@@ -249,7 +252,9 @@ export default {
       if (category === null) { return settings }
 
       let orderedSettings = {}
-      for (const key in settings) {
+      let orderedKeys = []
+      for (const key in settings) { orderedKeys.push(key) }
+      for (const key in orderedKeys.sort()) {
         let setting = settings[key]
         if (setting.category === category) { orderedSettings[key] = setting }
       }
