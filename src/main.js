@@ -48,6 +48,35 @@ export var isValid=(function(){
   }
 })();
 
+export function getMaxWidth (elements) {
+  let maxWidth = 0
+  for (let i in elements) {
+    if (elements[i].clientWidth !== undefined) {
+      maxWidth = Math.max(maxWidth, parseInt(elements[i].clientWidth))
+    }
+  }
+  return maxWidth
+}
+
+export function clearWidthStyle (elements) {
+  for (let i in elements) {
+      if (elements[i].style !== undefined) { elements[i].style.width = null }
+  }
+}
+
+export function setFixedWidth(groupId, nameId, elemId) {
+  // Iterate all elements of this setting group_id and set width to widest element found
+  const nameElem = document.querySelectorAll('#' + groupId + ' .fixed-width-name')
+  const settElem = document.querySelectorAll('#' + groupId + ' .fixed-width-setting')
+
+  let nameMaxWidth = getMaxWidth(nameElem); let settMaxWidth = getMaxWidth(settElem)
+
+  let e = document.getElementById(nameId)
+  if (e !== null) { e.style.width = String(nameMaxWidth) + 'px' }
+  let s = document.getElementById(elemId)
+  if (s !== null) { s.style.width = String(settMaxWidth) + 'px' }
+}
+
 // Generic axios GET request
 export async function getRequest(url) {
   try {

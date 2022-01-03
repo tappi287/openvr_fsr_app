@@ -2,9 +2,9 @@
   <div class="setting" v-if="!settingHidden">
     <b-input-group size="sm" class="setting-field">
       <b-input-group-prepend>
-        <b-input-group-text class="info-field">
-          {{ setting.name }}
-          <b-icon v-if="settingDesc !== ''" icon="info-square" class="ml-2 mr-1"
+        <b-input-group-text class="info-field fixed-width-name" :id="nameId">
+          <span class="mr-2">{{ setting.name }}</span>
+          <b-icon v-if="settingDesc !== ''" icon="info-square" class="mr-1"
                   v-b-popover.hover.topright="settingDesc">
           </b-icon>
         </b-input-group-text>
@@ -14,7 +14,7 @@
 
         <!-- Dropdown Menu -->
         <template v-if="inputType === 'value'">
-          <b-dropdown :text="currentSettingName" :variant="variant"
+          <b-dropdown :text="currentSettingName" :variant="variant" :id="elemId"
                       class="setting-item fixed-width-setting no-border" :disabled="disabled">
             <b-dropdown-item v-for="s in setting.settings" :key="s.value"
                              @click="selectSetting(s)">
@@ -71,7 +71,7 @@
 
         <!-- Keyboard Key -->
         <template v-if="inputType === 'key'">
-          <div class="btn btn-secondary setting-item fixed-width-setting">
+          <div class="btn btn-secondary setting-item fixed-width-setting" :id="elemId">
             <b-icon shift-v="-1" icon="keyboard" class="text-white" />
             <span class="ml-2">{{ settingKeyName }}</span>
             <b-link @click="startListening" class="text-white ml-2">
@@ -114,7 +114,7 @@
 
 <script>
 
-import {minutesToDaytime} from "@/main";
+import {minutesToDaytime, setFixedWidth} from "@/main";
 
 export default {
   name: 'Setting',
@@ -122,6 +122,7 @@ export default {
     return {
       currentSettingValue: {},
       elemId: 'setting' + this._uid, // _uid is a unique identifier for each vue component
+      nameId: 'name' + this._uid,
       settingDesc: '',
       inputType: 'value',
       rangeMin: 0,
@@ -140,7 +141,7 @@ export default {
     }
   },
   props: {
-    appId: String, setting: Object, variant: String, disabled: Boolean,
+    appId: String, setting: Object, variant: String, disabled: Boolean, fixedWidth: Boolean, groupId: String
   },
   methods: {
     selectSetting: function (s) {
@@ -230,7 +231,10 @@ export default {
     getKeyValueName: function(key) {
       if (key !== undefined && key !== '' && key !== null) { return key.toUpperCase() }
       return 'Not Set'
-    }
+    },
+    updateFixedWidth: async function () {
+      if (this.fixedWidth) { setFixedWidth(this.groupId, this.nameId, this.elemId) }
+    },
   },
   created: function () {
     // Set description
@@ -260,6 +264,10 @@ export default {
     if (this.variant === undefined) { this.variant = 'secondary'}
     this.currentSettingValue = this.setting.value
     this.$emit('setting-ready', this)
+  },
+  updated() {
+    // Access after rendering finished
+    this.$nextTick(() => { this.updateFixedWidth() })
   },
   computed: {
     currentSettingName: function () {

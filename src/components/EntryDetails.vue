@@ -67,11 +67,13 @@
     <template v-if="entry.fsrInstalled">
       <h4 class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
       <!-- Categories -->
-      <div class="mt-1" v-for="category in settingsCategories(0)" :key="category">
+      <div class="mt-1" v-for="(category, idx) in settingsCategories(0)" :key="category"
+           :id="'FSR' + idx">
         <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
         <!-- Settings -->
         <Setting v-for="s in orderedSettings(0, category)" :key="s.key" :setting="s" :app-id="entry.id"
                  :disabled="!entry.fsrInstalled" @setting-changed="updateModSetting(0)"
+                 :fixed-width="true" :group-id="'FSR' + idx"
                  class="mr-3 mb-3" />
       </div>
     </template>
@@ -80,11 +82,13 @@
     <template v-if="entry.fovInstalled">
       <h4 class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
       <!-- Categories -->
-      <div class="mt-1" v-for="category in settingsCategories(1)" :key="category">
+      <div class="mt-1" v-for="(category, idx) in settingsCategories(1)" :key="category"
+           :id="'FFR' + idx">
         <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
         <!-- Settings -->
         <Setting v-for="s in orderedSettings(1, category)" :key="s.key" :setting="s" :app-id="entry.id"
                  :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
+                 :fixed-width="true" :group-id="'FFR' + idx"
                  class="mr-3 mb-3" />
       </div>
     </template>
@@ -128,13 +132,16 @@ export default {
   components: {Setting},
   data: function () {
     return {
-      id: this._uid,
+      id: this._uid
     }
   },
   props: {
     entry: Object, currentFsrVersion: String, currentFovVersion: String, steamLibBusy: Boolean
   },
   methods: {
+    delay: ms => new Promise(res => {
+        setTimeout(res, ms)
+    }),
     launchApp: async function() {
       if (this.steamLibBusy) { return }
       this.$eventHub.$emit('set-busy', true)
