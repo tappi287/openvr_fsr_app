@@ -201,6 +201,7 @@ export default {
       return false
     },
     handleKeyDownEvent: async function (event) {
+      event.preventDefault()
       if (this.listening && !this.eventCaptured) {
         this.eventCaptured = true
         console.log(event)
