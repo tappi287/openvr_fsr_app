@@ -15,7 +15,7 @@
           />
         </h6>
         <b-form-checkbox-group stacked switches
-                               :disabled="entry.fsrInstalled"
+                               :disabled="entry.fsrInstalled || entry.fovInstalled"
                                :options="entry.openVrDllPaths"
                                v-model="entry.openVrDllPathsSelected"
                                @change="saveEntry"
@@ -65,7 +65,7 @@
 
     <!-- FSR Settings -->
     <template v-if="entry.fsrInstalled">
-      <h6 class="mt-4">{{ $t('lib.settingsTitle') }}</h6>
+      <h4 class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
       <!-- Categories -->
       <div class="mt-1" v-for="category in settingsCategories(0)" :key="category">
         <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
@@ -78,10 +78,10 @@
 
     <!-- Foveated Settings -->
     <template v-if="entry.fovInstalled">
-      <h6 class="mt-4">{{ $t('lib.settingsTitle') }}</h6>
+      <h4 class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
       <!-- Categories -->
       <div class="mt-1" v-for="category in settingsCategories(1)" :key="category">
-        <template v-if="category !== null"><h6 class="mt-4">{{ category }}</h6></template>
+        <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
         <!-- Settings -->
         <Setting v-for="s in orderedSettings(1, category)" :key="s.key" :setting="s" :app-id="entry.id"
                  :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
