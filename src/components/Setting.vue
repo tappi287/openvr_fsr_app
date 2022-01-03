@@ -146,6 +146,7 @@ export default {
   methods: {
     selectSetting: function (s) {
       this.currentSettingValue = s.value
+      if (this.setting.keyName !== undefined) { this.setting.keyName = s.keyName }
       console.log('Emitting setting update', this.setting.key, s.value)
       this.setting.value = s.value
       this.$emit('setting-changed', this.setting, s.value)
