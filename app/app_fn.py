@@ -51,13 +51,14 @@ def get_mod(manifest: dict, mod_type: int = 0):
 
 
 @capture_app_exceptions
-def _load_steam_apps_with_mod_settings(steam_apps):
+def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
     """ Add or restore complete settings entries """
     for app_id, entry in steam_apps.items():
         fsr = FsrMod(entry)
         fov = FoveatedMod(entry)
         entry[fsr.VAR_NAMES['settings']] = fsr.settings.to_js(export=False)
         entry[fov.VAR_NAMES['settings']] = fov.settings.to_js(export=False)
+        entry['userApp'] = flag_as_user_app
     return steam_apps
 
 
@@ -104,7 +105,7 @@ def load_steam_lib_fn():
     logging.debug(f'Loaded {len(steam_apps.keys())} Steam Apps from disk.')
 
     # -- Add User Apps
-    steam_apps.update(_load_steam_apps_with_mod_settings(AppSettings.user_apps))
+    steam_apps.update(_load_steam_apps_with_mod_settings(AppSettings.user_apps, True))
 
     return json.dumps({'result': True, 'data': steam_apps, 'reScanRequired': re_scan_required})
 
