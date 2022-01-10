@@ -116,7 +116,7 @@
       </b-button>
       <!-- Remove User App -->
       <b-button @click="removeUsrApp"
-                v-if="entry.userApp !== undefined || entry.userApp === true"
+                v-if="entry.userApp === true"
                 variant="danger" size="sm">
         <b-icon variant="light" icon="x-square"></b-icon>
         <span class="ml-1 mr-1">{{ $t('lib.addAppRemove') }}</span>
