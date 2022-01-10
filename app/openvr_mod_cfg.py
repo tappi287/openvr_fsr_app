@@ -145,6 +145,6 @@ class OpenVRModSettings(JsonRepr):
             return
 
         for s in json_list:
-            for setting in self._get_all_options():
-                if setting.key == s.get('key') and setting.parent == s.get('parent'):
-                    setting.value = s.get('value')
+            option = self._get_option_by_key(s.get('key'), s.get('parent'))
+            if option:
+                option.value = s.get('value')
