@@ -141,17 +141,16 @@ class OpenVRMod:
         return True
 
     @staticmethod
-    def get_fsr_version_from_dll(openvr_dll: Path) -> Optional[str]:
+    def get_mod_version_from_dll(openvr_dll: Path, mod_type: int) -> Optional[str]:
         file_hash = get_file_hash(openvr_dll.as_posix())
-        for version, hash_str in AppSettings.open_vr_fsr_versions.items():
-            if file_hash != hash_str:
-                continue
-            return version
+        version_dict = dict()
 
-    @staticmethod
-    def get_foveated_version_from_dll(openvr_dll: Path) -> Optional[str]:
-        file_hash = get_file_hash(openvr_dll.as_posix())
-        for version, hash_str in AppSettings.open_vr_foveated_versions.items():
+        if mod_type == OpenVRModType.fsr:
+            version_dict = AppSettings.open_vr_fsr_versions
+        elif mod_type == OpenVRModType.foveated:
+            version_dict = AppSettings.open_vr_foveated_versions
+
+        for version, hash_str in version_dict.items():
             if file_hash != hash_str:
                 continue
             return version
@@ -162,10 +161,7 @@ class OpenVRMod:
             if not self._update_open_vr_dll_path(open_vr_dll):
                 continue
             try:
-                if self.TYPE == OpenVRModType.fsr:
-                    results.append(self.get_fsr_version_from_dll(self.open_vr_dll))
-                elif self.TYPE == OpenVRModType.foveated:
-                    results.append(self.get_foveated_version_from_dll(self.open_vr_dll))
+                results.append(self.get_mod_version_from_dll(self.open_vr_dll, self.TYPE))
             except Exception as e:
                 msg = f'Error reading dll version: {e}'
                 self.error = msg
