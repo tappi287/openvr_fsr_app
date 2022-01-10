@@ -52,16 +52,16 @@ class OpenVRModSettings(JsonRepr):
         for key in self.options:
             yield getattr(self, key)
 
-    def _get_option_parent(self, parent_key):
-        for o in self._get_all_options():
-            if o.key == parent_key:
-                return o
+    def _get_option_by_key(self, key, parent_key=None):
+        for option in self._get_all_options():
+            if option.parent == parent_key and key == option.key:
+                return option
 
     def _get_parented_options(self) -> dict:
         parented_options = dict()
         for o in self._get_all_options():
             if o.parent:
-                parent_option = self._get_option_parent(o.parent)
+                parent_option = self._get_option_by_key(o.parent)
                 if parent_option.key not in parented_options:
                     parented_options[parent_option.key] = dict()
                 parented_options[parent_option.key][o.key] = o.value
@@ -93,11 +93,12 @@ class OpenVRModSettings(JsonRepr):
                         s.value = json_value
 
                 # -- Read parented options
-                for parent_key, settings_dict in self._get_parented_options().items():
+                parented_opts = self._get_parented_options()
+                for parent_key, settings_dict in parented_opts.items():
                     for key, value in settings_dict.items():
                         json_value = json_dict[self.cfg_key].get(parent_key, dict()).get(key)
                         if json_value is not None:
-                            option = getattr(self, key)
+                            option = self._get_option_by_key(key, parent_key)
                             option.value = json_value
         except Exception as e:
             logging.error('Error reading FSR settings from cfg file: %s', e)

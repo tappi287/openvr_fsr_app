@@ -174,7 +174,8 @@ class OpenVRMod:
         version = ''
         for result in results:
             if version and result != version:
-                logging.warning('Found multiple installed OpenVR FSR versions for the same app!')
+                logging.warning('Found multiple installed OpenVR FSR versions for the same app! %s',
+                                self.manifest['appid'])
             version = result
 
         if not version:
