@@ -262,7 +262,9 @@ export default {
     }
   },
   async mounted() {
-    await this.updateMod()
+    for (const modType in [0, 1]) {
+      await this.updateMod(Number(modType))
+    }
   }
 }
 </script>
