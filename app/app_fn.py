@@ -34,7 +34,7 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id]['appid'] = entry.get('appid')
 
         # Mod specific data
-        if entry.get('openVR'):
+        if entry.get('openVr'):
             reduced_dict[app_id][FsrMod.VAR_NAMES['settings']] = fsr.settings.to_js(export=True)
             reduced_dict[app_id][FoveatedMod.VAR_NAMES['settings']] = fov.settings.to_js(export=True)
             reduced_dict[app_id][FsrMod.VAR_NAMES['installed']] = entry.get(FsrMod.VAR_NAMES['installed'], False)
@@ -57,11 +57,14 @@ def get_mod(manifest: dict, mod_type: int = 0):
 def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
     """ Add or restore complete settings entries """
     for app_id, entry in steam_apps.items():
-        fsr = FsrMod(entry)
-        fov = FoveatedMod(entry)
-        entry[fsr.VAR_NAMES['settings']] = fsr.settings.to_js(export=False)
-        entry[fov.VAR_NAMES['settings']] = fov.settings.to_js(export=False)
         entry['userApp'] = flag_as_user_app
+
+        if entry.get('openVr'):
+            fsr = FsrMod(entry)
+            fov = FoveatedMod(entry)
+            entry[fsr.VAR_NAMES['settings']] = fsr.settings.to_js(export=False)
+            entry[fov.VAR_NAMES['settings']] = fov.settings.to_js(export=False)
+
     return steam_apps
 
 
