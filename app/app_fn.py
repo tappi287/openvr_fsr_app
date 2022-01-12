@@ -24,13 +24,6 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
 
         reduced_dict[app_id] = dict()
         # Add only necessary data
-        reduced_dict[app_id][FsrMod.VAR_NAMES['settings']] = fsr.settings.to_js(export=True)
-        reduced_dict[app_id][FoveatedMod.VAR_NAMES['settings']] = fov.settings.to_js(export=True)
-        reduced_dict[app_id][FsrMod.VAR_NAMES['installed']] = entry.get(FsrMod.VAR_NAMES['installed'], False)
-        reduced_dict[app_id][FoveatedMod.VAR_NAMES['installed']] = entry.get(FoveatedMod.VAR_NAMES['installed'], False)
-        reduced_dict[app_id][FsrMod.VAR_NAMES['version']] = entry.get(FsrMod.VAR_NAMES['version'], '')
-        reduced_dict[app_id][FoveatedMod.VAR_NAMES['version']] = entry.get(FoveatedMod.VAR_NAMES['version'], '')
-        reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
         reduced_dict[app_id]['name'] = entry.get('name')
         reduced_dict[app_id]['sizeGb'] = entry.get('sizeGb')
         reduced_dict[app_id]['path'] = entry.get('path')
@@ -39,6 +32,16 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id]['openVr'] = entry.get('openVr')
         reduced_dict[app_id]['SizeOnDisk'] = entry.get('SizeOnDisk')
         reduced_dict[app_id]['appid'] = entry.get('appid')
+
+        # Mod specific data
+        if entry.get('openVR'):
+            reduced_dict[app_id][FsrMod.VAR_NAMES['settings']] = fsr.settings.to_js(export=True)
+            reduced_dict[app_id][FoveatedMod.VAR_NAMES['settings']] = fov.settings.to_js(export=True)
+            reduced_dict[app_id][FsrMod.VAR_NAMES['installed']] = entry.get(FsrMod.VAR_NAMES['installed'], False)
+            reduced_dict[app_id][FoveatedMod.VAR_NAMES['installed']] = entry.get(FoveatedMod.VAR_NAMES['installed'], False)
+            reduced_dict[app_id][FsrMod.VAR_NAMES['version']] = entry.get(FsrMod.VAR_NAMES['version'], '')
+            reduced_dict[app_id][FoveatedMod.VAR_NAMES['version']] = entry.get(FoveatedMod.VAR_NAMES['version'], '')
+            reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
 
     return reduced_dict
 
