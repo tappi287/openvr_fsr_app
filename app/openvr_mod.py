@@ -8,12 +8,13 @@ from app.utils import get_file_hash
 
 
 class OpenVRModType:
+    invalid = -1
     fsr = 0
     foveated = 1
 
 
 class OpenVRMod:
-    TYPE = OpenVRModType.fsr
+    TYPE = OpenVRModType.invalid
     VAR_NAMES = {
         'installed': 'installed',
         'version': 'version',
@@ -45,15 +46,25 @@ class OpenVRMod:
     def error(self, value):
         self._error_ls.append(value)
 
-    def update_cfg(self) -> bool:
-        results = list()
+    def update_from_disk(self) -> bool:
+        if self.TYPE == OpenVRModType.invalid:
+            logging.error('Tried to setup OpenVRMod from disk in base class! Use mod specific sub class instead!')
+            return False
+
+        cfg_results = list()
         for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
             if not self._update_open_vr_dll_path(open_vr_dll):
-                results.append(False)
                 continue
-            results.append(self._update_cfg_single())
+            settings_read = self.settings.read_from_cfg(self.open_vr_dll.parent)
+            cfg_results.append(settings_read)
 
-        return all(results)
+            if settings_read:
+                version = self.get_mod_version_from_dll(self.open_vr_dll, self.TYPE)
+                self.manifest[self.VAR_NAMES['version']] = version or 'Unknown Version'
+                self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
+
+        self.manifest[self.VAR_NAMES['installed']] = any(cfg_results)
+        return True
 
     def _update_cfg_single(self) -> bool:
         if not self.settings.write_cfg(self.open_vr_dll.parent):
@@ -93,7 +104,7 @@ class OpenVRMod:
         try:
             # --- Installation
             if not uninstall:
-                if self._install_fsr(org_open_vr_dll):
+                if self._install_mod(org_open_vr_dll):
                     return True
 
             # --- Uninstallation or Restore if installation failed
@@ -123,7 +134,7 @@ class OpenVRMod:
             return False
         return True
 
-    def _install_fsr(self, org_open_vr_dll: Path):
+    def _install_mod(self, org_open_vr_dll: Path):
         # Rename / Create backUp
         if not org_open_vr_dll.exists() and self.open_vr_dll.exists():
             self.open_vr_dll.rename(org_open_vr_dll)

@@ -66,14 +66,6 @@ class ManifestWorker:
             manifest['openVrDllPaths'] = list()
             manifest['openVrDllPathsSelected'] = list()
             manifest['openVr'] = False
-            fsr = FsrSettings()
-            fov = FoveatedSettings()
-            manifest[FsrMod.VAR_NAMES['installed']] = False
-            manifest[FoveatedMod.VAR_NAMES['installed']] = False
-            manifest[FsrMod.VAR_NAMES['settings']] = fsr.to_js()
-            manifest[FoveatedMod.VAR_NAMES['settings']] = fov.to_js()
-            manifest['fovVersion'] = str()
-            manifest['fsrVersion'] = str()
 
             # -- Test for valid path
             try:
@@ -97,36 +89,9 @@ class ManifestWorker:
                 manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
                 manifest['openVr'] = True
 
-                # --
-                # -- FSR
-                # -- Read settings and set 'fsrInstalled' prop
-                cfg_results = list()
-                for p in open_vr_dll_path_ls:
-                    cfg_results.append(fsr.read_from_cfg(p.parent))
-                manifest[FsrMod.VAR_NAMES['installed']] = any(cfg_results)
-
-                # -- Save Fsr settings to manifest as json serializable string
-                manifest[FsrMod.VAR_NAMES['settings']] = fsr.to_js()
-
-                # --
-                # -- Foveated
-                # -- Read settings and set 'fovInstalled' prop
-                cfg_results = list()
-                for p in open_vr_dll_path_ls:
-                    cfg_results.append(fov.read_from_cfg(p.parent))
-                manifest[FoveatedMod.VAR_NAMES['installed']] = any(cfg_results)
-
-                # -- Save Fsr settings to manifest as json serializable string
-                manifest[FoveatedMod.VAR_NAMES['settings']] = fsr.to_js()
-
-            # -- Read Fsr version
-            if manifest[FsrMod.VAR_NAMES['installed']]:
-                fsr = FsrMod(manifest)
-                manifest[FsrMod.VAR_NAMES['version']] = fsr.get_version()
-            # -- Read Foveated version
-            if manifest[FoveatedMod.VAR_NAMES['installed']]:
-                fov = FoveatedMod(manifest)
-                manifest[FoveatedMod.VAR_NAMES['version']] = fov.get_version()
+                for mod in (FsrMod, FoveatedMod):
+                    mod = mod(manifest)
+                    mod.update_from_disk()
 
         return manifest_ls
 
