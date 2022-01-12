@@ -246,18 +246,9 @@ def update_mod_fn(manifest: dict, mod_type: int = 0):
     if not mod:
         return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
 
-    mod_installed = mod.manifest.get(mod.VAR_NAMES['installed'], False)
-    if not mod_installed:
-        return json.dumps({'result': True, 'msg': mod.error, 'manifest': mod.manifest})
+    update_result = mod.update_from_disk()
 
-    cfg_result = mod.update_cfg()
-
-    if cfg_result:
-        mod.manifest[mod.VAR_NAMES['version']] = mod.get_version()
-    else:
-        logging.error('Error updating Fsr config!')
-
-    return json.dumps({'result': all((cfg_result, not mod.error)),
+    return json.dumps({'result': all((update_result, not mod.error)),
                        'msg': mod.error, 'manifest': mod.manifest})
 
 
@@ -273,8 +264,7 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
     # -- Install
     if not mod_installed:
         install_result = mod.install()
-        if install_result:
-            mod.manifest[mod.VAR_NAMES['version']] = mod.get_version()
+        mod.update_from_disk()
         return json.dumps({'result': install_result, 'msg': mod.error, 'manifest': mod.manifest})
     # -- Uninstall
     elif mod_installed is True:
