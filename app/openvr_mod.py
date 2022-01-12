@@ -38,6 +38,10 @@ class OpenVRMod:
         self.mod_dll_location = mod_dll_location
         self._error_ls = list()
 
+        # -- Verify paths are up-to-date after updates/game movement
+        if not self.verify_open_vr_selected_paths(self.manifest):
+            self.reset_open_vr_selected_paths(self.manifest)
+
     @property
     def error(self):
         return ' '.join(self._error_ls)
@@ -190,3 +194,17 @@ class OpenVRMod:
 
         self.manifest[self.VAR_NAMES['version']] = version
         return version
+
+    @staticmethod
+    def reset_open_vr_selected_paths(manifest):
+        manifest['openVrDllPathsSelected'] = manifest.get('openVrDllPaths')
+
+    @staticmethod
+    def verify_open_vr_selected_paths(manifest) -> bool:
+        """ Verify all selected paths still exist """
+        results = list()
+        for open_vr_selected_path in manifest.get('openVrDllPathsSelected'):
+            results.append(
+                open_vr_selected_path in manifest.get('openVrDllPaths')
+            )
+        return all(results)
