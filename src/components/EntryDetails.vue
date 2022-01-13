@@ -208,15 +208,15 @@ export default {
       this.$emit('entry-updated')
     },
     updateModSetting: async function(modType = 0) {
-      await this.updateMod(modType)
+      await this.updateMod(modType, true)
       // Update disk cache
       this.$emit('entry-updated')
     },
-    updateMod: async function (modType = 0) {
+    updateMod: async function (modType = 0, write = false) {
       if (this.steamLibBusy) { return }
       this.$eventHub.$emit('set-busy', true)
 
-      const r = await getEelJsonObject(window.eel.update_mod(this.entry, modType)())
+      const r = await getEelJsonObject(window.eel.update_mod(this.entry, modType, write)())
 
       if (!r.result) {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)

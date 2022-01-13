@@ -66,8 +66,8 @@ def set_fsr_dir(directory_str):
 
 
 @eel.expose
-def update_mod(manifest: dict, mod_type: int = 0):
-    return app_fn.update_mod_fn(manifest, mod_type)
+def update_mod(manifest: dict, mod_type: int = 0, write: bool = False):
+    return app_fn.update_mod_fn(manifest, mod_type, write)
 
 
 @eel.expose

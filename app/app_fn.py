@@ -243,12 +243,15 @@ def set_fsr_dir_fn(directory_str):
 
 
 @capture_app_exceptions
-def update_mod_fn(manifest: dict, mod_type: int = 0):
+def update_mod_fn(manifest: dict, mod_type: int = 0, write: bool = False):
     mod = get_mod(manifest, mod_type)
     if not mod:
         return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
 
-    update_result = mod.update_from_disk()
+    if write:
+        update_result = mod.write_updated_cfg()
+    else:
+        update_result = mod.update_from_disk()
 
     return json.dumps({'result': all((update_result, not mod.error)),
                        'msg': mod.error, 'manifest': mod.manifest})

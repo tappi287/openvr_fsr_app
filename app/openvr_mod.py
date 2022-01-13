@@ -50,7 +50,13 @@ class OpenVRMod:
     def error(self, value):
         self._error_ls.append(value)
 
+    def write_updated_cfg(self) -> bool:
+        return self._read_write_cfg(True)
+
     def update_from_disk(self) -> bool:
+        return self._read_write_cfg(False)
+
+    def _read_write_cfg(self, write: bool = False):
         if self.TYPE == OpenVRModType.invalid:
             logging.error('Tried to setup OpenVRMod from disk in base class! Use mod specific sub class instead!')
             return False
@@ -59,6 +65,14 @@ class OpenVRMod:
         for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
             if not self._update_open_vr_dll_path(open_vr_dll):
                 continue
+
+            if write:
+                # -- Write updated settings to disk
+                r = self.settings.write_cfg(self.open_vr_dll.parent)
+                cfg_results.append(r)
+                continue
+
+            # -- Read settings from disk
             settings_read = self.settings.read_from_cfg(self.open_vr_dll.parent)
             cfg_results.append(settings_read)
 
