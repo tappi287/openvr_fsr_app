@@ -31,4 +31,5 @@ module.exports = {
         return options
       })
   },
+  lintOnSave: false
 }
