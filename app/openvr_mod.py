@@ -12,6 +12,8 @@ class OpenVRModType:
     fsr = 0
     foveated = 1
 
+    mod_types = {0: 'FsrMod', 1: 'FoveatedMod'}
+
 
 class OpenVRMod:
     TYPE = OpenVRModType.invalid
