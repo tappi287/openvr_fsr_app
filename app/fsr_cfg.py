@@ -2,6 +2,8 @@ from .openvr_mod_cfg import OpenVRModCfgSetting, OpenVRModSettings
 
 
 class FsrSettings(OpenVRModSettings):
+    cfg_key = 'fsr'
+
     def __init__(self):
         self.enabled = OpenVRModCfgSetting(
             key='enabled',
@@ -205,5 +207,4 @@ class FsrSettings(OpenVRModSettings):
             keyName='F7',
             settings=[{'settingType': 'key'}]
         )
-        options = self.get_setting_fields()
-        super(FsrSettings, self).__init__(options, 'fsr')
+        self.option_field_names = self.get_setting_fields()

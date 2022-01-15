@@ -9,7 +9,6 @@ from app.utils import JsonRepr
 
 class OpenVRModCfgSetting(JsonRepr):
     export_skip_keys = ['settings', 'category']
-    is_openvr_mod_cfg_setting = True
 
     def __init__(self, key=None, name=None, value=None, desc=None,
                  keyName=None, settings=None, parent=None, category=None, hidden=False):
@@ -25,31 +24,25 @@ class OpenVRModCfgSetting(JsonRepr):
 
 
 class OpenVRModSettings(JsonRepr):
-    def __init__(self, options: List[str], cfg_key: str):
-        """ OpenVR Mod cfg base class to handle settings in openvr_mod.cfg configurations.
-
-        :param options:
-        :param cfg_key:
-        """
-        self.options = options
-        self.cfg_key = cfg_key
+    """ OpenVR Mod cfg base class to handle settings in openvr_mod.cfg configurations. """
+    option_field_names = list()
+    cfg_key = str()
 
     def get_setting_fields(self) -> List[str]:
         options = list()
         for attr_name in dir(self):
-            field = getattr(self, attr_name)
-            if hasattr(field, 'is_openvr_mod_cfg_setting'):
+            if isinstance(getattr(self, attr_name), OpenVRModCfgSetting):
                 options.append(attr_name)
         return options
 
     def _get_options(self) -> Iterator[OpenVRModCfgSetting]:
-        for key in self.options:
+        for key in self.option_field_names:
             option = getattr(self, key)
             if not option.parent:
                 yield option
 
     def _get_all_options(self) -> Iterator[OpenVRModCfgSetting]:
-        for key in self.options:
+        for key in self.option_field_names:
             yield getattr(self, key)
 
     def _get_option_by_key(self, key, parent_key=None) -> OpenVRModCfgSetting:

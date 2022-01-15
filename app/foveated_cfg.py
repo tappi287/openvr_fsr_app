@@ -2,6 +2,8 @@ from .openvr_mod_cfg import OpenVRModCfgSetting, OpenVRModSettings
 
 
 class FoveatedSettings(OpenVRModSettings):
+    cfg_key = 'foveated'
+
     def __init__(self):
         self.enabled = OpenVRModCfgSetting(
             key='enabled',
@@ -261,5 +263,4 @@ class FoveatedSettings(OpenVRModSettings):
             settings=[{'settingType': 'key'}]
         )
 
-        options = self.get_setting_fields()
-        super(FoveatedSettings, self).__init__(options, 'foveated')
+        self.option_field_names = self.get_setting_fields()
