@@ -4,7 +4,7 @@
       <b-navbar-brand href="#" class="mr-2">
         <b-img width="32px" key="1" src="@/assets/app_logo_inkscape.svg"></b-img>
       </b-navbar-brand>
-      <h4 class="mt-2">OpenVR FSR App v{{ version }}</h4>
+      <h4 class="mt-2">{{ appName }} v{{ version }}</h4>
 
       <b-navbar-nav class="ml-auto">
         <!-- Folder -->
@@ -121,6 +121,7 @@ export default {
       openFsrDir: null,
       version: version,
       isBusy: false,
+      appName: process.env.VUE_APP_FRIENDLY_NAME,
     }
   },
   methods: {

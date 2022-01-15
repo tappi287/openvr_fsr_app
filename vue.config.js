@@ -30,6 +30,10 @@ module.exports = {
 
         return options
       })
+    config.plugin("html").tap(args => {
+      args[0].title = process.env.VUE_APP_FRIENDLY_NAME
+      return args
+    })
   },
   lintOnSave: false
 }
