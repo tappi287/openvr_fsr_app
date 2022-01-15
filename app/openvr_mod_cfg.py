@@ -11,12 +11,12 @@ class OpenVRModCfgSetting(JsonRepr):
     export_skip_keys = ['settings', 'category']
 
     def __init__(self, key=None, name=None, value=None, desc=None,
-                 keyName=None, settings=None, parent=None, category=None, hidden=False):
+                 key_name=None, settings=None, parent=None, category=None, hidden=False):
         self.key = key
         self.name = name
         self.desc = desc
         self.value = value
-        self.keyName = keyName
+        self.keyName = key_name
         self.settings = settings
         self.parent = parent
         self.category = category
