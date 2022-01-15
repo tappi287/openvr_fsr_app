@@ -3,7 +3,7 @@
     <b-input-group size="sm" class="setting-field">
       <b-input-group-prepend>
         <b-input-group-text class="info-field fixed-width-name" :id="nameId">
-          <span class="mr-2">{{ setting.name }}</span>
+          <div class="mr-2">{{ setting.name }}</div>
           <b-icon v-if="settingDesc !== ''" icon="info-square" class="mr-1"
                   v-b-popover.hover.topright="settingDesc">
           </b-icon>
