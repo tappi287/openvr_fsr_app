@@ -164,8 +164,7 @@ class OpenVRMod:
         copyfile(self.mod_dll_location, self.open_vr_dll)
 
         if not self.settings.write_cfg(self.open_vr_dll.parent):
-            msg = 'Error writing OpenVR-Mod CFG file.'
-            self.error = msg
+            self.error = 'Error writing OpenVR-Mod CFG file.'
             return False
         return True
 

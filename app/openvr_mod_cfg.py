@@ -8,7 +8,7 @@ from app.utils import JsonRepr
 
 
 class OpenVRModCfgSetting(JsonRepr):
-    export_skip_keys = ['settings', 'category']
+    export_skip_keys = ['settings', 'category', 'desc', 'category']
 
     def __init__(self, key=None, name=None, value=None, desc=None,
                  settings=None, parent=None, category=None, hidden=False):
@@ -20,8 +20,6 @@ class OpenVRModCfgSetting(JsonRepr):
         self.parent = parent
         self.category = category
         self.hidden = hidden
-
-        self.skip_option_keys = set(self.export_skip_keys).union(self.skip_keys)
 
 
 class OpenVRModSettings(JsonRepr):
@@ -38,29 +36,17 @@ class OpenVRModSettings(JsonRepr):
 
     def _get_options(self) -> Iterator[OpenVRModCfgSetting]:
         for key in self.option_field_names:
-            option = getattr(self, key)
-            if not option.parent:
-                yield option
-
-    def _get_all_options(self) -> Iterator[OpenVRModCfgSetting]:
-        for key in self.option_field_names:
             yield getattr(self, key)
 
     def _get_option_by_key(self, key, parent_key=None) -> OpenVRModCfgSetting:
-        for option in self._get_all_options():
+        for option in self._get_options():
             if option.parent == parent_key and key == option.key:
                 return option
 
-    def _get_parented_options(self) -> Dict[str, Dict[str, Any]]:
-        parented_options = dict()
-        for o in self._get_all_options():
-            if o.parent:
-                parent_option = self._get_option_by_key(o.parent)
-                if parent_option.key not in parented_options:
-                    parented_options[parent_option.key] = dict()
-                parented_options[parent_option.key][o.key] = o.value
-
-        return parented_options
+    def _update_option(self, option_dict: dict):
+        option = self._get_option_by_key(option_dict.get('key'), option_dict.get('parent'))
+        if option:
+            option.value = option_dict.get('value')
 
     def read_from_cfg(self, plugin_path: Path) -> bool:
         cfg = plugin_path / OPEN_VR_FSR_CFG
@@ -85,7 +71,7 @@ class OpenVRModSettings(JsonRepr):
 
         try:
             with open(cfg, 'w') as f:
-                json.dump(self.to_ini_js(), f, indent=2)
+                json.dump(self.to_cfg_json(), f, indent=2)
             logging.info('Written updated config at: %s', plugin_path)
         except Exception as e:
             logging.error('Error writing FSR settings to cfg file: %s', e)
@@ -123,31 +109,32 @@ class OpenVRModSettings(JsonRepr):
         return dict()
 
     def to_js(self, export: bool = False) -> list:
-        return [s.to_js_object(export) for s in self._get_all_options()]
+        return [s.to_js_object(export) for s in self._get_options()]
 
-    def to_ini_js(self) -> dict:
-        options = {s.key: s.value for s in self._get_options()}
-        options.update(self._get_parented_options())
+    def to_cfg_json(self) -> dict:
+        options_dict = dict()
 
-        return {self.cfg_key: options}
+        for o in self._get_options():
+            if o.parent:
+                parent_option = self._get_option_by_key(o.parent)
+                if parent_option.key not in options_dict:
+                    options_dict[parent_option.key] = dict()
+                options_dict[parent_option.key][o.key] = o.value
+            else:
+                options_dict[o.key] = o.value
+
+        return {self.cfg_key: options_dict}
 
     def from_json(self, settings: dict):
         for key, value in settings.items():
             if isinstance(value, dict):
-                for child_key, child_v in value.items():
-                    option = self._get_option_by_key(key, child_key)
-                    if option:
-                        option.value = child_v
+                self._update_option(value)
             else:
-                option = self._get_option_by_key(key)
-                if option:
-                    option.value = value
+                self._update_option({'key': key, 'value': value})
 
     def from_js_dict(self, js_object_list: list):
         if not js_object_list:
             return
 
-        for s in js_object_list:
-            option = self._get_option_by_key(s.get('key'), s.get('parent'))
-            if option:
-                option.value = s.get('value')
+        for option_obj in js_object_list:
+            self._update_option(option_obj)
