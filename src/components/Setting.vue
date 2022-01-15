@@ -114,7 +114,7 @@
 
 <script>
 
-import {minutesToDaytime, setFixedWidth} from "@/main";
+import {minutesToDaytime, setFixedWidth, keyCodes} from "@/main";
 
 export default {
   name: 'Setting',
@@ -146,7 +146,6 @@ export default {
   methods: {
     selectSetting: function (s) {
       this.currentSettingValue = s.value
-      if (this.setting.keyName !== undefined) { this.setting.keyName = s.keyName }
       console.log('Emitting setting update', this.setting.key, s.value)
       this.setting.value = s.value
       this.$emit('setting-changed', this.setting, s.value)
@@ -205,7 +204,7 @@ export default {
       if (this.listening && !this.eventCaptured) {
         this.eventCaptured = true
         console.log(event)
-        this.capturedEvent = {name: 'Keyboard', value: event.keyCode, keyName: event.key}
+        this.capturedEvent = {name: 'Keyboard', value: event.keyCode}
       }
     },
     listenToKeyboard: function (remove = false) {
@@ -230,8 +229,12 @@ export default {
       this.selectSetting(this.capturedEvent)
       this.abortListening()
     },
-    getKeyValueName: function(key) {
-      if (key !== undefined && key !== '' && key !== null) { return key.toUpperCase() }
+    keyCodeValueToDisplayString: function(value) {
+      if (value !== undefined && value !== '' && value !== null) {
+        const code = Number(value)
+        if (code in keyCodes) { return keyCodes[code].toUpperCase() }
+        return 'Key Code ' + code
+      }
       return 'Not Set'
     },
     updateFixedWidth: async function () {
@@ -292,11 +295,11 @@ export default {
     },
     settingKeyName() {
       if (this.setting === undefined) { return 'Undefined' }
-      return this.getKeyValueName(this.setting.keyName)
+      return this.keyCodeValueToDisplayString(this.setting.value)
     },
     capturedValueName() {
       if (!this.eventCaptured) { return this.settingKeyName }
-      return this.getKeyValueName(this.capturedEvent.keyName)
+      return this.keyCodeValueToDisplayString(this.capturedEvent.value)
     },
   }
 }
