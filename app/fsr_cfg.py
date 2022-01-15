@@ -143,8 +143,7 @@ class FsrSettings(OpenVRModSettings):
             name='Toggle NIS',
             category='Hotkeys',
             desc='switch between FSR and NIS',
-            value=112,
-            key_name='F1',
+            value=112,  # F1
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysToggleDebugMode = OpenVRModCfgSetting(
@@ -153,8 +152,7 @@ class FsrSettings(OpenVRModSettings):
             name='Toggle Debug Mode',
             category='Hotkeys',
             desc='toggle debug mode on or off',
-            value=113,
-            key_name='F2',
+            value=113,  # F2
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysDecreaseSharpness = OpenVRModCfgSetting(
@@ -163,8 +161,7 @@ class FsrSettings(OpenVRModSettings):
             name='Decrease Sharpness',
             category='Hotkeys',
             desc='decrease sharpness by 0.05',
-            value=114,
-            key_name='F3',
+            value=114,  # F3
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysIncreaseSharpness = OpenVRModCfgSetting(
@@ -173,8 +170,7 @@ class FsrSettings(OpenVRModSettings):
             name='Increase Sharpness',
             category='Hotkeys',
             desc='increase sharpness by 0.05',
-            value=115,
-            key_name='F4',
+            value=115,  # F4
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysDecreaseRadius = OpenVRModCfgSetting(
@@ -183,8 +179,7 @@ class FsrSettings(OpenVRModSettings):
             name='Decrease Radius',
             category='Hotkeys',
             desc='decrease sharpening radius by 0.05',
-            value=116,
-            key_name='F5',
+            value=116,  # F5
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysIncreaseRadius = OpenVRModCfgSetting(
@@ -193,8 +188,7 @@ class FsrSettings(OpenVRModSettings):
             name='Increase Radius',
             category='Hotkeys',
             desc='increase sharpening radius by 0.05',
-            value=117,
-            key_name='F6',
+            value=117,  # F6
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysCaptureOutput = OpenVRModCfgSetting(
@@ -203,8 +197,7 @@ class FsrSettings(OpenVRModSettings):
             name='Capture Output',
             category='Hotkeys',
             desc='take a screenshot of the final output sent to the HMD',
-            value=118,
-            key_name='F7',
+            value=118,  # F7
             settings=[{'settingType': 'key'}]
         )
         self.option_field_names = self.get_setting_fields()

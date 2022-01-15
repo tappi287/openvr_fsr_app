@@ -148,8 +148,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Toggle FFR',
             category='Hotkeys',
             desc='toggle fixed foveated rendering on or off',
-            value=112,
-            key_name='F1',
+            value=112,  # 'F1'
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysToggleDebugMode = OpenVRModCfgSetting(
@@ -158,8 +157,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Toggle Debug mode',
             category='Hotkeys',
             desc='toggle debug mode on or off',
-            value=113,
-            key_name='F2',
+            value=113,  # 'F2'
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysDecreaseSharpness = OpenVRModCfgSetting(
@@ -168,8 +166,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Decrease Sharpness',
             category='Hotkeys',
             desc='decrease sharpness by 0.05',
-            value=114,
-            key_name='F3',
+            value=114,  # 'F3'
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysIncreaseSharpness = OpenVRModCfgSetting(
@@ -178,8 +175,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Increase Sharpness',
             category='Hotkeys',
             desc='increase sharpness by 0.05',
-            value=115,
-            key_name='F4',
+            value=115,  # 'F4'
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysDecreaseRadius = OpenVRModCfgSetting(
@@ -188,8 +184,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Decrease Radius',
             category='Hotkeys',
             desc='decrease currently selected radius by 0.05',
-            value=116,
-            key_name='F5',
+            value=116,  # 'F5'
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysIncreaseRadius = OpenVRModCfgSetting(
@@ -198,8 +193,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Increase Radius',
             category='Hotkeys',
             desc='increase currently selected radius by 0.05',
-            value=117,
-            key_name='F6',
+            value=117,  # 'F6'
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysSelectInnerRadius = OpenVRModCfgSetting(
@@ -208,8 +202,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Select Inner Radius',
             category='Hotkeys',
             desc='select the inner FFR radius for manipulation',
-            value=49,
-            key_name='1',
+            value=49,  # 1
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysSelectMidRadius = OpenVRModCfgSetting(
@@ -218,8 +211,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Select Mid Radius',
             category='Hotkeys',
             desc='select the middle FFR radius for manipulation',
-            value=50,
-            key_name='2',
+            value=50,  # 2
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysSelectOuterRadius = OpenVRModCfgSetting(
@@ -228,8 +220,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Select Outer Radius',
             category='Hotkeys',
             desc='select the outer FFR radius for manipulation',
-            value=51,
-            key_name='3',
+            value=51,  # 3
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysSelectSharpenRadius = OpenVRModCfgSetting(
@@ -238,8 +229,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Select Sharpen Radius',
             category='Hotkeys',
             desc='select the sharpening radius for manipulation',
-            value=52,
-            key_name='4',
+            value=52,  # 4
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysCaptureOutput = OpenVRModCfgSetting(
@@ -248,8 +238,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Capture Output',
             category='Hotkeys',
             desc='take a screenshot of the final output sent to the HMD',
-            value=118,
-            key_name='F7',
+            value=118,  # F7
             settings=[{'settingType': 'key'}]
         )
         self.hotkeysToggleUseVRS = OpenVRModCfgSetting(
@@ -258,8 +247,7 @@ class FoveatedSettings(OpenVRModSettings):
             name='Toggle use VRS',
             category='Hotkeys',
             desc='toggle between variable rate shading (VRS) and radial density masking (RDM)',
-            value=119,
-            key_name='F8',
+            value=119,  # F8
             settings=[{'settingType': 'key'}]
         )
 
