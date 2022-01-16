@@ -102,14 +102,14 @@ def get_steam_lib_fn():
     logging.debug('Reading Steam Library')
     try:
         # -- Read this machines Steam library
-        app.valve.steam.apps.read_steam_library(find_open_vr=True)
+        app.steam.apps.read_steam_library(find_open_vr=True)
 
         # -- Create a local copy of Steam Apps dict
         steam_apps = dict()
-        steam_apps.update(app.valve.steam.apps.steam_apps)
+        steam_apps.update(app.steam.apps.steam_apps)
 
         # -- Remove Library Paths helper entry
-        steam_apps.pop(app.valve.steam.STEAM_LIBRARY_FOLDERS)
+        steam_apps.pop(app.steam.STEAM_LIBRARY_FOLDERS)
     except Exception as e:
         msg = f'Error getting Steam Lib: {e}'
         logging.error(msg)
