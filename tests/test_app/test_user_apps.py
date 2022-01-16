@@ -27,4 +27,4 @@ def test_remove_custom_app_fn(app_settings):
     result_dict = json.loads(app_fn.remove_custom_app_fn(user_app))
 
     assert result_dict['result'] is True
-    assert len(app_settings.user_apps.keys()) == 0
+    assert test_user_app_id not in app_settings.user_apps.keys()

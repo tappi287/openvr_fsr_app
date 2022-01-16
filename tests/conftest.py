@@ -15,9 +15,21 @@ libraryfolders_content = '''"libraryfolders"
 	}}
 }}
 '''
-user_app_path = Path(__file__).parent / 'data' / 'input' / 'user_app'
-test_app_path = Path(__file__).parent / 'data' / 'input' / 'steamapps' / 'common' / 'test_app'
+test_data_input_path = Path(__file__).parent / 'data' / 'input'
+user_app_path = test_data_input_path / 'user_app'
+test_app_path = test_data_input_path / 'steamapps' / 'common' / 'test_app'
 test_user_app_id = 'Usr#001'
+app_dir = Path(__file__).parent.parent
+
+
+@pytest.fixture(scope='session')
+def open_vr_fsr_dir():
+    return app_dir / 'data' / 'openvr_fsr'
+
+
+@pytest.fixture(scope='session')
+def open_vr_fsr_test_dir():
+    return test_data_input_path / 'mod_dir'
 
 
 @pytest.fixture(scope='session')
@@ -46,6 +58,24 @@ def steam_apps_obj(steam_test_path):
 
 
 @pytest.fixture(scope='session')
+def test_app(steam_apps_obj):
+    manifest = steam_apps_obj.steam_apps.get('123')
+
+    openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(Path(manifest.get('path')))]
+    manifest['openVrDllPaths'] = [p.as_posix() for p in openvr_paths]
+    manifest['openVrDllPathsSelected'] = [p.as_posix() for p in openvr_paths]
+    manifest['openVr'] = True
+
+    # -- Add Mod specific data
+    for mod_obj in get_available_mods(manifest):
+        manifest[mod_obj.VAR_NAMES['settings']] = mod_obj.settings.to_js(export=True)
+        manifest[mod_obj.VAR_NAMES['installed']] = mod_obj.update_from_disk()
+        manifest[mod_obj.VAR_NAMES['version']] = mod_obj.get_version()
+
+    return manifest
+
+
+@pytest.fixture(scope='function')
 def app_settings(steam_apps_obj):
     openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(user_app_path)]
     manifest = {
