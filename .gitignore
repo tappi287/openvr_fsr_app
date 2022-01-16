@@ -4,6 +4,7 @@ node_modules
 /build
 /private/*
 /web/
+/web/*
 
 # local env files
 .env.local
@@ -23,3 +24,8 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+/tests/data/output
+/tests/data/output/*
+/tests/.pytest_cache
+/tests/.pytest_cache/*
+/tests/data/input/steamapps/libraryfolders.vdf

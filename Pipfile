@@ -10,6 +10,7 @@ verify_ssl = true
 
 [dev-packages]
 pyinstaller = "*"
+pytest = "*"
 
 [packages]
 eel = {version = "==0.14.1", index = "piwigo"}  # See fork https://github.com/tappi287/Eel
