@@ -51,8 +51,8 @@ export var isValid=(function(){
 export function getMaxWidth (elements) {
   let maxWidth = 0
   for (let i in elements) {
-    if (elements[i].clientWidth !== undefined) {
-      maxWidth = Math.max(maxWidth, parseInt(elements[i].clientWidth))
+    if (elements[i].offsetWidth !== undefined) {
+      maxWidth = Math.max(maxWidth, parseInt(elements[i].offsetWidth))
     }
   }
   return maxWidth
