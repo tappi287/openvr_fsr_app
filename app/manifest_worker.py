@@ -4,11 +4,8 @@ import os
 from pathlib import Path
 from typing import Optional, List
 
-from .foveated_cfg import FoveatedSettings
-from .foveated_mod import FoveatedMod
-from .fsr_cfg import FsrSettings
-from .fsr_mod import FsrMod
 from .globals import OPEN_VR_DLL
+from .openvr_mod import get_available_mods
 
 
 class ManifestWorker:
@@ -89,8 +86,7 @@ class ManifestWorker:
                 manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
                 manifest['openVr'] = True
 
-                for mod in (FsrMod, FoveatedMod):
-                    mod = mod(manifest)
+                for mod in get_available_mods(manifest):
                     mod.update_from_disk()
 
         return manifest_ls

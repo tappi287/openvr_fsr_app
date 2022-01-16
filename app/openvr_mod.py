@@ -1,8 +1,9 @@
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Optional
+from typing import Optional, Iterable
 
+import app
 from app.app_settings import AppSettings
 from app.utils import get_file_hash
 
@@ -223,3 +224,13 @@ class OpenVRMod:
                 open_vr_selected_path in manifest.get('openVrDllPaths')
             )
         return all(results)
+
+
+def get_mod(manifest: dict, mod_type: int = 0) -> OpenVRMod:
+    mod_type_class = getattr(app, OpenVRModType.mod_types.get(mod_type))
+    return mod_type_class(manifest)
+
+
+def get_available_mods(manifest: dict) -> Iterable[OpenVRMod]:
+    for mod_type in OpenVRModType.mod_types.keys():
+        yield get_mod(manifest, mod_type)

@@ -5,12 +5,8 @@ from pathlib import WindowsPath, Path
 
 import app
 from .app_settings import AppSettings
-from .foveated_cfg import FoveatedSettings
-from .foveated_mod import FoveatedMod
-from .fsr_cfg import FsrSettings
-from .fsr_mod import FsrMod
 from .manifest_worker import ManifestWorker
-from .openvr_mod import OpenVRModType
+from .openvr_mod import get_mod, get_available_mods
 
 
 def reduce_steam_apps_for_export(steam_apps) -> dict:
@@ -30,20 +26,13 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
 
         # Mod specific data
         if entry.get('openVr'):
-            for mod_type in OpenVRModType.mod_types.keys():
-                mod = get_mod(entry, mod_type)
+            for mod in get_available_mods(entry):
                 reduced_dict[app_id][mod.VAR_NAMES['settings']] = mod.settings.to_js(export=True)
                 reduced_dict[app_id][mod.VAR_NAMES['installed']] = entry.get(mod.VAR_NAMES['installed'], False)
                 reduced_dict[app_id][mod.VAR_NAMES['version']] = entry.get(mod.VAR_NAMES['version'], '')
             reduced_dict[app_id]['fsr_compatible'] = entry.get('fsr_compatible', True)
 
     return reduced_dict
-
-
-def get_mod(manifest: dict, mod_type: int = 0):
-    mod_type_class = getattr(app, OpenVRModType.mod_types.get(mod_type))
-    mod = mod_type_class(manifest)
-    return mod
 
 
 @app.utils.capture_app_exceptions
@@ -53,10 +42,8 @@ def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
         entry['userApp'] = flag_as_user_app
 
         if entry.get('openVr'):
-            fsr = FsrMod(entry)
-            fov = FoveatedMod(entry)
-            entry[fsr.VAR_NAMES['settings']] = fsr.settings.to_js(export=False)
-            entry[fov.VAR_NAMES['settings']] = fov.settings.to_js(export=False)
+            for mod in get_available_mods(entry):
+                entry[mod.VAR_NAMES['settings']] = mod.settings.to_js(export=False)
 
     return steam_apps
 
@@ -186,36 +173,31 @@ def add_custom_app_fn(app_dict: dict):
     if not openvr_paths:
         return json.dumps({'result': False, 'msg': f'No OpenVR dll found in: {path.as_posix()} or any sub directory.'})
 
-    # -- Find installed FSR
-    f = FsrSettings()
-    cfg_results = list()
-    for p in openvr_paths:
-        cfg_results.append(f.read_from_cfg(p.parent))
-
-    # -- Find installed Foveated
-    fov = FoveatedSettings()
-    fov_cfg_results = list()
-    for p in openvr_paths:
-        fov_cfg_results.append(fov.read_from_cfg(p.parent))
-
-    # -- Add User App entry
+    # -- Create User App entry
     AppSettings.user_app_counter += 1
     app_id = f'{app.globals.USER_APP_PREFIX}{AppSettings.user_app_counter:03d}'
     logging.debug('Creating User App entry %s', app_id)
-    AppSettings.user_apps[app_id] = {
+    manifest = {
         'appid': app_id,
         "name": app_dict.get('name', app_id),
         'path': path.as_posix(),
         'openVrDllPaths': [p.as_posix() for p in openvr_paths],
         'openVrDllPathsSelected': [p.as_posix() for p in openvr_paths],
         'openVr': True,
-        'settings': f.to_js(),
-        'fov_settings': fov.to_js(),
-        'fsrInstalled': any(cfg_results),
-        'fovInstalled': any(fov_cfg_results),
         'sizeGb': 0, 'SizeOnDisk': 0,
         'userApp': True,
     }
+
+    # -- Add Mod specific data
+    for mod in get_available_mods(manifest):
+        installed_results = list()
+        for p in openvr_paths:
+            installed_results.append(mod.settings.read_from_cfg(p.parent))
+        manifest[mod.VAR_NAMES['settings']] = mod.settings.to_js(export=True)
+        manifest[mod.VAR_NAMES['installed']] = any(installed_results)
+        manifest[mod.VAR_NAMES['version']] = mod.get_version()
+
+    AppSettings.user_apps[app_id] = manifest
     AppSettings.save()
 
     return json.dumps({'result': True, 'msg': f'App entry {app_id} created.'})
