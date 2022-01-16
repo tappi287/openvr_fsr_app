@@ -76,6 +76,11 @@ def toggle_mod_install(manifest: dict, mod_type: int = 0):
 
 
 @eel.expose
+def reset_mod_settings(manifest: dict, mod_type: int = 0):
+    return app_fn.reset_mod_settings_fn(manifest, mod_type)
+
+
+@eel.expose
 def launch_app(manifest: dict):
     return app_fn.launch_app_fn(manifest)
 

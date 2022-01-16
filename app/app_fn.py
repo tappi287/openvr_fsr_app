@@ -256,6 +256,14 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
 
 
 @app.utils.capture_app_exceptions
+def reset_mod_settings_fn(manifest: dict, mod_type: int = 0):
+    mod = get_mod(manifest, mod_type)
+    if mod.reset_settings():
+        return json.dumps({'result': True, 'msg': mod.error, 'manifest': mod.manifest})
+    return json.dumps({'result': False, 'msg': mod.error, 'manifest': mod.manifest})
+
+
+@app.utils.capture_app_exceptions
 def launch_app_fn(manifest: dict):
     app_id = manifest.get('appid')
     if not app_id:

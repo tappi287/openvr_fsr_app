@@ -53,6 +53,19 @@ class OpenVRMod:
     def error(self, value):
         self._error_ls.append(value)
 
+    def reset_settings(self) -> bool:
+        try:
+            settings_class_name = type(self.settings).__name__
+            settings_class = getattr(app, settings_class_name)
+            self.settings = settings_class()
+            self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
+        except Exception as e:
+            msg = f'Could not reset Mod settings: {e}'
+            logging.error(msg)
+            self.error = msg
+            return False
+        return True
+
     def write_updated_cfg(self) -> bool:
         return self._read_write_cfg(True)
 
