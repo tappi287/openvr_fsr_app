@@ -102,7 +102,7 @@ def get_steam_lib_fn():
     logging.debug('Reading Steam Library')
     try:
         # -- Read this machines Steam library
-        app.steam.apps.read_steam_library(find_open_vr=True)
+        app.steam.apps.read_steam_library()
 
         # -- Create a local copy of Steam Apps dict
         steam_apps = dict()
