@@ -60,10 +60,23 @@
           <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
         </template>
       </span>
+
+      <b-button v-if="entry.fsrInstalled" variant="warning"
+                @click="resetModSettings(0)"
+                class="float-right warning" size="sm">
+        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+        Reset FSR Settings
+      </b-button>
+      <b-button v-if="entry.fovInstalled" variant="warning"
+                @click="resetModSettings(1)"
+                class="float-right warning" size="sm">
+        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+        Reset FFR Settings
+      </b-button>
     </b-card-text>
 
     <!-- Settings Space -->
-    <div class="mt-4 card bg-dark">
+    <div class="mt-4 card bg-dark" v-if="!settingsAboutToReset">
 
       <!-- FSR Settings -->
       <template v-if="entry.fsrInstalled">
@@ -135,7 +148,8 @@ export default {
   components: {Setting},
   data: function () {
     return {
-      id: this._uid
+      id: this._uid,
+      settingsAboutToReset: false
     }
   },
   props: {
@@ -167,13 +181,15 @@ export default {
         this.$emit('load-steam-lib')
       }
     },
-    updateEntry: function (manifest) {
+    updateEntry: async function (manifest) {
+      this.settingsAboutToReset = true
       this.entry.settings = manifest.settings
       this.entry.fsrInstalled = manifest.fsrInstalled
       this.entry.fsrVersion = manifest.fsrVersion
       this.entry.fov_settings = manifest.fov_settings
       this.entry.fovInstalled = manifest.fovInstalled
       this.entry.fovVersion = manifest.fovVersion
+      this.$nextTick(() => { this.settingsAboutToReset = false })
     },
     installMod: async function (modType) {
       if (this.steamLibBusy) { return }
@@ -186,7 +202,7 @@ export default {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
         // Update settings
-        this.updateEntry(r.manifest)
+        await this.updateEntry(r.manifest)
 
         // Update install state
         if (this.entry.fsrInstalled || this.entry.fovInstalled) {
@@ -222,9 +238,24 @@ export default {
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
         // Update Entry
-        this.updateEntry(r.manifest)
+        await this.updateEntry(r.manifest)
       }
 
+      this.$eventHub.$emit('set-busy', false)
+    },
+    resetModSettings: async function (modType = 0) {
+      if (this.steamLibBusy) { return }
+      this.$eventHub.$emit('set-busy', true)
+
+      const r = await getEelJsonObject(window.eel.reset_mod_settings(this.entry, modType)())
+
+      if (!r.result) {
+        this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Settings', true, -1)
+      } else {
+        // Update Entry
+        await this.updateEntry(r.manifest)
+      }
+      await this.saveEntry()
       this.$eventHub.$emit('set-busy', false)
     },
     _getSettingsByType(modType = 0) {

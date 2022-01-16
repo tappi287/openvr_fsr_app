@@ -258,8 +258,11 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
 @app.utils.capture_app_exceptions
 def reset_mod_settings_fn(manifest: dict, mod_type: int = 0):
     mod = get_mod(manifest, mod_type)
+
     if mod.reset_settings():
-        return json.dumps({'result': True, 'msg': mod.error, 'manifest': mod.manifest})
+        update_result = mod.write_updated_cfg()
+        return json.dumps({'result': update_result, 'msg': mod.error, 'manifest': mod.manifest})
+
     return json.dumps({'result': False, 'msg': mod.error, 'manifest': mod.manifest})
 
 
