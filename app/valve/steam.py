@@ -17,9 +17,12 @@ STEAM_APPS_INSTALL_FOLDER = 'common'
 
 
 class SteamApps:
+    STEAM_LOCATION = Path('.')
+
     def __init__(self):
         self.steam_apps, self.known_apps = dict(), dict()
         self.steam_app_names = {m.get('name'): app_id for app_id, m in self.steam_apps.items() if isinstance(m, dict)}
+        self.STEAM_LOCATION = Path(self.find_steam_location())
 
     def read_steam_library(self, find_open_vr: bool = False):
         self.steam_apps, self.known_apps = self.find_installed_steam_games(find_open_vr)
@@ -58,7 +61,7 @@ class SteamApps:
     @classmethod
     def find_steam_libraries(cls) -> Optional[List[Path]]:
         """ Return Steam Library Path's as pathlib.Path objects """
-        steam_apps_dir = Path(cls.find_steam_location()) / STEAM_APPS_FOLDER
+        steam_apps_dir = cls.STEAM_LOCATION / STEAM_APPS_FOLDER
         steam_lib_file = steam_apps_dir / STEAM_LIBRARY_FILE
         if not steam_lib_file.exists():
             return [steam_apps_dir]
