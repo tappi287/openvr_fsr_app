@@ -43,6 +43,11 @@ def open_vr_fsr_dir():
 
 
 @pytest.fixture(scope='session')
+def vrperfkit_dir():
+    return app_dir / 'data' / 'vrperfkit'
+
+
+@pytest.fixture(scope='session')
 def open_vr_fsr_test_dir():
     return test_data_input_path / 'mod_dir'
 
@@ -121,23 +126,16 @@ def test_app_writeable(steam_apps_obj):
 
 @pytest.fixture(scope='function')
 def app_settings(steam_apps_obj):
-    openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(user_app_path)]
     manifest = {
         'appid': test_user_app_id,
         "name": 'User Test App',
         'path': user_app_path.as_posix(),
-        'openVrDllPaths': [p.as_posix() for p in openvr_paths],
-        'openVrDllPathsSelected': [p.as_posix() for p in openvr_paths],
-        'openVr': True,
         'sizeGb': 0, 'SizeOnDisk': 0,
         'userApp': True,
     }
 
-    # -- Add Mod specific data
-    for mod_obj in get_available_mods(manifest):
-        manifest[mod_obj.VAR_NAMES['settings']] = mod_obj.settings.to_js(export=True)
-        manifest[mod_obj.VAR_NAMES['installed']] = False
-        manifest[mod_obj.VAR_NAMES['version']] = mod_obj.get_version()
+    _setup_manifest_paths(manifest)
+    _setup_manifest_mods(manifest)
 
     AppSettings.user_apps[test_user_app_id] = manifest
     return AppSettings
@@ -145,7 +143,7 @@ def app_settings(steam_apps_obj):
 
 @pytest.fixture
 def open_vr_dll_output(output_path):
-    test_openvr_dll = output_path / 'openvr_api.dll'
+    test_openvr_dll = output_path / app.globals.OPEN_VR_DLL
 
     # -- Create dummy file
     with open(test_openvr_dll, 'w') as f:
@@ -156,9 +154,30 @@ def open_vr_dll_output(output_path):
 
 @pytest.fixture
 def open_vr_mod_cfg_output(output_path, open_vr_fsr_dir):
-    test_mod_cfg_path = output_path / 'openvr_mod.cfg'
+    test_mod_cfg_path = output_path / app.globals.OPEN_VR_FSR_CFG
 
     # -- Create default cfg file
-    shutil.copy(open_vr_fsr_dir / 'openvr_mod.cfg', test_mod_cfg_path)
+    shutil.copy(open_vr_fsr_dir / app.globals.OPEN_VR_FSR_CFG, test_mod_cfg_path)
 
     return test_mod_cfg_path
+
+
+@pytest.fixture
+def vrperfkit_dll_output(output_path):
+    test_dxgi_dll = output_path / app.globals.DXGI_DLL
+
+    # -- Create dummy file
+    with open(test_dxgi_dll, 'w') as f:
+        f.write('')
+
+    return test_dxgi_dll
+
+
+@pytest.fixture
+def vrperfkit_mod_cfg_output(output_path, vrperfkit_dir):
+    test_mod_yml_path = output_path / app.globals.VRPERFKIT_CFG
+
+    # -- Create default cfg file
+    shutil.copy(vrperfkit_dir / app.globals.VRPERFKIT_CFG, test_mod_yml_path)
+
+    return test_mod_yml_path
