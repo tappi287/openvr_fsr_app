@@ -20,6 +20,8 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id]['path'] = entry.get('path')
         reduced_dict[app_id]['openVrDllPaths'] = entry.get('openVrDllPaths')
         reduced_dict[app_id]['openVrDllPathsSelected'] = entry.get('openVrDllPathsSelected')
+        reduced_dict[app_id]['executablePaths'] = entry.get('executablePaths')
+        reduced_dict[app_id]['executablePathsSelected'] = entry.get('executablePathsSelected')
         reduced_dict[app_id]['openVr'] = entry.get('openVr')
         reduced_dict[app_id]['SizeOnDisk'] = entry.get('SizeOnDisk')
         reduced_dict[app_id]['appid'] = entry.get('appid')
@@ -170,8 +172,10 @@ def add_custom_app_fn(app_dict: dict):
 
     # -- Check and find OpenVR
     openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(path)]
-    if not openvr_paths:
-        return json.dumps({'result': False, 'msg': f'No OpenVR dll found in: {path.as_posix()} or any sub directory.'})
+    executable_path_ls = [p for p in ManifestWorker.find_executables(path)]
+    if not openvr_paths and not executable_path_ls:
+        return json.dumps({'result': False, 'msg': f'No OpenVR dll or Executables found in: {path.as_posix()} or '
+                                                   f'any sub directory.'})
 
     # -- Create User App entry
     AppSettings.user_app_counter += 1
@@ -183,6 +187,8 @@ def add_custom_app_fn(app_dict: dict):
         'path': path.as_posix(),
         'openVrDllPaths': [p.as_posix() for p in openvr_paths],
         'openVrDllPathsSelected': [p.as_posix() for p in openvr_paths],
+        'executablePaths': [p.as_posix() for p in executable_path_ls],
+        'executablePathsSelected': [p.as_posix() for p in executable_path_ls],
         'openVr': True,
         'sizeGb': 0, 'SizeOnDisk': 0,
         'userApp': True,

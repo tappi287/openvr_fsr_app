@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional, List
 
-from .globals import OPEN_VR_DLL
+from .globals import OPEN_VR_DLL, EXE_NAME
 from .openvr_mod import get_available_mods
 
 
@@ -73,11 +73,18 @@ class ManifestWorker:
                 logging.error('Error reading path for: %s %s', manifest.get('name', 'Unknown'), e)
                 continue
 
-            # -- LookUp OpenVr Api location
+            # -- LookUp OpenVr Api location(s)
             try:
                 open_vr_dll_path_ls = ManifestWorker.find_open_vr_dll(Path(manifest['path']))
             except Exception as e:
                 logging.error('Error locating OpenVR dll for: %s %s', manifest.get('name', 'Unknown'), e)
+                continue
+
+            # -- LookUp Executable location(s)
+            try:
+                executable_path_ls = ManifestWorker.find_executables(Path(manifest['path']))
+            except Exception as e:
+                logging.error('Error locating Executables for: %s %s', manifest.get('name', 'Unknown'), e)
                 continue
 
             if open_vr_dll_path_ls:
@@ -85,6 +92,10 @@ class ManifestWorker:
                 manifest['openVrDllPaths'] = [p.as_posix() for p in open_vr_dll_path_ls]
                 manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
                 manifest['openVr'] = True
+
+                # -- Add executables path info
+                manifest['executablePaths'] = [p.as_posix() for p in executable_path_ls]
+                manifest['executablePathsSelected'] = [p.as_posix() for p in executable_path_ls]
 
                 for mod in get_available_mods(manifest):
                     mod.update_from_disk()
@@ -98,3 +109,11 @@ class ManifestWorker:
             open_vr_dll_ls.append(file)
 
         return open_vr_dll_ls
+
+    @staticmethod
+    def find_executables(base_path: Path) -> List[Optional[Path]]:
+        executable_ls: List[Optional[Path]] = list()
+        for file in base_path.glob(f'**/{EXE_NAME}'):
+            executable_ls.append(file)
+
+        return executable_ls

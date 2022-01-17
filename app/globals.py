@@ -12,6 +12,7 @@ from .knownpaths import get_current_user_documents_path
 
 OPEN_VR_DLL = 'openvr_api.dll'
 DXGI_DLL = 'dxgi.dll'
+EXE_NAME = '*.exe'
 OPEN_VR_FSR_CFG = 'openvr_mod.cfg'
 VRPERFKIT_CFG = 'vrperfkit.yml'
 APP_NAME = 'openvr_fsr_app'
