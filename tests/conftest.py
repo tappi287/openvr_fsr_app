@@ -84,8 +84,8 @@ def test_app(steam_apps_obj):
     # -- Add Mod specific data
     for mod_obj in get_available_mods(manifest):
         manifest[mod_obj.VAR_NAMES['settings']] = mod_obj.settings.to_js(export=True)
-        manifest[mod_obj.VAR_NAMES['installed']] = mod_obj.update_from_disk()
-        manifest[mod_obj.VAR_NAMES['version']] = mod_obj.get_version()
+        mod_obj.update_from_disk()
+        manifest = mod_obj.manifest
 
     return manifest
 
@@ -99,7 +99,7 @@ def test_app_writeable(steam_apps_obj):
     new_path.mkdir(exist_ok=True)
     copy_tree(Path(manifest.get('path')).as_posix(), new_path.as_posix())
 
-    manifest['path'] = new_path
+    manifest['path'] = new_path.as_posix()
 
     openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(Path(manifest.get('path')))]
     executable_path_ls = [p for p in ManifestWorker.find_executables(Path(manifest.get('path')))]
@@ -112,8 +112,8 @@ def test_app_writeable(steam_apps_obj):
     # -- Add Mod specific data
     for mod_obj in get_available_mods(manifest):
         manifest[mod_obj.VAR_NAMES['settings']] = mod_obj.settings.to_js(export=True)
-        manifest[mod_obj.VAR_NAMES['installed']] = mod_obj.update_from_disk()
-        manifest[mod_obj.VAR_NAMES['version']] = mod_obj.get_version()
+        mod_obj.update_from_disk()
+        manifest = mod_obj.manifest
 
     steam_apps_obj.steam_apps['124'] = manifest
     return manifest
