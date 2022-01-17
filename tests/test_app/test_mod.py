@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from app import app_fn
+from app import app_fn, globals
 from app.fsr_mod import FsrMod
 
 
@@ -52,3 +52,39 @@ def test_update_mod_fn(test_app, output_path, open_vr_dll_output, open_vr_mod_cf
     # -- Cleanup output
     open_vr_dll_output.unlink()
     open_vr_mod_cfg_output.unlink()
+
+
+def test_toggle_mod_install_fn(test_app_writeable):
+    output_dlls = test_app_writeable['openVrDllPaths']
+
+    # -- Test OpenVR Mod installation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, 0))
+    assert result_dict['result'] is True
+
+    for written_dll in output_dlls:
+        # -- Test dll's have size 0, installed dll's should be bigger than a few bytes
+        assert Path(written_dll).stat().st_size > 50
+
+        # -- Test backup files created
+        back_up_file = Path(written_dll).with_name(f'{globals.OPEN_VR_DLL[:-4]}.orig.dll')
+        assert back_up_file.exists() is True
+
+        # -- Test config file written
+        cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
+        assert cfg_file.exists() is True
+
+    # -- Test OpenVR Mod uninstallation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, 0))
+    assert result_dict['result'] is True
+
+    for written_dll in output_dlls:
+        # -- Test original dll restored
+        assert Path(written_dll).stat().st_size < 50
+
+        # -- Test backup file removed
+        back_up_file = Path(written_dll).with_name(f'{globals.OPEN_VR_DLL[:-4]}.orig.dll')
+        assert back_up_file.exists() is False
+
+        # -- Test config file removed
+        cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
+        assert cfg_file.exists() is False
