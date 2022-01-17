@@ -2,7 +2,7 @@ import shutil
 
 import pytest
 from pathlib import Path, WindowsPath
-from distutils.dir_util import copy_tree
+from distutils.dir_util import copy_tree, remove_tree
 
 import app
 from app.app_settings import AppSettings
@@ -72,35 +72,7 @@ def steam_apps_obj(steam_test_path):
     return steam_apps
 
 
-@pytest.fixture(scope='session')
-def test_app(steam_apps_obj):
-    manifest = steam_apps_obj.steam_apps.get('123')
-
-    openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(Path(manifest.get('path')))]
-    manifest['openVrDllPaths'] = [p.as_posix() for p in openvr_paths]
-    manifest['openVrDllPathsSelected'] = [p.as_posix() for p in openvr_paths]
-    manifest['openVr'] = True
-
-    # -- Add Mod specific data
-    for mod_obj in get_available_mods(manifest):
-        manifest[mod_obj.VAR_NAMES['settings']] = mod_obj.settings.to_js(export=True)
-        mod_obj.update_from_disk()
-        manifest = mod_obj.manifest
-
-    return manifest
-
-
-@pytest.fixture(scope='session')
-def test_app_writeable(steam_apps_obj):
-    manifest = steam_apps_obj.steam_apps.get('124')
-
-    # -- Create writeable App Copy in output
-    new_path = test_data_output_path / Path(manifest.get('path')).name
-    new_path.mkdir(exist_ok=True)
-    copy_tree(Path(manifest.get('path')).as_posix(), new_path.as_posix())
-
-    manifest['path'] = new_path.as_posix()
-
+def _setup_manifest_paths(manifest):
     openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(Path(manifest.get('path')))]
     executable_path_ls = [p for p in ManifestWorker.find_executables(Path(manifest.get('path')))]
     manifest['openVrDllPaths'] = [p.as_posix() for p in openvr_paths]
@@ -109,11 +81,39 @@ def test_app_writeable(steam_apps_obj):
     manifest['executablePathsSelected'] = [p.as_posix() for p in executable_path_ls]
     manifest['openVr'] = True
 
+
+def _setup_manifest_mods(manifest):
     # -- Add Mod specific data
     for mod_obj in get_available_mods(manifest):
         manifest[mod_obj.VAR_NAMES['settings']] = mod_obj.settings.to_js(export=True)
         mod_obj.update_from_disk()
         manifest = mod_obj.manifest
+
+
+@pytest.fixture(scope='session')
+def test_app(steam_apps_obj):
+    manifest = steam_apps_obj.steam_apps.get('123')
+
+    _setup_manifest_paths(manifest)
+    _setup_manifest_mods(manifest)
+
+    return manifest
+
+
+@pytest.fixture(scope='function')
+def test_app_writeable(steam_apps_obj):
+    manifest = steam_apps_obj.steam_apps.get('124')
+
+    # -- Create writeable App Copy in output
+    new_path = test_data_output_path / Path(manifest.get('path')).name
+    remove_tree(new_path.as_posix())
+    new_path.mkdir(exist_ok=True)
+    copy_tree(Path(manifest.get('path')).as_posix(), new_path.as_posix())
+
+    manifest['path'] = new_path.as_posix()
+
+    _setup_manifest_paths(manifest)
+    _setup_manifest_mods(manifest)
 
     steam_apps_obj.steam_apps['124'] = manifest
     return manifest

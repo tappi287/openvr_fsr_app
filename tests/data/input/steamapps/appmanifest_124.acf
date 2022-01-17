@@ -1,0 +1,16 @@
+"AppState"
+{
+	"appid"		"124"
+	"name"		"Test App Writable"
+	"StateFlags"		"4"
+	"installdir"		"test_app_writeable"
+	"LastUpdated"		"1642145050"
+	"UpdateResult"		"0"
+	"SizeOnDisk"		"5354912142"
+	"buildid"		"8007830"
+	"LastOwner"		"1234"
+	"BytesToDownload"		"2602690576"
+	"BytesDownloaded"		"2602690576"
+	"BytesToStage"		"3312961099"
+	"BytesStaged"		"3312961099"
+}
