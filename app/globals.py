@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 import sys
 import json
 from pathlib import Path
@@ -75,8 +76,21 @@ else:
     # -- Running in IDE ---
     FROZEN = False
 
-SETTINGS_FILE_NAME = 'settings.json' if FROZEN else 'settings_dev.json'
-APPS_STORE_FILE_NAME = 'steam_apps.json'
+# Detect PyTest run
+if any(re.findall(r'pytest|py.test', sys.argv[0])):
+    PYTEST = True
+else:
+    PYTEST = False
+
+if not PYTEST:
+    SETTINGS_FILE_NAME = 'settings.json' if FROZEN else 'settings_dev.json'
+else:
+    SETTINGS_FILE_NAME = 'settings_tests.json'
+
+if not PYTEST:
+    APPS_STORE_FILE_NAME = 'steam_apps.json'
+else:
+    APPS_STORE_FILE_NAME = 'steam_apps_tests.json'
 
 
 def check_and_create_dir(directory: Union[str, Path]) -> str:
