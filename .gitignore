@@ -26,6 +26,5 @@ pnpm-debug.log*
 *.sw?
 /tests/data/output
 /tests/data/output/*
-/tests/.pytest_cache
-/tests/.pytest_cache/*
+.pytest_cache/
 /tests/data/input/steamapps/libraryfolders.vdf
