@@ -1,3 +1,5 @@
+import shutil
+
 import pytest
 from pathlib import Path, WindowsPath
 
@@ -16,10 +18,22 @@ libraryfolders_content = '''"libraryfolders"
 }}
 '''
 test_data_input_path = Path(__file__).parent / 'data' / 'input'
+test_data_output_path = Path(__file__).parent / 'data' / 'output'
+
 user_app_path = test_data_input_path / 'user_app'
 test_app_path = test_data_input_path / 'steamapps' / 'common' / 'test_app'
 test_user_app_id = 'Usr#001'
 app_dir = Path(__file__).parent.parent
+
+
+@pytest.fixture
+def input_path():
+    return test_data_output_path
+
+
+@pytest.fixture
+def output_path():
+    return test_data_output_path
 
 
 @pytest.fixture(scope='session')
@@ -97,3 +111,24 @@ def app_settings(steam_apps_obj):
 
     AppSettings.user_apps[test_user_app_id] = manifest
     return AppSettings
+
+
+@pytest.fixture
+def open_vr_dll_output(output_path):
+    test_openvr_dll = output_path / 'openvr_api.dll'
+
+    # -- Create dummy file
+    with open(test_openvr_dll, 'w') as f:
+        f.write('')
+
+    return test_openvr_dll
+
+
+@pytest.fixture
+def open_vr_mod_cfg_output(output_path, open_vr_fsr_dir):
+    test_mod_cfg_path = output_path / 'openvr_mod.cfg'
+
+    # -- Create default cfg file
+    shutil.copy(open_vr_fsr_dir / 'openvr_mod.cfg', test_mod_cfg_path)
+
+    return test_mod_cfg_path
