@@ -2,6 +2,7 @@ import shutil
 
 import pytest
 from pathlib import Path, WindowsPath
+from distutils.dir_util import copy_tree
 
 import app
 from app.app_settings import AppSettings
@@ -86,6 +87,35 @@ def test_app(steam_apps_obj):
         manifest[mod_obj.VAR_NAMES['installed']] = mod_obj.update_from_disk()
         manifest[mod_obj.VAR_NAMES['version']] = mod_obj.get_version()
 
+    return manifest
+
+
+@pytest.fixture(scope='session')
+def test_app_writeable(steam_apps_obj):
+    manifest = steam_apps_obj.steam_apps.get('124')
+
+    # -- Create writeable App Copy in output
+    new_path = test_data_output_path / Path(manifest.get('path')).name
+    new_path.mkdir(exist_ok=True)
+    copy_tree(Path(manifest.get('path')).as_posix(), new_path.as_posix())
+
+    manifest['path'] = new_path
+
+    openvr_paths = [p for p in ManifestWorker.find_open_vr_dll(Path(manifest.get('path')))]
+    executable_path_ls = [p for p in ManifestWorker.find_executables(Path(manifest.get('path')))]
+    manifest['openVrDllPaths'] = [p.as_posix() for p in openvr_paths]
+    manifest['openVrDllPathsSelected'] = [p.as_posix() for p in openvr_paths]
+    manifest['executablePaths'] = [p.as_posix() for p in executable_path_ls]
+    manifest['executablePathsSelected'] = [p.as_posix() for p in executable_path_ls]
+    manifest['openVr'] = True
+
+    # -- Add Mod specific data
+    for mod_obj in get_available_mods(manifest):
+        manifest[mod_obj.VAR_NAMES['settings']] = mod_obj.settings.to_js(export=True)
+        manifest[mod_obj.VAR_NAMES['installed']] = mod_obj.update_from_disk()
+        manifest[mod_obj.VAR_NAMES['version']] = mod_obj.get_version()
+
+    steam_apps_obj.steam_apps['124'] = manifest
     return manifest
 
 
