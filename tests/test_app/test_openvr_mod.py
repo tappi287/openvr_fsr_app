@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from app import app_fn, globals
+from app.openvr_mod import OpenVRModType
 from app.fsr_mod import FsrMod
 
 
@@ -32,12 +33,12 @@ def test_update_mod_fn(test_app, output_path, open_vr_dll_output, open_vr_mod_cf
     test_app['openVrDllPathsSelected'] = [open_vr_dll_output.as_posix()]
 
     # -- Test Fn
-    result_dict = json.loads(app_fn.update_mod_fn(test_app, 0, True))
+    result_dict = json.loads(app_fn.update_mod_fn(test_app, OpenVRModType.fsr, True))
 
     # -- Check returned manifest setting
     result_manifest_setting_value = None
     for s in result_dict['manifest'][FsrMod.VAR_NAMES['settings']]:
-        if s.get('key') == 'enabled':
+        if s.get('key') == test_setting_key:
             result_manifest_setting_value = s['value']
 
     # -- Read settings back
@@ -46,7 +47,7 @@ def test_update_mod_fn(test_app, output_path, open_vr_dll_output, open_vr_mod_cf
 
     assert result_dict['result'] is True
     assert result_manifest_setting_value is test_setting_value
-    assert mod.settings._get_option_by_key('enabled').value is test_setting_value
+    assert mod.settings._get_option_by_key(test_setting_key).value is test_setting_value
     assert open_vr_mod_cfg_output.exists() is True
 
     # -- Cleanup output
