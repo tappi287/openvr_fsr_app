@@ -5,15 +5,15 @@ from typing import Optional, Iterable
 
 import app
 from app.app_settings import AppSettings
-from app.utils import get_file_hash
 
 
 class OpenVRModType:
     invalid = -1
     fsr = 0
     foveated = 1
+    vrp = 2
 
-    mod_types = {0: 'FsrMod', 1: 'FoveatedMod'}
+    mod_types = {0: 'FsrMod', 1: 'FoveatedMod', 2: 'VRPerfKitMod'}
 
 
 class OpenVRMod:
@@ -186,7 +186,7 @@ class OpenVRMod:
 
     @staticmethod
     def get_mod_version_from_dll(openvr_dll: Path, mod_type: int) -> Optional[str]:
-        file_hash = get_file_hash(openvr_dll.as_posix())
+        file_hash = app.utils.get_file_hash(openvr_dll.as_posix())
         version_dict = dict()
 
         if mod_type == OpenVRModType.fsr:

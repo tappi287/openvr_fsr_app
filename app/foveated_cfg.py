@@ -3,6 +3,7 @@ from .openvr_mod_cfg import OpenVRModCfgSetting, OpenVRModSettings
 
 class FoveatedSettings(OpenVRModSettings):
     cfg_key = 'foveated'
+    format = 'cfg'
 
     def __init__(self):
         self.enabled = OpenVRModCfgSetting(

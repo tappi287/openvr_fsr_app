@@ -3,6 +3,7 @@ from .openvr_mod_cfg import OpenVRModCfgSetting, OpenVRModSettings
 
 class FsrSettings(OpenVRModSettings):
     cfg_key = 'fsr'
+    format = 'cfg'
 
     def __init__(self):
         self.enabled = OpenVRModCfgSetting(
