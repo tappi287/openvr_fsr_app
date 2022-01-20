@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 from typing import Optional, List
 
-from .globals import OPEN_VR_DLL, EXE_NAME
-from .openvr_mod import get_available_mods
+from app.globals import OPEN_VR_DLL, EXE_NAME
+from app.mod.openvr_mod import get_available_mods
 
 
 class ManifestWorker:
@@ -76,6 +76,9 @@ class ManifestWorker:
             # -- LookUp OpenVr Api location(s)
             try:
                 open_vr_dll_path_ls = ManifestWorker.find_open_vr_dll(Path(manifest['path']))
+                # -- Add OpenVr path info
+                manifest['openVrDllPaths'] = [p.as_posix() for p in open_vr_dll_path_ls]
+                manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
             except Exception as e:
                 logging.error('Error locating OpenVR dll for: %s %s', manifest.get('name', 'Unknown'), e)
                 continue
@@ -83,20 +86,17 @@ class ManifestWorker:
             # -- LookUp Executable location(s)
             try:
                 executable_path_ls = ManifestWorker.find_executables(Path(manifest['path']))
+                # -- Add executables path info
+                manifest['executablePaths'] = [p.as_posix() for p in executable_path_ls]
+                manifest['executablePathsSelected'] = [p.as_posix() for p in executable_path_ls]
             except Exception as e:
                 logging.error('Error locating Executables for: %s %s', manifest.get('name', 'Unknown'), e)
                 continue
 
             if open_vr_dll_path_ls:
-                # -- Add OpenVr path info
-                manifest['openVrDllPaths'] = [p.as_posix() for p in open_vr_dll_path_ls]
-                manifest['openVrDllPathsSelected'] = [p.as_posix() for p in open_vr_dll_path_ls]
                 manifest['openVr'] = True
 
-                # -- Add executables path info
-                manifest['executablePaths'] = [p.as_posix() for p in executable_path_ls]
-                manifest['executablePathsSelected'] = [p.as_posix() for p in executable_path_ls]
-
+            if open_vr_dll_path_ls or executable_path_ls:
                 for mod in get_available_mods(manifest):
                     mod.update_from_disk()
 

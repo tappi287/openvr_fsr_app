@@ -23,6 +23,9 @@ class OpenVRMod:
         'version': 'version',
         'settings': 'settings',
     }
+    DLL_LOC_KEY_SELECTED = 'openVrDllPathsSelected'
+    DLL_LOC_KEY = 'openVrDllPaths'
+    DLL_NAME = app.globals.OPEN_VR_DLL
 
     def __init__(self, manifest, settings, mod_dll_location):
         """ Open VR Mod base class to handle installation/uninstallation
@@ -37,13 +40,13 @@ class OpenVRMod:
         if self.VAR_NAMES['settings'] not in self.manifest:
             self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
 
-        self.open_vr_dll: Optional[Path] = None
+        self.engine_dll: Optional[Path] = None
         self.mod_dll_location = mod_dll_location
         self._error_ls = list()
 
         # -- Verify paths are up-to-date after updates/game movement
-        if not self.verify_open_vr_selected_paths(self.manifest):
-            self.reset_open_vr_selected_paths(self.manifest)
+        if not self.verify_engine_dll_selected_paths(self.manifest):
+            self.reset_engine_dll_selected_paths(self.manifest)
 
     @property
     def error(self):
@@ -78,22 +81,22 @@ class OpenVRMod:
             return False
 
         cfg_results = list()
-        for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
-            if not self._update_open_vr_dll_path(open_vr_dll):
+        for open_vr_dll in self._update_engine_dll_paths():
+            if not open_vr_dll:
                 continue
 
             if write:
                 # -- Write updated settings to disk
-                r = self.settings.write_cfg(self.open_vr_dll.parent)
+                r = self.settings.write_cfg(self.engine_dll.parent)
                 cfg_results.append(r)
                 continue
 
             # -- Read settings from disk
-            settings_read = self.settings.read_from_cfg(self.open_vr_dll.parent)
+            settings_read = self.settings.read_from_cfg(self.engine_dll.parent)
             cfg_results.append(settings_read)
 
             if settings_read:
-                version = self.get_mod_version_from_dll(self.open_vr_dll, self.TYPE)
+                version = self.get_mod_version_from_dll(self.engine_dll, self.TYPE)
                 self.manifest[self.VAR_NAMES['version']] = version or 'Unknown Version'
                 self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
 
@@ -101,28 +104,29 @@ class OpenVRMod:
         return True
 
     def _update_cfg_single(self) -> bool:
-        if not self.settings.write_cfg(self.open_vr_dll.parent):
+        if not self.settings.write_cfg(self.engine_dll.parent):
             msg = 'Error writing OpenVRMod CFG file.'
             self.error = msg
             return False
         return True
 
-    def _update_open_vr_dll_path(self, open_vr_dll: str):
-        if not open_vr_dll:
-            self.error = 'Open VR Api Dll not found in: ' + self.manifest.get('name')
-            return False
+    def _update_engine_dll_paths(self):
+        for dll_path in self.manifest.get(self.DLL_LOC_KEY_SELECTED):
+            if not dll_path:
+                self.error = f'{self.DLL_NAME} not found in: ' + self.manifest.get('name')
+                yield None
 
-        open_vr_dll = Path(open_vr_dll)
-        self.open_vr_dll = open_vr_dll
-        return True
+            engine_dll_path = Path(dll_path).parent / self.DLL_NAME
+            self.engine_dll = engine_dll_path
+            yield engine_dll_path
 
     def uninstall(self) -> bool:
         return self.install(uninstall=True)
 
     def install(self, uninstall: bool = False) -> bool:
         results = list()
-        for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
-            if not self._update_open_vr_dll_path(open_vr_dll):
+        for engine_dll in self._update_engine_dll_paths():
+            if not engine_dll:
                 results.append(False)
                 continue
             results.append(self._install_single(uninstall))
@@ -133,16 +137,16 @@ class OpenVRMod:
         return all(results)
 
     def _install_single(self, uninstall: bool = False) -> bool:
-        org_open_vr_dll = self.open_vr_dll.parent / f'{self.open_vr_dll.stem}.orig{self.open_vr_dll.suffix}'
+        org_engine_dll = self.engine_dll.parent / f'{self.engine_dll.stem}.orig{self.engine_dll.suffix}'
 
         try:
             # --- Installation
             if not uninstall:
-                if self._install_mod(org_open_vr_dll):
+                if self._install_mod(org_engine_dll):
                     return True
 
             # --- Uninstallation or Restore if installation failed
-            self._uninstall_fsr(org_open_vr_dll)
+            self._uninstall_fsr(org_engine_dll)
         except Exception as e:
             msg = f'Error during OpenVRMod install/uninstall: {e}'
             logging.error(msg)
@@ -151,42 +155,42 @@ class OpenVRMod:
         return True
 
     def _uninstall_fsr(self, org_open_vr_dll: Path):
-        legacy_dll_bak = self.open_vr_dll.with_suffix('.original')
+        legacy_dll_bak = self.engine_dll.with_suffix('.original')
 
         if org_open_vr_dll.exists() or legacy_dll_bak.exists():
             # Remove Fsr dll
-            self.open_vr_dll.unlink(missing_ok=True)
+            self.engine_dll.unlink(missing_ok=True)
 
             # Rename original open vr dll
             if org_open_vr_dll.exists():
-                org_open_vr_dll.rename(self.open_vr_dll)
+                org_open_vr_dll.rename(self.engine_dll)
             if legacy_dll_bak.exists():
-                legacy_dll_bak.rename(self.open_vr_dll)
+                legacy_dll_bak.rename(self.engine_dll)
 
         # Remove Cfg
-        if not self.settings.delete_cfg(self.open_vr_dll.parent):
+        if not self.settings.delete_cfg(self.engine_dll.parent):
             return False
         return True
 
-    def _install_mod(self, org_open_vr_dll: Path):
+    def _install_mod(self, org_engine_dll: Path):
         # Rename / Create backUp
-        if not org_open_vr_dll.exists() and self.open_vr_dll.exists():
-            self.open_vr_dll.rename(org_open_vr_dll)
+        if not org_engine_dll.exists() and self.engine_dll.exists():
+            self.engine_dll.rename(org_engine_dll)
 
-        if self.open_vr_dll.exists():
-            self.open_vr_dll.unlink()
+        if self.engine_dll.exists():
+            self.engine_dll.unlink()
 
         # Copy
-        copyfile(self.mod_dll_location, self.open_vr_dll)
+        copyfile(self.mod_dll_location, self.engine_dll)
 
-        if not self.settings.write_cfg(self.open_vr_dll.parent):
-            self.error = 'Error writing OpenVR-Mod CFG file.'
+        if not self.settings.write_cfg(self.engine_dll.parent):
+            self.error = 'Error writing Mod CFG file.'
             return False
         return True
 
     @staticmethod
-    def get_mod_version_from_dll(openvr_dll: Path, mod_type: int) -> Optional[str]:
-        file_hash = app.utils.get_file_hash(openvr_dll.as_posix())
+    def get_mod_version_from_dll(engine_dll: Path, mod_type: int) -> Optional[str]:
+        file_hash = app.util.utils.get_file_hash(engine_dll.as_posix())
         version_dict = dict()
 
         if mod_type == OpenVRModType.fsr:
@@ -201,11 +205,12 @@ class OpenVRMod:
 
     def get_version(self):
         results = list()
-        for open_vr_dll in self.manifest.get('openVrDllPathsSelected'):
-            if not self._update_open_vr_dll_path(open_vr_dll):
+        for engine_dll in self._update_engine_dll_paths():
+            if not engine_dll:
                 continue
+
             try:
-                results.append(self.get_mod_version_from_dll(self.open_vr_dll, self.TYPE))
+                results.append(self.get_mod_version_from_dll(self.engine_dll, self.TYPE))
             except Exception as e:
                 msg = f'Error reading dll version: {e}'
                 self.error = msg
@@ -214,7 +219,7 @@ class OpenVRMod:
         version = ''
         for result in results:
             if version and result != version:
-                logging.warning('Found multiple installed OpenVR FSR versions for the same app! %s',
+                logging.warning('Found multiple installed Mod versions for the same app! %s',
                                 self.manifest['appid'])
             version = result
 
@@ -224,18 +229,14 @@ class OpenVRMod:
         self.manifest[self.VAR_NAMES['version']] = version
         return version
 
-    @staticmethod
-    def reset_open_vr_selected_paths(manifest):
-        manifest['openVrDllPathsSelected'] = manifest.get('openVrDllPaths')
+    def reset_engine_dll_selected_paths(self, manifest):
+        manifest[self.DLL_LOC_KEY_SELECTED] = manifest.get(self.DLL_LOC_KEY, list())
 
-    @staticmethod
-    def verify_open_vr_selected_paths(manifest) -> bool:
+    def verify_engine_dll_selected_paths(self, manifest) -> bool:
         """ Verify all selected paths still exist """
         results = list()
-        for open_vr_selected_path in manifest.get('openVrDllPathsSelected'):
-            results.append(
-                open_vr_selected_path in manifest.get('openVrDllPaths')
-            )
+        for selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY_SELECTED, list()):
+            results.append(selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY))
         return all(results)
 
 
