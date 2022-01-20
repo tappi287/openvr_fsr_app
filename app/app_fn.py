@@ -4,9 +4,9 @@ import subprocess
 from pathlib import WindowsPath, Path
 
 import app
-from .app_settings import AppSettings
-from .manifest_worker import ManifestWorker
-from .openvr_mod import get_mod, get_available_mods
+from app.app_settings import AppSettings
+from app.util.manifest_worker import ManifestWorker
+from app.mod import get_mod, get_available_mods
 
 
 def reduce_steam_apps_for_export(steam_apps) -> dict:
@@ -37,7 +37,6 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
     return reduced_dict
 
 
-@app.utils.capture_app_exceptions
 def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
     """ Add or restore complete settings entries """
     for app_id, entry in steam_apps.items():
@@ -50,7 +49,7 @@ def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
     return steam_apps
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def save_steam_lib(steam_apps):
     logging.info('Updating SteamApp disk cache.')
 
@@ -75,7 +74,7 @@ def save_steam_lib(steam_apps):
     AppSettings.save()
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def load_steam_lib_fn():
     """ Load saved SteamApps from disk """
     steam_apps = _load_steam_apps_with_mod_settings(AppSettings.load_steam_apps())
@@ -98,7 +97,7 @@ def load_steam_lib_fn():
     return json.dumps({'result': True, 'data': steam_apps, 'reScanRequired': re_scan_required})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def get_steam_lib_fn():
     """ Refresh SteamLib and re-scan every app directory """
     logging.debug('Reading Steam Library')
@@ -144,7 +143,7 @@ def get_steam_lib_fn():
     return json.dumps({'result': True, 'data': steam_apps})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def remove_custom_app_fn(app_dict: dict):
     if app_dict.get('appid') not in AppSettings.user_apps:
         return json.dumps({'result': False, 'msg': f'Could not find app with Id: {app_dict.get("appid")}'})
@@ -155,7 +154,7 @@ def remove_custom_app_fn(app_dict: dict):
     return json.dumps({'result': True, 'msg': f'App entry {entry.get("name")} {entry.get("appid")} created.'})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def add_custom_app_fn(app_dict: dict):
     # -- Check path
     if app_dict.get('path') in (None, ''):
@@ -209,7 +208,7 @@ def add_custom_app_fn(app_dict: dict):
     return json.dumps({'result': True, 'msg': f'App entry {app_id} created.'})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def get_fsr_dir_fn():
     if AppSettings.openvr_fsr_dir is not None and Path(AppSettings.openvr_fsr_dir).exists():
         open_fsr_dir = str(WindowsPath(AppSettings.openvr_fsr_dir))
@@ -217,14 +216,14 @@ def get_fsr_dir_fn():
         return open_fsr_dir
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def set_fsr_dir_fn(directory_str):
     if not directory_str:
         directory_str = str(WindowsPath(app.globals.get_data_dir() / 'openvr_fsr'))
     return json.dumps({'result': AppSettings.update_fsr_dir(directory_str)})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def update_mod_fn(manifest: dict, mod_type: int = 0, write: bool = False):
     mod = get_mod(manifest, mod_type)
     if not mod:
@@ -239,7 +238,7 @@ def update_mod_fn(manifest: dict, mod_type: int = 0, write: bool = False):
                        'msg': mod.error, 'manifest': mod.manifest})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
     mod = get_mod(manifest, mod_type)
     mod_installed = mod.manifest.get(mod.VAR_NAMES['installed'], False)
@@ -261,7 +260,7 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
         return json.dumps({'result': uninstall_result, 'msg': mod.error, 'manifest': mod.manifest})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def reset_mod_settings_fn(manifest: dict, mod_type: int = 0):
     mod = get_mod(manifest, mod_type)
 
@@ -272,7 +271,7 @@ def reset_mod_settings_fn(manifest: dict, mod_type: int = 0):
     return json.dumps({'result': False, 'msg': mod.error, 'manifest': mod.manifest})
 
 
-@app.utils.capture_app_exceptions
+@app.util.utils.capture_app_exceptions
 def launch_app_fn(manifest: dict):
     app_id = manifest.get('appid')
     if not app_id:

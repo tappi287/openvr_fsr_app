@@ -12,7 +12,7 @@ from typing import Tuple, Union, Optional
 import eel
 import gevent.event
 
-from .globals import get_settings_dir, APP_NAME
+from app.globals import get_settings_dir, APP_NAME
 
 
 def create_file_safe_name(filename: str, allow_spaces: bool = False) -> str:

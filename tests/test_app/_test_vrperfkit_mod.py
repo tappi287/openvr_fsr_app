@@ -1,8 +1,8 @@
 import json
 
 from app import app_fn
-from app.openvr_mod import OpenVRModType
-from app.vrperfkit_mod import VRPerfKitMod
+from app.mod.openvr_mod import OpenVRModType
+from app.mod.vrperfkit_mod import VRPerfKitMod
 
 
 def test_update_mod_fn(test_app, output_path, vrperfkit_dll_output, vrperfkit_mod_cfg_output):
@@ -13,7 +13,7 @@ def test_update_mod_fn(test_app, output_path, vrperfkit_dll_output, vrperfkit_mo
 
     # -- Manipulate a setting
     for s in mod_settings:
-        if s.get('key') == test_setting_key:
+        if s.get('key') == test_setting_key and s.get('parent') == test_setting_parent_key:
             s['value'] = test_setting_value
 
     # -- Point to test output dir

@@ -2,7 +2,7 @@ import logging
 import logging.config
 from pathlib import Path
 
-from .globals import APP_NAME, DEFAULT_LOG_LEVEL, get_log_file
+from app.globals import APP_NAME, DEFAULT_LOG_LEVEL, get_log_file
 
 
 def setup_logging(logger_name: str = APP_NAME):

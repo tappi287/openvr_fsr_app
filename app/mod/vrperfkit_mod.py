@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from .app_settings import AppSettings
-from .vrperfkit_cfg import VRPerfKitSettings
-from .globals import DXGI_DLL
+from app.app_settings import AppSettings
+from app.cfg.vrperfkit_cfg import VRPerfKitSettings
+from app.globals import DXGI_DLL
 from .openvr_mod import OpenVRMod, OpenVRModType
 
 
@@ -13,6 +13,9 @@ class VRPerfKitMod(OpenVRMod):
         'version': 'vrpVersion',
         'settings': 'vrp_settings',
     }
+    DLL_LOC_KEY_SELECTED = 'executablePathsSelected'
+    DLL_LOC_KEY = 'executablePaths'
+    DLL_NAME = DXGI_DLL
 
     def __init__(self, manifest: dict):
         self.settings = VRPerfKitSettings()

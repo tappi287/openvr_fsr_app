@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from .app_settings import AppSettings
-from .foveated_cfg import FoveatedSettings
-from .globals import OPEN_VR_DLL
-from .openvr_mod import OpenVRMod, OpenVRModType
+from app.app_settings import AppSettings
+from app.cfg.foveated_cfg import FoveatedSettings
+from app.globals import OPEN_VR_DLL
+from app.mod.openvr_mod import OpenVRMod, OpenVRModType
 
 
 class FoveatedMod(OpenVRMod):

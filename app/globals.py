@@ -8,7 +8,7 @@ from typing import Union
 
 from appdirs import user_log_dir, user_data_dir
 
-from .knownpaths import get_current_user_documents_path
+from app.util.knownpaths import get_current_user_documents_path
 
 OPEN_VR_DLL = 'openvr_api.dll'
 DXGI_DLL = 'dxgi.dll'

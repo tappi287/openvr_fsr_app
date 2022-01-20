@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Iterator, Dict, Any
 
 from app.globals import OPEN_VR_FSR_CFG
-from app.utils import JsonRepr
+from app.util.utils import JsonRepr
 
 
 class OpenVRModCfgSetting(JsonRepr):

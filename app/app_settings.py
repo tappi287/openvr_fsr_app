@@ -3,8 +3,8 @@ import logging
 from pathlib import Path, WindowsPath
 from typing import Optional, Union
 
-from .globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME, get_version, KNOWN_APPS
-from .utils import JsonRepr
+from app.globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME, KNOWN_APPS
+from app.util.utils import JsonRepr
 
 
 class AppSettings(JsonRepr):

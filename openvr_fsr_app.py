@@ -10,8 +10,8 @@ from app.app_main import CLOSE_EVENT
 from app.app_settings import AppSettings
 from app.globals import FROZEN, get_version
 from app.log import setup_logging
-from app.runasadmin import run_as_admin
-from app.utils import AppExceptionHook, capture_app_exceptions
+from app.util.runasadmin import run_as_admin
+from app.util.utils import AppExceptionHook
 
 # -- Make sure eel methods are exposed at start-up
 expose_app_methods()

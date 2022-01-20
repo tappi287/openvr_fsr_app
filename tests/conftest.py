@@ -6,8 +6,8 @@ from distutils.dir_util import copy_tree, remove_tree
 
 import app
 from app.app_settings import AppSettings
-from app.manifest_worker import ManifestWorker
-from app.openvr_mod import get_available_mods
+from app.util.manifest_worker import ManifestWorker
+from app.mod.openvr_mod import get_available_mods
 
 libraryfolders_content = '''"libraryfolders"
 {{
@@ -25,6 +25,12 @@ user_app_path = test_data_input_path / 'user_app'
 test_app_path = test_data_input_path / 'steamapps' / 'common' / 'test_app'
 test_user_app_id = 'Usr#001'
 app_dir = Path(__file__).parent.parent
+
+# -- CleanUp Test settings files/app cache
+test_settings_file = app.globals.get_settings_dir() / app.globals.SETTINGS_FILE_NAME
+test_settings_file.unlink(missing_ok=True)
+test_apps_file = app.globals.get_settings_dir() / app.globals.APPS_STORE_FILE_NAME
+test_apps_file.unlink(missing_ok=True)
 
 
 @pytest.fixture
@@ -131,6 +137,28 @@ def app_settings(steam_apps_obj):
 
     _setup_manifest_paths(manifest)
     _setup_manifest_mods(manifest)
+
+    AppSettings.user_apps[test_user_app_id] = manifest
+    return AppSettings
+
+
+@pytest.fixture(scope='function')
+def outdated_apps_app_settings(steam_apps_obj):
+    manifest = {
+        'appid': test_user_app_id,
+        "name": 'User Test App',
+        'path': user_app_path.as_posix(),
+        'sizeGb': 0, 'SizeOnDisk': 0,
+        'userApp': True,
+    }
+
+    _setup_manifest_paths(manifest)
+    _setup_manifest_mods(manifest)
+
+    # -- Remove new
+    manifest.pop(app.VRPerfKitMod.VAR_NAMES['settings'])
+    manifest.pop(app.VRPerfKitMod.DLL_LOC_KEY_SELECTED)
+    manifest.pop(app.VRPerfKitMod.DLL_LOC_KEY)
 
     AppSettings.user_apps[test_user_app_id] = manifest
     return AppSettings

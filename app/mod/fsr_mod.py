@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from .app_settings import AppSettings
-from .fsr_cfg import FsrSettings
-from .globals import OPEN_VR_DLL
+from app.app_settings import AppSettings
+from app.cfg.fsr_cfg import FsrSettings
+from app.globals import OPEN_VR_DLL
 from .openvr_mod import OpenVRMod, OpenVRModType
 
 

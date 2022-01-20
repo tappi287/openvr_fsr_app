@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 
 from app import app_fn, globals
-from app.openvr_mod import OpenVRModType
-from app.fsr_mod import FsrMod
+from app.mod.openvr_mod import OpenVRModType
+from app.mod.fsr_mod import FsrMod
 
 
 def test_get_fsr_dir_fn(open_vr_fsr_dir):
