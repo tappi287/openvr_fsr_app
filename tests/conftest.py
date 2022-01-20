@@ -32,6 +32,10 @@ test_settings_file.unlink(missing_ok=True)
 test_apps_file = app.globals.get_settings_dir() / app.globals.APPS_STORE_FILE_NAME
 test_apps_file.unlink(missing_ok=True)
 
+# -- CleanUp Output Dir
+shutil.rmtree(test_data_output_path, ignore_errors=True)
+test_data_output_path.mkdir(exist_ok=True)
+
 
 @pytest.fixture(scope='session')
 def input_path():
@@ -112,8 +116,6 @@ def test_app_writeable(steam_apps_obj):
 
     # -- Create writeable App Copy in output
     new_path = test_data_output_path / Path(manifest.get('path')).name
-    remove_tree(new_path.as_posix())
-    new_path.mkdir(exist_ok=True)
     copy_tree(Path(manifest.get('path')).as_posix(), new_path.as_posix())
 
     manifest['path'] = new_path.as_posix()
