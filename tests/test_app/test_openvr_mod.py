@@ -55,7 +55,9 @@ def test_update_mod_fn(test_app, output_path, open_vr_dll_output, open_vr_mod_cf
     open_vr_mod_cfg_output.unlink()
 
 
-def test_toggle_mod_install_fn(test_app_writeable):
+def test_toggle_mod_install_fn(app_settings, test_app_writeable):
+    # -- Use the actual mod to have a dll bigger than 0 bytes
+    app_settings.openvr_fsr_dir = globals.get_data_dir() / 'openvr_fsr'
     output_dlls = test_app_writeable['openVrDllPaths']
 
     # -- Test OpenVR Mod installation

@@ -28,11 +28,6 @@ app_dir = Path(__file__).parent.parent
 
 
 @pytest.fixture
-def input_path():
-    return test_data_output_path
-
-
-@pytest.fixture
 def output_path():
     return test_data_output_path
 
