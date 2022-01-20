@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Tuple
 
 from app import app_fn, globals
-from app.mod.openvr_mod import OpenVRModType
+from app.mod.base_mod import BaseModType
 from app.mod.fsr_mod import FsrMod
 
 
@@ -50,7 +50,7 @@ def test_update_mod_fn(test_app, output_path, open_vr_fsr_dir):
     test_app['openVrDllPathsSelected'] = [open_vr_dll_output.as_posix()]
 
     # -- Test Fn
-    result_dict = json.loads(app_fn.update_mod_fn(test_app, OpenVRModType.fsr, True))
+    result_dict = json.loads(app_fn.update_mod_fn(test_app, BaseModType.fsr, True))
 
     # -- Check returned manifest setting
     result_manifest_setting_value = None

@@ -1,19 +1,19 @@
-from .openvr_mod_cfg import OpenVRModCfgSetting, OpenVRModSettings
+from .base_mod_cfg import BaseModCfgSetting, BaseModSettings
 
 
-class FoveatedSettings(OpenVRModSettings):
+class FoveatedSettings(BaseModSettings):
     cfg_key = 'foveated'
     format = 'cfg'
 
     def __init__(self):
-        self.enabled = OpenVRModCfgSetting(
+        self.enabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category='FFR Settings',
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.useVariableRateShading = OpenVRModCfgSetting(
+        self.useVariableRateShading = BaseModCfgSetting(
             key='useVariableRateShading',
             name='Use Variable Rate Shading',
             category='FFR Settings',
@@ -24,21 +24,21 @@ class FoveatedSettings(OpenVRModSettings):
         # ---
         # Radius Settings
         # ---
-        self.innerRadius = OpenVRModCfgSetting(
+        self.innerRadius = BaseModCfgSetting(
             key='innerRadius',
             name='Inner Radius',
             category='FFR Radius',
             value=0.60,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 1.00, 'step': 0.01}]
         )
-        self.midRadius = OpenVRModCfgSetting(
+        self.midRadius = BaseModCfgSetting(
             key='midRadius',
             name='Mid Radius',
             category='FFR Radius',
             value=0.80,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 1.00, 'step': 0.01}]
         )
-        self.outerRadius = OpenVRModCfgSetting(
+        self.outerRadius = BaseModCfgSetting(
             key='outerRadius',
             name='Outer Radius',
             category='FFR Radius',
@@ -49,7 +49,7 @@ class FoveatedSettings(OpenVRModSettings):
         # ---
         # Sharpness Settings
         # ---
-        self.sharpen = OpenVRModCfgSetting(
+        self.sharpen = BaseModCfgSetting(
             key='sharpen',
             name='Sharpen',
             category='Sharpness Settings',
@@ -57,7 +57,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=dict(),
             settings=list(),
         )
-        self.sharpenEnabled = OpenVRModCfgSetting(
+        self.sharpenEnabled = BaseModCfgSetting(
             key='enabled',
             parent=self.sharpen.key,
             name='Sharpen Enabled',
@@ -65,7 +65,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.sharpenSharpness = OpenVRModCfgSetting(
+        self.sharpenSharpness = BaseModCfgSetting(
             key='sharpness',
             parent=self.sharpen.key,
             name='Sharpness',
@@ -73,7 +73,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=0.40,
             settings=[{'settingType': 'range', 'min': 0.00, 'max': 1.00, 'step': 0.01}]
         )
-        self.sharpenRadius = OpenVRModCfgSetting(
+        self.sharpenRadius = BaseModCfgSetting(
             key='radius',
             parent=self.sharpen.key,
             name='Sharpen Radius',
@@ -85,7 +85,7 @@ class FoveatedSettings(OpenVRModSettings):
         # End of Sharpness Settings
         # ---
 
-        self.debugMode = OpenVRModCfgSetting(
+        self.debugMode = BaseModCfgSetting(
             key='debugMode',
             name='Debug Mode',
             category='FFR Settings',
@@ -96,7 +96,7 @@ class FoveatedSettings(OpenVRModSettings):
         # ---
         # Hotkey Settings
         # ---
-        self.hotkeys = OpenVRModCfgSetting(
+        self.hotkeys = BaseModCfgSetting(
             key='hotkeys',
             name='Hotkeys',
             category='Hotkey Settings',
@@ -104,7 +104,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=dict(),
             settings=list(),
         )
-        self.hotkeysEnabled = OpenVRModCfgSetting(
+        self.hotkeysEnabled = BaseModCfgSetting(
             key='enabled',
             parent=self.hotkeys.key,
             name='Hotkeys Enabled',
@@ -116,7 +116,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysRequireCtrl = OpenVRModCfgSetting(
+        self.hotkeysRequireCtrl = BaseModCfgSetting(
             key='requireCtrl',
             parent=self.hotkeys.key,
             name='Require Ctrl',
@@ -125,7 +125,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysRequireAlt = OpenVRModCfgSetting(
+        self.hotkeysRequireAlt = BaseModCfgSetting(
             key='requireAlt',
             parent=self.hotkeys.key,
             name='Require Alt',
@@ -134,7 +134,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysRequireShift = OpenVRModCfgSetting(
+        self.hotkeysRequireShift = BaseModCfgSetting(
             key='requireShift',
             parent=self.hotkeys.key,
             name='Require Shift',
@@ -143,7 +143,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysToggleFFR = OpenVRModCfgSetting(
+        self.hotkeysToggleFFR = BaseModCfgSetting(
             key='toggleFFR',
             parent=self.hotkeys.key,
             name='Toggle FFR',
@@ -152,7 +152,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=112,  # 'F1'
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysToggleDebugMode = OpenVRModCfgSetting(
+        self.hotkeysToggleDebugMode = BaseModCfgSetting(
             key='toggleDebugMode',
             parent=self.hotkeys.key,
             name='Toggle Debug mode',
@@ -161,7 +161,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=113,  # 'F2'
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysDecreaseSharpness = OpenVRModCfgSetting(
+        self.hotkeysDecreaseSharpness = BaseModCfgSetting(
             key='decreaseSharpness',
             parent=self.hotkeys.key,
             name='Decrease Sharpness',
@@ -170,7 +170,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=114,  # 'F3'
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysIncreaseSharpness = OpenVRModCfgSetting(
+        self.hotkeysIncreaseSharpness = BaseModCfgSetting(
             key='increaseSharpness',
             parent=self.hotkeys.key,
             name='Increase Sharpness',
@@ -179,7 +179,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=115,  # 'F4'
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysDecreaseRadius = OpenVRModCfgSetting(
+        self.hotkeysDecreaseRadius = BaseModCfgSetting(
             key='decreaseRadius',
             parent=self.hotkeys.key,
             name='Decrease Radius',
@@ -188,7 +188,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=116,  # 'F5'
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysIncreaseRadius = OpenVRModCfgSetting(
+        self.hotkeysIncreaseRadius = BaseModCfgSetting(
             key='increaseRadius',
             parent=self.hotkeys.key,
             name='Increase Radius',
@@ -197,7 +197,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=117,  # 'F6'
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysSelectInnerRadius = OpenVRModCfgSetting(
+        self.hotkeysSelectInnerRadius = BaseModCfgSetting(
             key='selectInnerRadius',
             parent=self.hotkeys.key,
             name='Select Inner Radius',
@@ -206,7 +206,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=49,  # 1
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysSelectMidRadius = OpenVRModCfgSetting(
+        self.hotkeysSelectMidRadius = BaseModCfgSetting(
             key='selectMidRadius',
             parent=self.hotkeys.key,
             name='Select Mid Radius',
@@ -215,7 +215,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=50,  # 2
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysSelectOuterRadius = OpenVRModCfgSetting(
+        self.hotkeysSelectOuterRadius = BaseModCfgSetting(
             key='selectOuterRadius',
             parent=self.hotkeys.key,
             name='Select Outer Radius',
@@ -224,7 +224,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=51,  # 3
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysSelectSharpenRadius = OpenVRModCfgSetting(
+        self.hotkeysSelectSharpenRadius = BaseModCfgSetting(
             key='selectSharpenRadius',
             parent=self.hotkeys.key,
             name='Select Sharpen Radius',
@@ -233,7 +233,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=52,  # 4
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysCaptureOutput = OpenVRModCfgSetting(
+        self.hotkeysCaptureOutput = BaseModCfgSetting(
             key='captureOutput',
             parent=self.hotkeys.key,
             name='Capture Output',
@@ -242,7 +242,7 @@ class FoveatedSettings(OpenVRModSettings):
             value=118,  # F7
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysToggleUseVRS = OpenVRModCfgSetting(
+        self.hotkeysToggleUseVRS = BaseModCfgSetting(
             key='toggleUseVRS',
             parent=self.hotkeys.key,
             name='Toggle use VRS',

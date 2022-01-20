@@ -1,12 +1,12 @@
-from .openvr_mod_cfg import OpenVRModCfgSetting, OpenVRModSettings
+from .base_mod_cfg import BaseModCfgSetting, BaseModSettings
 
 
-class FsrSettings(OpenVRModSettings):
+class FsrSettings(BaseModSettings):
     cfg_key = 'fsr'
     format = 'cfg'
 
     def __init__(self):
-        self.enabled = OpenVRModCfgSetting(
+        self.enabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category='FSR Settings',
@@ -14,7 +14,7 @@ class FsrSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.useNIS = OpenVRModCfgSetting(
+        self.useNIS = BaseModCfgSetting(
             key='useNIS',
             name="Use NVIDIA's Image Scaling",
             category='FSR Settings',
@@ -25,7 +25,7 @@ class FsrSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.renderScale = OpenVRModCfgSetting(
+        self.renderScale = BaseModCfgSetting(
             key='renderScale',
             name='Render Scale',
             category='FSR Settings',
@@ -39,7 +39,7 @@ class FsrSettings(OpenVRModSettings):
             value=0.77,
             settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.0, 'step': 0.01, 'display': 'floatpercent'}]
         )
-        self.sharpness = OpenVRModCfgSetting(
+        self.sharpness = BaseModCfgSetting(
             key='sharpness',
             name='Sharpness',
             category='FSR Settings',
@@ -47,7 +47,7 @@ class FsrSettings(OpenVRModSettings):
             value=0.9,
             settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.0, 'step': 0.01, 'display': 'floatpercent'}]
         )
-        self.radius = OpenVRModCfgSetting(
+        self.radius = BaseModCfgSetting(
             key='radius',
             name='Radius',
             category='FSR Settings',
@@ -65,7 +65,7 @@ class FsrSettings(OpenVRModSettings):
             value=0.50,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 2.00, 'step': 0.01}]
         )
-        self.applyMIPBias = OpenVRModCfgSetting(
+        self.applyMIPBias = BaseModCfgSetting(
             key='applyMIPBias',
             name='Apply MIP Bias',
             category='FSR Settings',
@@ -77,7 +77,7 @@ class FsrSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.debugMode = OpenVRModCfgSetting(
+        self.debugMode = BaseModCfgSetting(
             key='debugMode',
             name='Debug Mode',
             category='FSR Settings',
@@ -91,7 +91,7 @@ class FsrSettings(OpenVRModSettings):
         # ---
         # Hotkey Settings
         # ---
-        self.hotkeys = OpenVRModCfgSetting(
+        self.hotkeys = BaseModCfgSetting(
             key='hotkeys',
             name='Hotkeys',
             category='Hotkey Settings',
@@ -99,7 +99,7 @@ class FsrSettings(OpenVRModSettings):
             value=dict(),
             settings=list(),
         )
-        self.hotkeysEnabled = OpenVRModCfgSetting(
+        self.hotkeysEnabled = BaseModCfgSetting(
             key='enabled',
             parent=self.hotkeys.key,
             name='Hotkeys Enabled',
@@ -111,7 +111,7 @@ class FsrSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysRequireCtrl = OpenVRModCfgSetting(
+        self.hotkeysRequireCtrl = BaseModCfgSetting(
             key='requireCtrl',
             parent=self.hotkeys.key,
             name='Require Ctrl',
@@ -120,7 +120,7 @@ class FsrSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysRequireAlt = OpenVRModCfgSetting(
+        self.hotkeysRequireAlt = BaseModCfgSetting(
             key='requireAlt',
             parent=self.hotkeys.key,
             name='Require Alt',
@@ -129,7 +129,7 @@ class FsrSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysRequireShift = OpenVRModCfgSetting(
+        self.hotkeysRequireShift = BaseModCfgSetting(
             key='requireShift',
             parent=self.hotkeys.key,
             name='Require Shift',
@@ -138,7 +138,7 @@ class FsrSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.hotkeysToggleUseNIS = OpenVRModCfgSetting(
+        self.hotkeysToggleUseNIS = BaseModCfgSetting(
             key='toggleUseNIS',
             parent=self.hotkeys.key,
             name='Toggle NIS',
@@ -147,7 +147,7 @@ class FsrSettings(OpenVRModSettings):
             value=112,  # F1
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysToggleDebugMode = OpenVRModCfgSetting(
+        self.hotkeysToggleDebugMode = BaseModCfgSetting(
             key='toggleDebugMode',
             parent=self.hotkeys.key,
             name='Toggle Debug Mode',
@@ -156,7 +156,7 @@ class FsrSettings(OpenVRModSettings):
             value=113,  # F2
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysDecreaseSharpness = OpenVRModCfgSetting(
+        self.hotkeysDecreaseSharpness = BaseModCfgSetting(
             key='decreaseSharpness',
             parent=self.hotkeys.key,
             name='Decrease Sharpness',
@@ -165,7 +165,7 @@ class FsrSettings(OpenVRModSettings):
             value=114,  # F3
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysIncreaseSharpness = OpenVRModCfgSetting(
+        self.hotkeysIncreaseSharpness = BaseModCfgSetting(
             key='increaseSharpness',
             parent=self.hotkeys.key,
             name='Increase Sharpness',
@@ -174,7 +174,7 @@ class FsrSettings(OpenVRModSettings):
             value=115,  # F4
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysDecreaseRadius = OpenVRModCfgSetting(
+        self.hotkeysDecreaseRadius = BaseModCfgSetting(
             key='decreaseRadius',
             parent=self.hotkeys.key,
             name='Decrease Radius',
@@ -183,7 +183,7 @@ class FsrSettings(OpenVRModSettings):
             value=116,  # F5
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysIncreaseRadius = OpenVRModCfgSetting(
+        self.hotkeysIncreaseRadius = BaseModCfgSetting(
             key='increaseRadius',
             parent=self.hotkeys.key,
             name='Increase Radius',
@@ -192,7 +192,7 @@ class FsrSettings(OpenVRModSettings):
             value=117,  # F6
             settings=[{'settingType': 'key'}]
         )
-        self.hotkeysCaptureOutput = OpenVRModCfgSetting(
+        self.hotkeysCaptureOutput = BaseModCfgSetting(
             key='captureOutput',
             parent=self.hotkeys.key,
             name='Capture Output',

@@ -1,13 +1,13 @@
 import json
 import logging
 from pathlib import Path
-from typing import List, Iterator, Dict, Any
+from typing import List, Iterator
 
 from app.globals import OPEN_VR_FSR_CFG
 from app.util.utils import JsonRepr
 
 
-class OpenVRModCfgSetting(JsonRepr):
+class BaseModCfgSetting(JsonRepr):
     export_skip_keys = ['settings', 'category', 'desc', 'category']
 
     def __init__(self, key=None, name=None, value=None, desc=None,
@@ -22,7 +22,7 @@ class OpenVRModCfgSetting(JsonRepr):
         self.hidden = hidden
 
 
-class OpenVRModSettings(JsonRepr):
+class BaseModSettings(JsonRepr):
     """ OpenVR Mod cfg base class to handle settings in openvr_mod.cfg configurations. """
     option_field_names = list()
     cfg_key = str()
@@ -30,15 +30,15 @@ class OpenVRModSettings(JsonRepr):
     def get_setting_fields(self) -> List[str]:
         options = list()
         for attr_name in dir(self):
-            if isinstance(getattr(self, attr_name), OpenVRModCfgSetting):
+            if isinstance(getattr(self, attr_name), BaseModCfgSetting):
                 options.append(attr_name)
         return options
 
-    def _get_options(self) -> Iterator[OpenVRModCfgSetting]:
+    def _get_options(self) -> Iterator[BaseModCfgSetting]:
         for key in self.option_field_names:
             yield getattr(self, key)
 
-    def _get_option_by_key(self, key, parent_key=None) -> OpenVRModCfgSetting:
+    def _get_option_by_key(self, key, parent_key=None) -> BaseModCfgSetting:
         for option in self._get_options():
             if option.parent == parent_key and key == option.key:
                 return option

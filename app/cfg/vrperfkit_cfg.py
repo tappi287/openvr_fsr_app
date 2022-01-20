@@ -1,7 +1,7 @@
-from .openvr_mod_cfg import OpenVRModCfgSetting, OpenVRModSettings
+from .base_mod_cfg import BaseModCfgSetting, BaseModSettings
 
 
-class VRPerfKitSettings(OpenVRModSettings):
+class VRPerfKitSettings(BaseModSettings):
     cfg_key = None
     format = 'yml'
 
@@ -9,7 +9,7 @@ class VRPerfKitSettings(OpenVRModSettings):
         # --
         # Upscaling Settings
         # --
-        self.upscaling = OpenVRModCfgSetting(
+        self.upscaling = BaseModCfgSetting(
             key='upscaling',
             name='Upscaling',
             category='Upscaling',
@@ -17,7 +17,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=dict(),
             settings=list(),
         )
-        self.enabled = OpenVRModCfgSetting(
+        self.enabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category=self.upscaling.category,
@@ -28,7 +28,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.method = OpenVRModCfgSetting(
+        self.method = BaseModCfgSetting(
             key='method',
             name='Method',
             category=self.upscaling.category,
@@ -40,7 +40,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': 'fsr', 'name': 'FSR'}, {'value': 'nis', 'name': 'NIS'}, {'value': 'cas', 'name': 'CAS'}]
         )
-        self.renderScale = OpenVRModCfgSetting(
+        self.renderScale = BaseModCfgSetting(
             key='renderScale',
             name='Render Scale',
             category=self.upscaling.category,
@@ -54,7 +54,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=0.77,
             settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.00, 'step': 0.01, 'display': 'floatpercent'}]
         )
-        self.sharpness = OpenVRModCfgSetting(
+        self.sharpness = BaseModCfgSetting(
             key='sharpness',
             name='Sharpness',
             category=self.upscaling.category,
@@ -65,7 +65,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=0.7,
             settings=[{'settingType': 'range', 'min': 0.00, 'max': 3.00, 'step': 0.01, 'display': 'floatpercent'}]
         )
-        self.radius = OpenVRModCfgSetting(
+        self.radius = BaseModCfgSetting(
             key='radius',
             name='Radius',
             category=self.upscaling.category,
@@ -81,7 +81,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=0.60,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 3.00, 'step': 0.01}]
         )
-        self.applyMIPBias = OpenVRModCfgSetting(
+        self.applyMIPBias = BaseModCfgSetting(
             key='applyMipBias',
             name='Apply MIP Bias',
             category=self.upscaling.category,
@@ -98,7 +98,7 @@ class VRPerfKitSettings(OpenVRModSettings):
         # --
         # Fixed Foveated Settings
         # --
-        self.fixedFoveated = OpenVRModCfgSetting(
+        self.fixedFoveated = BaseModCfgSetting(
             key='fixedFoveated',
             name='Fixed Foveated Rendering',
             category='FFR',
@@ -106,7 +106,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=dict(),
             settings=list(),
         )
-        self.enabled = OpenVRModCfgSetting(
+        self.enabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category=self.fixedFoveated.category,
@@ -124,7 +124,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=False,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.innerRadius = OpenVRModCfgSetting(
+        self.innerRadius = BaseModCfgSetting(
             key='innerRadius',
             name='Inner Radius',
             category=self.fixedFoveated.category,
@@ -133,7 +133,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=0.60,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 1.00, 'step': 0.01}]
         )
-        self.midRadius = OpenVRModCfgSetting(
+        self.midRadius = BaseModCfgSetting(
             key='midRadius',
             name='Mid Radius',
             category=self.fixedFoveated.category,
@@ -142,7 +142,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=0.80,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 1.00, 'step': 0.01}]
         )
-        self.outerRadius = OpenVRModCfgSetting(
+        self.outerRadius = BaseModCfgSetting(
             key='outerRadius',
             name='Outer Radius',
             category=self.fixedFoveated.category,
@@ -155,7 +155,7 @@ class VRPerfKitSettings(OpenVRModSettings):
         # --
         # HotKeys
         # --
-        self.hotkeys = OpenVRModCfgSetting(
+        self.hotkeys = BaseModCfgSetting(
             key='hotkeys',
             name='Hotkeys',
             category='Hotkeys',
@@ -163,7 +163,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=dict(),
             settings=list(),
         )
-        self.enabled = OpenVRModCfgSetting(
+        self.enabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category=self.hotkeys.category,
@@ -175,7 +175,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.toggleDebugMode = OpenVRModCfgSetting(
+        self.toggleDebugMode = BaseModCfgSetting(
             key='toggleDebugMode',
             name='Toggle Debug Mode',
             category=self.hotkeys.category,
@@ -184,7 +184,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f1"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.cycleUpscalingMethod = OpenVRModCfgSetting(
+        self.cycleUpscalingMethod = BaseModCfgSetting(
             key='cycleUpscalingMethod',
             name='Cycle Upscaling Method',
             category=self.hotkeys.category,
@@ -193,7 +193,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f2"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.increaseUpscalingRadius = OpenVRModCfgSetting(
+        self.increaseUpscalingRadius = BaseModCfgSetting(
             key='increaseUpscalingRadius',
             name='Increase Upscaling Radius',
             category=self.hotkeys.category,
@@ -202,7 +202,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f3"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.decreaseUpscalingRadius = OpenVRModCfgSetting(
+        self.decreaseUpscalingRadius = BaseModCfgSetting(
             key='decreaseUpscalingRadius',
             name='Decrease Upscaling Radius',
             category=self.hotkeys.category,
@@ -211,7 +211,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f4"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.increaseUpscalingSharpness = OpenVRModCfgSetting(
+        self.increaseUpscalingSharpness = BaseModCfgSetting(
             key='increaseUpscalingSharpness',
             name='Increase Upscaling Sharpness',
             category=self.hotkeys.category,
@@ -220,7 +220,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f5"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.decreaseUpscalingSharpness = OpenVRModCfgSetting(
+        self.decreaseUpscalingSharpness = BaseModCfgSetting(
             key='decreaseUpscalingSharpness',
             name='Decrease Upscaling Sharpness',
             category=self.hotkeys.category,
@@ -229,7 +229,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f6"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.toggleUpscalingApplyMipBias = OpenVRModCfgSetting(
+        self.toggleUpscalingApplyMipBias = BaseModCfgSetting(
             key='toggleUpscalingApplyMipBias',
             name='Toggle Upscaling Apply Mip Bias',
             category=self.hotkeys.category,
@@ -238,7 +238,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f7"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.captureOutput = OpenVRModCfgSetting(
+        self.captureOutput = BaseModCfgSetting(
             key='captureOutput',
             name='Capture Output',
             category=self.hotkeys.category,
@@ -248,7 +248,7 @@ class VRPerfKitSettings(OpenVRModSettings):
             value=["ctrl", "f8"],
             settings=[{'settingType': 'keyCombo'}]
         )
-        self.toggleFixedFoveated = OpenVRModCfgSetting(
+        self.toggleFixedFoveated = BaseModCfgSetting(
             key='toggleFixedFoveated',
             name='Toggle Fixed Foveated',
             category=self.hotkeys.category,
@@ -261,7 +261,7 @@ class VRPerfKitSettings(OpenVRModSettings):
         # --
         # Debug mode
         # --
-        self.debugMode = OpenVRModCfgSetting(
+        self.debugMode = BaseModCfgSetting(
             key='debugMode',
             name='Debug Mode',
             category='Debug Mode',

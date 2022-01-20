@@ -7,7 +7,7 @@ import app
 from app.app_settings import AppSettings
 
 
-class OpenVRModType:
+class BaseModType:
     invalid = -1
     fsr = 0
     foveated = 1
@@ -16,8 +16,8 @@ class OpenVRModType:
     mod_types = {0: 'FsrMod', 1: 'FoveatedMod', 2: 'VRPerfKitMod'}
 
 
-class OpenVRMod:
-    TYPE = OpenVRModType.invalid
+class BaseMod:
+    TYPE = BaseModType.invalid
     VAR_NAMES = {
         'installed': 'installed',
         'version': 'version',
@@ -28,10 +28,10 @@ class OpenVRMod:
     DLL_NAME = app.globals.OPEN_VR_DLL
 
     def __init__(self, manifest, settings, mod_dll_location):
-        """ Open VR Mod base class to handle installation/uninstallation
+        """ Mod base class to handle installation/uninstallation
         
         :param dict manifest: The app's Steam manifest with additional settings dict
-        :param app.openvr_mod_cfg.OpenVRModSettings settings: Cfg settings handler
+        :param app.openvr_mod_cfg.BaseModSettings settings: Cfg settings handler
         :param Path mod_dll_location: Path to the OpenVRMod dll to install
         """
         self.manifest = manifest
@@ -76,7 +76,7 @@ class OpenVRMod:
         return self._read_write_cfg(False)
 
     def _read_write_cfg(self, write: bool = False):
-        if self.TYPE == OpenVRModType.invalid:
+        if self.TYPE == BaseModType.invalid:
             logging.error('Tried to setup OpenVRMod from disk in base class! Use mod specific sub class instead!')
             return False
 
@@ -193,9 +193,9 @@ class OpenVRMod:
         file_hash = app.util.utils.get_file_hash(engine_dll.as_posix())
         version_dict = dict()
 
-        if mod_type == OpenVRModType.fsr:
+        if mod_type == BaseModType.fsr:
             version_dict = AppSettings.open_vr_fsr_versions
-        elif mod_type == OpenVRModType.foveated:
+        elif mod_type == BaseModType.foveated:
             version_dict = AppSettings.open_vr_foveated_versions
 
         for version, hash_str in version_dict.items():
@@ -240,11 +240,11 @@ class OpenVRMod:
         return all(results)
 
 
-def get_mod(manifest: dict, mod_type: int = 0) -> OpenVRMod:
-    mod_type_class = getattr(app, OpenVRModType.mod_types.get(mod_type))
+def get_mod(manifest: dict, mod_type: int = 0) -> BaseMod:
+    mod_type_class = getattr(app, BaseModType.mod_types.get(mod_type))
     return mod_type_class(manifest)
 
 
-def get_available_mods(manifest: dict) -> Iterable[OpenVRMod]:
-    for mod_type in OpenVRModType.mod_types.keys():
+def get_available_mods(manifest: dict) -> Iterable[BaseMod]:
+    for mod_type in BaseModType.mod_types.keys():
         yield get_mod(manifest, mod_type)

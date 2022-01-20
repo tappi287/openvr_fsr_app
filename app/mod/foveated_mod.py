@@ -3,11 +3,11 @@ from pathlib import Path
 from app.app_settings import AppSettings
 from app.cfg.foveated_cfg import FoveatedSettings
 from app.globals import OPEN_VR_DLL
-from app.mod.openvr_mod import OpenVRMod, OpenVRModType
+from app.mod.base_mod import BaseMod, BaseModType
 
 
-class FoveatedMod(OpenVRMod):
-    TYPE = OpenVRModType.foveated
+class FoveatedMod(BaseMod):
+    TYPE = BaseModType.foveated
     VAR_NAMES = {
         'installed': 'fovInstalled',
         'version': 'fovVersion',

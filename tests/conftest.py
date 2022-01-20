@@ -7,7 +7,7 @@ from distutils.dir_util import copy_tree, remove_tree
 import app
 from app.app_settings import AppSettings
 from app.util.manifest_worker import ManifestWorker
-from app.mod.openvr_mod import get_available_mods
+from app.mod.base_mod import get_available_mods
 
 libraryfolders_content = '''"libraryfolders"
 {{

@@ -3,11 +3,11 @@ from pathlib import Path
 from app.app_settings import AppSettings
 from app.cfg.vrperfkit_cfg import VRPerfKitSettings
 from app.globals import DXGI_DLL
-from .openvr_mod import OpenVRMod, OpenVRModType
+from .base_mod import BaseMod, BaseModType
 
 
-class VRPerfKitMod(OpenVRMod):
-    TYPE = OpenVRModType.vrp
+class VRPerfKitMod(BaseMod):
+    TYPE = BaseModType.vrp
     VAR_NAMES = {
         'installed': 'vrpInstalled',
         'version': 'vrpVersion',
