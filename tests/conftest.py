@@ -33,7 +33,12 @@ test_apps_file = app.globals.get_settings_dir() / app.globals.APPS_STORE_FILE_NA
 test_apps_file.unlink(missing_ok=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
+def input_path():
+    return test_data_input_path
+
+
+@pytest.fixture(scope='session')
 def output_path():
     return test_data_output_path
 
@@ -49,17 +54,12 @@ def vrperfkit_dir():
 
 
 @pytest.fixture(scope='session')
-def open_vr_fsr_test_dir():
-    return test_data_input_path / 'mod_dir'
-
-
-@pytest.fixture(scope='session')
 def steam_test_path():
     base_path = Path(__file__).parent
     return Path(base_path / 'data' / 'input').absolute()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def steam_apps_obj(steam_test_path):
     # -- Define Steam Library path in test input dir
     with open(steam_test_path / app.steam.STEAM_APPS_FOLDER / app.steam.STEAM_LIBRARY_FILE, 'w') as f:
@@ -96,7 +96,7 @@ def _setup_manifest_mods(manifest):
         manifest = mod_obj.manifest
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def test_app(steam_apps_obj):
     manifest = steam_apps_obj.steam_apps.get('123')
 
@@ -106,7 +106,7 @@ def test_app(steam_apps_obj):
     return manifest
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def test_app_writeable(steam_apps_obj):
     manifest = steam_apps_obj.steam_apps.get('124')
 
@@ -125,7 +125,7 @@ def test_app_writeable(steam_apps_obj):
     return manifest
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def app_settings(steam_apps_obj):
     manifest = {
         'appid': test_user_app_id,
@@ -142,7 +142,7 @@ def app_settings(steam_apps_obj):
     return AppSettings
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def outdated_apps_app_settings(steam_apps_obj):
     manifest = {
         'appid': test_user_app_id,
@@ -162,45 +162,3 @@ def outdated_apps_app_settings(steam_apps_obj):
 
     AppSettings.user_apps[test_user_app_id] = manifest
     return AppSettings
-
-
-@pytest.fixture
-def open_vr_dll_output(output_path):
-    test_openvr_dll = output_path / app.globals.OPEN_VR_DLL
-
-    # -- Create dummy file
-    with open(test_openvr_dll, 'w') as f:
-        f.write('')
-
-    return test_openvr_dll
-
-
-@pytest.fixture
-def open_vr_mod_cfg_output(output_path, open_vr_fsr_dir):
-    test_mod_cfg_path = output_path / app.globals.OPEN_VR_FSR_CFG
-
-    # -- Create default cfg file
-    shutil.copy(open_vr_fsr_dir / app.globals.OPEN_VR_FSR_CFG, test_mod_cfg_path)
-
-    return test_mod_cfg_path
-
-
-@pytest.fixture
-def vrperfkit_dll_output(output_path):
-    test_dxgi_dll = output_path / app.globals.DXGI_DLL
-
-    # -- Create dummy file
-    with open(test_dxgi_dll, 'w') as f:
-        f.write('')
-
-    return test_dxgi_dll
-
-
-@pytest.fixture
-def vrperfkit_mod_cfg_output(output_path, vrperfkit_dir):
-    test_mod_yml_path = output_path / app.globals.VRPERFKIT_CFG
-
-    # -- Create default cfg file
-    shutil.copy(vrperfkit_dir / app.globals.VRPERFKIT_CFG, test_mod_yml_path)
-
-    return test_mod_yml_path

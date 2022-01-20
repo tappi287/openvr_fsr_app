@@ -1,11 +1,26 @@
 import json
+import shutil
 
-from app import app_fn
+from app import app_fn, globals
 from app.mod.openvr_mod import OpenVRModType
 from app.mod.vrperfkit_mod import VRPerfKitMod
 
 
-def test_update_mod_fn(test_app, output_path, vrperfkit_dll_output, vrperfkit_mod_cfg_output):
+def _create_test_output(output_path, vrperfkit_dir):
+    test_dxgi_dll = output_path / globals.DXGI_DLL
+    # -- Create dummy file
+    with open(test_dxgi_dll, 'w') as f:
+        f.write('')
+    test_mod_yml_path = output_path / globals.VRPERFKIT_CFG
+    # -- Create default cfg file
+    shutil.copy(vrperfkit_dir / globals.VRPERFKIT_CFG, test_mod_yml_path)
+    return test_dxgi_dll, test_mod_yml_path
+
+
+def test_update_mod_fn(test_app, output_path, vrperfkit_dir):
+    # -- Create test output
+    vrperfkit_dll_output, vrperfkit_mod_cfg_output = _create_test_output(output_path, vrperfkit_dir)
+
     mod_settings = test_app[VRPerfKitMod.VAR_NAMES['settings']]
     test_setting_key = 'method'
     test_setting_parent_key = 'upscaling'

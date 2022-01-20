@@ -1,5 +1,7 @@
 import json
+import shutil
 from pathlib import Path
+from typing import Tuple
 
 from app import app_fn, globals
 from app.mod.openvr_mod import OpenVRModType
@@ -11,17 +13,32 @@ def test_get_fsr_dir_fn(open_vr_fsr_dir):
     assert Path(result) == open_vr_fsr_dir
 
 
-def test_set_fsr_dir_fn(app_settings, open_vr_fsr_test_dir):
+def test_set_fsr_dir_fn(app_settings, input_path):
+    open_vr_fsr_test_dir = input_path / 'mod_dir'
     result_dict = json.loads(app_fn.set_fsr_dir_fn(open_vr_fsr_test_dir.as_posix()))
 
     assert result_dict['result'] is True
     assert Path(app_settings.openvr_fsr_dir) == open_vr_fsr_test_dir
 
 
-def test_update_mod_fn(test_app, output_path, open_vr_dll_output, open_vr_mod_cfg_output):
+def _create_test_output(output_path, open_vr_fsr_dir) -> Tuple[Path, Path]:
+    test_openvr_dll = output_path / globals.OPEN_VR_DLL
+    test_mod_cfg_path = output_path / globals.OPEN_VR_FSR_CFG
+    # -- Create dummy file
+    with open(test_openvr_dll, 'w') as f:
+        f.write('')
+    # -- Create default cfg file
+    shutil.copy(open_vr_fsr_dir / globals.OPEN_VR_FSR_CFG, test_mod_cfg_path)
+    return test_openvr_dll, test_mod_cfg_path
+
+
+def test_update_mod_fn(test_app, output_path, open_vr_fsr_dir):
     mod_settings = test_app[FsrMod.VAR_NAMES['settings']]
     test_setting_key = 'enabled'
     test_setting_value = False
+
+    # -- Create test output
+    open_vr_dll_output, open_vr_mod_cfg_output = _create_test_output(output_path, open_vr_fsr_dir)
 
     # -- Manipulate a setting
     for s in mod_settings:
