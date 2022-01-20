@@ -26,6 +26,7 @@ class BaseModSettings(JsonRepr):
     """ OpenVR Mod cfg base class to handle settings in openvr_mod.cfg configurations. """
     option_field_names = list()
     cfg_key = str()
+    CFG_FILE = 'config_file.abc'
 
     def get_setting_fields(self) -> List[str]:
         options = list()
@@ -49,7 +50,7 @@ class BaseModSettings(JsonRepr):
             option.value = option_dict.get('value')
 
     def read_from_cfg(self, plugin_path: Path) -> bool:
-        cfg = plugin_path / OPEN_VR_FSR_CFG
+        cfg = plugin_path / self.CFG_FILE
         if not cfg.exists():
             return False
 
@@ -67,7 +68,7 @@ class BaseModSettings(JsonRepr):
         return True
 
     def write_cfg(self, plugin_path) -> bool:
-        cfg = plugin_path / OPEN_VR_FSR_CFG
+        cfg = plugin_path / self.CFG_FILE
 
         try:
             with open(cfg, 'w') as f:
@@ -78,9 +79,8 @@ class BaseModSettings(JsonRepr):
             return False
         return True
 
-    @staticmethod
-    def delete_cfg(plugin_path) -> bool:
-        cfg = plugin_path / OPEN_VR_FSR_CFG
+    def delete_cfg(self, plugin_path) -> bool:
+        cfg = plugin_path / self.CFG_FILE
         if not cfg.exists():
             return True
 
