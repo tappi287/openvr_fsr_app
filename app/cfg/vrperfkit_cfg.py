@@ -19,7 +19,7 @@ class VRPerfKitSettings(BaseModSettings):
             value=dict(),
             settings=list(),
         )
-        self.enabled = BaseModCfgSetting(
+        self.upscalingEnabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category=self.upscaling.category,
@@ -67,7 +67,7 @@ class VRPerfKitSettings(BaseModSettings):
             value=0.7,
             settings=[{'settingType': 'range', 'min': 0.00, 'max': 3.00, 'step': 0.01, 'display': 'floatpercent'}]
         )
-        self.radius = BaseModCfgSetting(
+        self.sharpnessRadius = BaseModCfgSetting(
             key='radius',
             name='Radius',
             category=self.upscaling.category,
@@ -108,7 +108,7 @@ class VRPerfKitSettings(BaseModSettings):
             value=dict(),
             settings=list(),
         )
-        self.enabled = BaseModCfgSetting(
+        self.fixedFoveatedEnabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category=self.fixedFoveated.category,
@@ -165,7 +165,7 @@ class VRPerfKitSettings(BaseModSettings):
             value=dict(),
             settings=list(),
         )
-        self.enabled = BaseModCfgSetting(
+        self.hotkeyEnabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
             category=self.hotkeys.category,
