@@ -51,7 +51,7 @@ def test_update_mod_fn(test_app, output_path, vrperfkit_dir):
     assert result_dict['result'] is True
     assert result_manifest_setting_value == test_setting_value
 
-    val = mod.settings._get_option_by_key(test_setting_key, test_setting_parent_key).value
+    val = mod.settings.get_option_by_key(test_setting_key, test_setting_parent_key).value
     assert val == test_setting_value
 
     # -- Cleanup output

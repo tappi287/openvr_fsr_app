@@ -64,7 +64,7 @@ def test_update_mod_fn(test_app, output_path, open_vr_fsr_dir):
 
     assert result_dict['result'] is True
     assert result_manifest_setting_value is test_setting_value
-    assert mod.settings._get_option_by_key(test_setting_key).value is test_setting_value
+    assert mod.settings.get_option_by_key(test_setting_key).value is test_setting_value
     assert open_vr_mod_cfg_output.exists() is True
 
     # -- Cleanup output

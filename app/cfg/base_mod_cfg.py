@@ -35,17 +35,17 @@ class BaseModSettings(JsonRepr):
                 options.append(attr_name)
         return options
 
-    def _get_options(self) -> Iterator[BaseModCfgSetting]:
+    def get_options(self) -> Iterator[BaseModCfgSetting]:
         for key in self.option_field_names:
             yield getattr(self, key)
 
-    def _get_option_by_key(self, key, parent_key=None) -> BaseModCfgSetting:
-        for option in self._get_options():
+    def get_option_by_key(self, key, parent_key=None) -> BaseModCfgSetting:
+        for option in self.get_options():
             if option.parent == parent_key and key == option.key:
                 return option
 
-    def _update_option(self, option_dict: dict):
-        option = self._get_option_by_key(option_dict.get('key'), option_dict.get('parent'))
+    def update_option(self, option_dict: dict):
+        option = self.get_option_by_key(option_dict.get('key'), option_dict.get('parent'))
         if option:
             option.value = option_dict.get('value')
 
