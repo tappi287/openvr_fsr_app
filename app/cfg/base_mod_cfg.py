@@ -1,6 +1,7 @@
 import json
 import logging
 from pathlib import Path
+from shutil import copyfile
 from typing import List, Iterator
 
 from app.util.utils import JsonRepr, read_json_cfg, ModCfgYamlHandler
@@ -29,10 +30,13 @@ class BaseModCfgType:
 
 class BaseModSettings(JsonRepr):
     """ OpenVR Mod cfg base class to handle settings in openvr_mod.cfg configurations. """
-    option_field_names = list()
     cfg_key = str()
     CFG_FILE = 'config_file.abc'
     CFG_TYPE = BaseModCfgType.invalid
+
+    def __init__(self, mod_dll_location: Path = None):
+        self.mod_dll_location = mod_dll_location
+        self.option_field_names = self.get_setting_fields()
 
     def get_setting_fields(self) -> List[str]:
         options = list()
@@ -93,6 +97,8 @@ class BaseModSettings(JsonRepr):
                         json.dump(self.to_cfg_json(), f, indent=2)
                     result = True
                 case BaseModCfgType.vrp_mod:
+                    if not cfg.exists():
+                        copyfile(self.mod_dll_location.parent / cfg.name, cfg)
                     result = ModCfgYamlHandler.write_cfg(self, cfg)
         except Exception as e:
             logging.error('Error writing FSR settings to cfg file: %s', e)

@@ -31,7 +31,7 @@ class BaseMod:
         """ Mod base class to handle installation/uninstallation
         
         :param dict manifest: The app's Steam manifest with additional settings dict
-        :param app.openvr_mod_cfg.BaseModSettings settings: Cfg settings handler
+        :param app.cfg.base_mod_cfg.BaseModSettings settings: Cfg settings handler
         :param Path mod_dll_location: Path to the OpenVRMod dll to install
         """
         self.manifest = manifest
@@ -146,7 +146,7 @@ class BaseMod:
                     return True
 
             # --- Uninstallation or Restore if installation failed
-            self._uninstall_fsr(org_engine_dll)
+            self._uninstall_mod(org_engine_dll)
         except Exception as e:
             msg = f'Error during OpenVRMod install/uninstall: {e}'
             logging.error(msg)
@@ -154,7 +154,7 @@ class BaseMod:
             return False
         return True
 
-    def _uninstall_fsr(self, org_open_vr_dll: Path):
+    def _uninstall_mod(self, org_open_vr_dll: Path):
         legacy_dll_bak = self.engine_dll.with_suffix('.original')
 
         if org_open_vr_dll.exists() or legacy_dll_bak.exists():

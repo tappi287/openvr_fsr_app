@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from app.globals import OPEN_VR_FSR_CFG
 from app.cfg import BaseModCfgSetting, BaseModSettings, BaseModCfgType
 
@@ -8,7 +10,7 @@ class FsrSettings(BaseModSettings):
     CFG_FILE = OPEN_VR_FSR_CFG
     CFG_TYPE = BaseModCfgType.open_vr_mod
 
-    def __init__(self):
+    def __init__(self, mod_dll_location: Path = None):
         self.enabled = BaseModCfgSetting(
             key='enabled',
             name='Enabled',
@@ -204,4 +206,4 @@ class FsrSettings(BaseModSettings):
             value=118,  # F7
             settings=[{'settingType': 'key'}]
         )
-        self.option_field_names = self.get_setting_fields()
+        super(FsrSettings, self).__init__(mod_dll_location)

@@ -18,8 +18,8 @@ class VRPerfKitMod(BaseMod):
     DLL_NAME = DXGI_DLL
 
     def __init__(self, manifest: dict):
-        self.settings = VRPerfKitSettings()
-        self.settings.from_js_dict(manifest.get(self.VAR_NAMES['settings']))
         vrp_mod_dll = Path(AppSettings.vrperfkit_dir) / DXGI_DLL
+        self.settings = VRPerfKitSettings(vrp_mod_dll)
+        self.settings.from_js_dict(manifest.get(self.VAR_NAMES['settings']))
 
         super(VRPerfKitMod, self).__init__(manifest, self.settings, vrp_mod_dll)
