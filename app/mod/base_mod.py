@@ -112,7 +112,7 @@ class BaseMod:
         return True
 
     def _update_engine_dll_paths(self):
-        for dll_path in self.manifest.get(self.DLL_LOC_KEY_SELECTED):
+        for dll_path in self.manifest.get(self.DLL_LOC_KEY_SELECTED) or list():
             if not dll_path:
                 self.error = f'{self.DLL_NAME} not found in: ' + self.manifest.get('name')
                 yield None
