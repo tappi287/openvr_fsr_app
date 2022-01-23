@@ -8,7 +8,7 @@ from app.util.utils import JsonRepr
 
 
 class AppSettings(JsonRepr):
-    skip_keys = ['open_vr_fsr_versions', 'open_vr_foveated_versions', 'vrperfkit_versions'
+    skip_keys = ['open_vr_fsr_versions', 'open_vr_foveated_versions', 'vrperfkit_versions',
                  'current_fsr_version', 'current_foveated_version', 'current_vrperfkit_version']
 
     backup_created = False
