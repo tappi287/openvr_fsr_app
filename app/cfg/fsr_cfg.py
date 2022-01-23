@@ -1,11 +1,12 @@
 from app.globals import OPEN_VR_FSR_CFG
-from app.cfg import BaseModCfgSetting, BaseModSettings
+from app.cfg import BaseModCfgSetting, BaseModSettings, BaseModCfgType
 
 
 class FsrSettings(BaseModSettings):
     cfg_key = 'fsr'
     format = 'cfg'
     CFG_FILE = OPEN_VR_FSR_CFG
+    CFG_TYPE = BaseModCfgType.open_vr_mod
 
     def __init__(self):
         self.enabled = BaseModCfgSetting(

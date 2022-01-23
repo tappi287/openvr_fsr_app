@@ -1,11 +1,12 @@
 from app.globals import VRPERFKIT_CFG
-from app.cfg import BaseModCfgSetting, BaseModSettings
+from app.cfg import BaseModCfgSetting, BaseModSettings, BaseModCfgType
 
 
 class VRPerfKitSettings(BaseModSettings):
     cfg_key = None
     format = 'yml'
     CFG_FILE = VRPERFKIT_CFG
+    CFG_TYPE = BaseModCfgType.vrp_mod
 
     def __init__(self):
         # --
