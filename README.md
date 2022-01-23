@@ -1,6 +1,10 @@
-# OpenVR FSR App
+# VR Mod App
 
-Small GUI to install/uninstall, tweak settings of the [Modified OpenVR DLL with AMD FidelityFX SuperResolution Upscaler](https://github.com/fholger/openvr_fsr#modified-openvr-dll-with-amd-fidelityfx-superresolution-upscaler)
+Small GUI to install/uninstall, tweak settings of 
+ - [Modified OpenVR DLL with AMD FidelityFX SuperResolution Upscaler](https://github.com/fholger/openvr_fsr#modified-openvr-dll-with-amd-fidelityfx-superresolution-upscaler)
+ - [OpenVR Foveated Mod](https://github.com/fholger/openvr_foveated)
+ - [VR Performance Toolkit](https://github.com/fholger/vrperfkit)
+
 with a single click.
 
 <p align="center">
