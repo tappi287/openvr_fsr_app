@@ -39,7 +39,8 @@ class AppSettings(JsonRepr):
         'v0.1.1': '0559a8e6a1fc0021f9d5fb4d1cd9cc00',
         'v0.1.2': 'caed41dd77a7f5873f00215e67dded31',
         'v0.2': '017212ff2fabff1178462bf32923a6ce',
-        'v0.2.1': '2baca682f41b5046f3245d200b4e3c02'
+        'v0.2.1': '2baca682f41b5046f3245d200b4e3c02',
+        'v0.2.2': '30531b66aa251f7ee7cfbc9b005d10b3',
     }
     current_fsr_version = 'v2.1.1'
     current_foveated_version = 'v0.2'
