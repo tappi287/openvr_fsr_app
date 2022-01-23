@@ -81,8 +81,8 @@ class BaseMod:
             return False
 
         cfg_results = list()
-        for open_vr_dll in self._update_engine_dll_paths():
-            if not open_vr_dll:
+        for engine_dll in self._update_engine_dll_paths():
+            if not engine_dll:
                 continue
 
             if write:
