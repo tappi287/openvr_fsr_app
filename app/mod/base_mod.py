@@ -154,18 +154,22 @@ class BaseMod:
             return False
         return True
 
-    def _uninstall_mod(self, org_open_vr_dll: Path):
+    def _uninstall_mod(self, org_engine_dll: Path):
         legacy_dll_bak = self.engine_dll.with_suffix('.original')
 
-        if org_open_vr_dll.exists() or legacy_dll_bak.exists():
+        if org_engine_dll.exists() or legacy_dll_bak.exists():
             # Remove Fsr dll
             self.engine_dll.unlink(missing_ok=True)
 
             # Rename original open vr dll
-            if org_open_vr_dll.exists():
-                org_open_vr_dll.rename(self.engine_dll)
+            if org_engine_dll.exists():
+                org_engine_dll.rename(self.engine_dll)
             if legacy_dll_bak.exists():
                 legacy_dll_bak.rename(self.engine_dll)
+
+        # -- Remove installed dll
+        if self.TYPE == BaseModType.vrp:
+            self.engine_dll.unlink()
 
         # Remove Cfg
         if not self.settings.delete_cfg(self.engine_dll.parent):
