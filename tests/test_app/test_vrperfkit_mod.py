@@ -5,8 +5,7 @@ from pathlib import Path
 from app import app_fn, globals
 from app.app_settings import AppSettings
 from app.mod import BaseModType, VRPerfKitMod
-from app.cfg import BaseModSettings
-from app.util.utils import ModCfgYamlHandler
+from app.cfg.cfg_file_handler import ModCfgYamlHandler
 
 
 def _create_test_output(output_path, vrperfkit_dir):
