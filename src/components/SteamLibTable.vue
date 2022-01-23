@@ -141,7 +141,7 @@ export default {
   components: {EntryDetails},
   data: function () {
     return {
-      textFilter: null, filterVr: true, filterInstalled: false,
+      textFilter: null, filterVr: false, filterInstalled: false,
       steamApps: {}, libUpdateRequired: false, reScanRequired: false,
       steamlibBusy: false, backgroundBusy: false,
       showAddAppModal: false,
