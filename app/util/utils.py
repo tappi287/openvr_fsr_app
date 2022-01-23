@@ -382,7 +382,7 @@ class ModCfgYamlHandler:
                 cls.set_value(data, key, option.value)
             # -- Update settings from data
             case True if not write:
-                option.value = current_data
+                option.value = cls.get_value(current_data)
 
     @classmethod
     def set_value(cls, data, key, value):
@@ -402,6 +402,19 @@ class ModCfgYamlHandler:
                     data[key][idx] = item
             case _:
                 data[key] = value
+
+    @classmethod
+    def get_value(cls, yml_value):
+        """ Read back Yaml values to std Python types """
+        match type(yml_value).__name__:
+            case 'ScalarFloat':
+                return float(yml_value)
+            case 'CommentedSeq':
+                return list(yml_value)
+            case 'CommentedMap':
+                return dict(yml_value)
+            case _:
+                return yml_value
 
     @classmethod
     def set_style(cls, d, map_flow=False, list_flow=True):
