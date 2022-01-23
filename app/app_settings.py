@@ -44,7 +44,7 @@ class AppSettings(JsonRepr):
     }
     current_fsr_version = 'v2.1.1'
     current_foveated_version = 'v0.2'
-    current_vrperfkit_version = 'v0.2.1'
+    current_vrperfkit_version = 'v0.2.2'
 
     # Default plugin path
     openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
