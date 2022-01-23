@@ -72,10 +72,19 @@
         <!-- Keyboard Key -->
         <template v-if="inputType === 'key'">
           <div class="btn btn-secondary setting-item fixed-width-setting" :id="elemId">
-            <b-icon shift-v="-1" icon="keyboard" class="text-white" />
-            <span class="ml-2">{{ settingKeyName }}</span>
             <b-link @click="startListening" class="text-white ml-2">
-              <b-icon icon="pencil"></b-icon>
+              <b-icon shift-v="-1" icon="keyboard" class="text-white" />
+              <span class="ml-2">{{ settingKeyName }}</span>
+            </b-link>
+          </div>
+        </template>
+
+        <!-- Keyboard Key Combo -->
+        <template v-if="inputType === 'keyCombo'">
+          <div class="btn btn-secondary setting-item fixed-width-setting" :id="elemId">
+            <b-link @click="startListening" class="text-white ml-2">
+              <b-icon shift-v="-1" icon="keyboard" class="text-white" />
+              <span class="ml-2">{{ settingKeyComboName }}</span>
             </b-link>
           </div>
         </template>
@@ -95,7 +104,16 @@
           <h5>Hotkey Mapping</h5>
           <p style="font-size: small;">{{ $t('setting.keyboardAssign') }}</p>
           <p>
-            <span>Key</span>
+            <template v-if="inputType === 'keyCombo'">
+              <span>Modifier</span>
+              <b-dropdown :text="modifierKey.toUpperCase()" size="sm" class="ml-2">
+                <b-dropdown-item v-for="mKey in modifierKeys" :key="mKey"
+                                 @click="updateModifierKey(mKey)">
+                  {{ mKey.toUpperCase() }}
+                </b-dropdown-item>
+              </b-dropdown>
+            </template>
+            <span class="ml-2">Key</span>
             <span class="ml-2">{{ capturedValueName }}</span>
           </p>
         </div>
@@ -137,6 +155,8 @@ export default {
       listening: false,
       eventCaptured: false,
       capturedEvent: null,
+      modifierKeys: ['ctrl', 'alt', 'shift'],
+      modifierKey: 'ctrl',
       modalId: 'assign' + this._uid,
     }
   },
@@ -204,7 +224,11 @@ export default {
       if (this.listening && !this.eventCaptured) {
         this.eventCaptured = true
         console.log(event)
-        this.capturedEvent = {name: 'Keyboard', value: event.keyCode}
+        if (this.inputType === 'key') {
+          this.capturedEvent = {name: 'Keyboard', value: event.keyCode}
+        } else if (this.inputType === 'keyCombo') {
+          this.capturedEvent = {name: 'Keyboard', value: [this.modifierKey, event.key]}
+        }
       }
     },
     listenToKeyboard: function (remove = false) {
@@ -220,10 +244,18 @@ export default {
     },
     startListening: function () {
       this.eventCaptured = false; this.capturedEvent = null; this.listening = true
+      this.modifierKey = this.setting.value[0]
       this.$nextTick(() => { this.listenToKeyboard(false) })
     },
     abortListening: function () {
       this.listenToKeyboard(true); this.listening = false; this.eventCaptured = false
+    },
+    updateModifierKey: function (mKey) {
+      this.modifierKey = mKey
+      if (this.capturedEvent !== null) {
+        const key = this.capturedEvent.value[1]
+        this.capturedEvent.value = [this.modifierKey, key]
+      }
     },
     confirmAssign: async function () {
       this.selectSetting(this.capturedEvent)
@@ -258,9 +290,10 @@ export default {
           this.spinnerInputValue = this.setting.value
           this.settingDesc = this.setting.desc || this.setting.settings[0].desc || ''
           this.$nextTick(() => { this.setupSpinnerDblClick() })
-        }
-        if (this.setting.settings[0].settingType === 'key') {
+        } else if (this.setting.settings[0].settingType === 'key') {
           this.inputType = 'key'
+        } else if (this.setting.settings[0].settingType === 'keyCombo') {
+          this.inputType = 'keyCombo'
         }
       }
     }
@@ -295,11 +328,25 @@ export default {
     },
     settingKeyName() {
       if (this.setting === undefined) { return 'Undefined' }
-      return this.keyCodeValueToDisplayString(this.setting.value)
+      if (this.inputType === 'key') {
+        return this.keyCodeValueToDisplayString(this.setting.value)
+      } else if (this.inputType === 'keyCombo') {
+        return String(this.setting.value[1]).toUpperCase()
+      }
+      return 'Undefined'
+    },
+    settingKeyComboName() {
+      if (this.setting === undefined) { return 'Undefined' }
+      return String(this.setting.value[0]).toUpperCase() + " " + String(this.setting.value[1]).toUpperCase()
     },
     capturedValueName() {
       if (!this.eventCaptured) { return this.settingKeyName }
-      return this.keyCodeValueToDisplayString(this.capturedEvent.value)
+      if (this.inputType === 'key') {
+        return this.keyCodeValueToDisplayString(this.capturedEvent.value)
+      } else if (this.inputType === 'keyCombo') {
+        return String(this.capturedEvent.value[1]).toUpperCase()
+      }
+      return 'Undefined'
     },
   }
 }
