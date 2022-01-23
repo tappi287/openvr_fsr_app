@@ -238,7 +238,7 @@ class BaseMod:
         return version
 
     def reset_engine_dll_selected_paths(self, manifest):
-        manifest[self.DLL_LOC_KEY_SELECTED] = manifest.get(self.DLL_LOC_KEY, list())
+        manifest[self.DLL_LOC_KEY_SELECTED] = manifest.get(self.DLL_LOC_KEY, list()) or list()
 
     def verify_engine_dll_selected_paths(self, manifest) -> bool:
         """ Verify all selected paths still exist """
