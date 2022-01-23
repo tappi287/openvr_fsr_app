@@ -245,7 +245,10 @@ class BaseMod:
         results = list()
         for selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY_SELECTED, list()):
             results.append(selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY))
-        return all(results)
+
+        if results:
+            return all(results)
+        return False
 
 
 def get_mod(manifest: dict, mod_type: int = 0) -> BaseMod:
