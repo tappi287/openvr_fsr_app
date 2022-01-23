@@ -14,17 +14,25 @@
           />
         </h6>
         <b-form-checkbox-group stacked switches
-                               :disabled="entry.fsrInstalled || entry.fovInstalled"
+                               :disabled="entry.fsrInstalled || entry.fovInstalled || entry.vrpInstalled"
                                :options="entry.openVrDllPaths"
                                v-model="entry.openVrDllPathsSelected"
                                @change="saveEntry"
+                               class="text-primary"
+        />
+        <b-form-checkbox-group stacked switches
+                               :disabled="entry.fsrInstalled || entry.fovInstalled || entry.vrpInstalled"
+                               :options="entry.executablePaths"
+                               v-model="entry.executablePathsSelected"
+                               @change="saveEntry"
+                               class="text-info"
         />
       </div>
 
       <!-- FSR PlugIn Install / Uninstall Button -->
       <b-button :variant="entry.fsrInstalled ? 'success' : 'primary'"
-                :disabled="entry.openVrDllPathsSelected.length === 0 || entry.fovInstalled"
-                @click="installMod(0)" class="mr-2">
+                :disabled="!modInstallAllowed(0)"
+                @click="installMod(0)" class="mr-2" size="sm">
         <b-icon class="mr-1" :icon="entry.fsrInstalled ? 'square-fill' : 'square'" />
         FSR {{ entry.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
       </b-button>
@@ -43,8 +51,8 @@
 
       <!-- Foveated PlugIn Install / Uninstall Button -->
       <b-button :variant="entry.fovInstalled ? 'success' : 'primary'"
-                :disabled="entry.openVrDllPathsSelected.length === 0 || entry.fsrInstalled"
-                @click="installMod(1)" class="mr-2 ml-2">
+                :disabled="!modInstallAllowed(1)"
+                @click="installMod(1)" class="mr-2 ml-2" size="sm">
         <b-icon class="mr-1" :icon="entry.fovInstalled ? 'square-fill' : 'square'" />
         Foveated {{ entry.fovInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
       </b-button>
@@ -54,6 +62,26 @@
             :class="entry.fovVersion !== currentFovVersion ? 'text-warning' : ''">
         OpenVR Foveated: {{ entry.fovVersion }}
         <template v-if="entry.fovVersion !== currentFovVersion">
+          <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
+        </template>
+        <template v-else>
+          <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
+        </template>
+      </span>
+
+      <!-- VrPerfKit PlugIn Install / Uninstall Button -->
+      <b-button :variant="entry.vrpInstalled ? 'success' : 'info'"
+                :disabled="!modInstallAllowed(2)"
+                @click="installMod(2)" class="mr-2 ml-2" size="sm">
+        <b-icon class="mr-1" :icon="entry.vrpInstalled ? 'square-fill' : 'square'" />
+        VrPerfKit {{ entry.vrpInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
+      </b-button>
+
+      <!-- VRP Version Report -->
+      <span v-if="entry.vrpInstalled"
+            :class="entry.vrpVersion !== currentVrpVersion ? 'text-warning' : ''">
+        VrPerfKit: {{ entry.vrpVersion }}
+        <template v-if="entry.vrpVersion !== currentVrpVersion">
           <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
         </template>
         <template v-else>
@@ -72,6 +100,12 @@
                 class="float-right warning" size="sm">
         <b-icon class="mr-1" icon="arrow-counterclockwise"/>
         Reset FFR Settings
+      </b-button>
+      <b-button v-if="entry.vrpInstalled" variant="warning"
+                @click="resetModSettings(2)"
+                class="float-right warning" size="sm">
+        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+        Reset VRP Settings
       </b-button>
     </b-card-text>
 
@@ -104,6 +138,21 @@
           <Setting v-for="s in orderedSettings(1, category)" :key="s.key" :setting="s" :app-id="entry.id"
                    :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
                    :fixed-width="true" :group-id="'FFR' + idx"
+                   class="mr-3 mb-3" />
+        </div>
+      </template>
+
+      <!-- VrPerfKit Settings -->
+      <template v-if="entry.vrpInstalled">
+        <h4 v-if="settingsCategories(2)[0] === null" class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
+        <!-- Categories -->
+        <div class="mt-1 mb-2 text-center" v-for="(category, idx) in settingsCategories(2)" :key="category"
+             :id="'VRP' + idx">
+          <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
+          <!-- Settings -->
+          <Setting v-for="s in orderedSettings(2, category)" :key="s.key" :setting="s" :app-id="entry.id"
+                   :disabled="!entry.vrpInstalled" @setting-changed="updateModSetting(2)"
+                   :fixed-width="true" :group-id="'VRP' + idx"
                    class="mr-3 mb-3" />
         </div>
       </template>
@@ -153,12 +202,25 @@ export default {
     }
   },
   props: {
-    entry: Object, currentFsrVersion: String, currentFovVersion: String, steamLibBusy: Boolean
+    entry: Object, currentFsrVersion: String, currentFovVersion: String, currentVrpVersion: String,
+    steamLibBusy: Boolean
   },
   methods: {
     delay: ms => new Promise(res => {
         setTimeout(res, ms)
     }),
+    modInstallAllowed: function (modType) {
+      const openVrPathSelected = this.entry.openVrDllPathsSelected.length !== 0
+      const exePathSelected = this.entry.executablePathsSelected.length !== 0
+
+      if (modType === 0) {
+        return !this.entry.fovInstalled && !this.entry.vrpInstalled && openVrPathSelected
+      } else if (modType === 1) {
+        return !this.entry.fsrInstalled && !this.entry.vrpInstalled && openVrPathSelected
+      } else if (modType === 2) {
+        return !this.entry.fsrInstalled && !this.entry.fovInstalled && exePathSelected
+      }
+    },
     launchApp: async function() {
       if (this.steamLibBusy) { return }
       this.$eventHub.$emit('set-busy', true)
@@ -189,6 +251,9 @@ export default {
       this.entry.fov_settings = manifest.fov_settings
       this.entry.fovInstalled = manifest.fovInstalled
       this.entry.fovVersion = manifest.fovVersion
+      this.entry.vrp_settings = manifest.vrp_settings
+      this.entry.vrpInstalled = manifest.vrpInstalled
+      this.entry.vrpVersion = manifest.vrpVersion
       this.$nextTick(() => { this.settingsAboutToReset = false })
     },
     installMod: async function (modType) {
@@ -205,7 +270,7 @@ export default {
         await this.updateEntry(r.manifest)
 
         // Update install state
-        if (this.entry.fsrInstalled || this.entry.fovInstalled) {
+        if (this.entry.fsrInstalled || this.entry.fovInstalled || this.entry.vrpInstalled) {
           this.$eventHub.$emit('make-toast', 'Installed PlugIn to ' + this.entry.name, 'success',
               'PlugIn Installed')
         } else {
@@ -223,7 +288,7 @@ export default {
       // Update disk cache
       this.$emit('entry-updated')
     },
-    updateModSetting: async function(modType = 0) {
+    updateModSetting: async function(modType = -1) {
       await this.updateMod(modType, true)
       // Update disk cache
       this.$emit('entry-updated')
@@ -243,7 +308,7 @@ export default {
 
       this.$eventHub.$emit('set-busy', false)
     },
-    resetModSettings: async function (modType = 0) {
+    resetModSettings: async function (modType = -1) {
       if (this.steamLibBusy) { return }
       this.$eventHub.$emit('set-busy', true)
 
@@ -258,16 +323,18 @@ export default {
       await this.saveEntry()
       this.$eventHub.$emit('set-busy', false)
     },
-    _getSettingsByType(modType = 0) {
+    _getSettingsByType(modType = -1) {
       let settings = {}
       if (modType === 0) {
         settings = this.entry.settings
       } else if (modType === 1) {
         settings = this.entry.fov_settings
+      } else if (modType === 2) {
+        settings = this.entry.vrp_settings
       }
       return settings
     },
-    settingsCategories(modType = 0) {
+    settingsCategories(modType = -1) {
       let settings = this._getSettingsByType(modType)
       let categorys = new Set()
 
@@ -278,7 +345,7 @@ export default {
       if (categorys.size > 0) { return Array.from(categorys).sort() }
       return [null]
     },
-    orderedSettings(modType = 0, category = null) {
+    orderedSettings(modType = -1, category = null) {
       let settings = this._getSettingsByType(modType)
       if (category === null) { return settings }
 
@@ -293,7 +360,7 @@ export default {
     }
   },
   async mounted() {
-    for (const modType in [0, 1]) {
+    for (const modType in [0, 1, 2]) {
       await this.updateMod(Number(modType))
     }
   }

@@ -80,6 +80,7 @@
         <EntryDetails :entry="steamApps[row.item.appid]"
                       :current-fsr-version="currentFsrVersion"
                       :current-fov-version="currentFovVersion"
+                      :current-vrp-version="currentVrpVersion"
                       :steam-lib-busy="tableBusy"
                       @entry-updated="saveSteamApps"
                       @load-steam-lib="loadSteamLib"
@@ -151,7 +152,7 @@ export default {
         { key: 'sizeGb', label: '', sortable: true, class: 'text-right' },
         { key: 'openVr', label: 'Open VR', sortable: true, class: 'text-right' },
       ],
-      currentFsrVersion: '', currentFovVersion: ''
+      currentFsrVersion: '', currentFovVersion: '', currentVrpVersion: '',
     }
   },
   methods: {
@@ -167,6 +168,11 @@ export default {
         textClass = 'text-success'
         if (manifest.fovVersion !== undefined) {
           if (manifest.fovVersion !== this.currentFovVersion) { textClass = 'text-warning' }
+        }
+      } else if (manifest.vrpInstalled) {
+        textClass = 'text-success'
+        if (manifest.vrpVersion !== undefined) {
+          if (manifest.vrpVersion !== this.currentVrpVersion) { textClass = 'text-warning' }
         }
       }
       return textClass
@@ -268,6 +274,7 @@ export default {
     await this.loadSteamLib()
     this.currentFsrVersion = await window.eel.get_current_fsr_version()()
     this.currentFovVersion = await window.eel.get_current_foveated_version()()
+    this.currentVrpVersion = await window.eel.get_current_vrperfkit_version()()
     console.log('Current FSR App compatible version:', this.currentFsrVersion)
     if (Object.keys(this.steamApps).length === 0 || this.reScanRequired) {
       await this.scanSteamLib()
