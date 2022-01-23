@@ -1,10 +1,10 @@
-import json
 import logging
 from pathlib import Path
 from shutil import copyfile
 from typing import List, Iterator
 
-from app.util.utils import JsonRepr, read_json_cfg, ModCfgYamlHandler
+from app.cfg import ModCfgJsonHandler, ModCfgYamlHandler
+from app.util.utils import JsonRepr
 
 
 class BaseModCfgSetting(JsonRepr):
@@ -67,20 +67,11 @@ class BaseModSettings(JsonRepr):
         try:
             match self.CFG_TYPE:
                 case BaseModCfgType.open_vr_mod:
-                    # -- Read json
-                    json_dict = self._cfg_to_json(cfg)
-
-                    # -- Check if the cfg key e.g. 'fsr' is defined inside the CFG
-                    if self.cfg_key not in json_dict:
-                        return False
-
-                    # -- Read settings to this instance
-                    self.from_json(json_dict[self.cfg_key])
-                    return True
+                    # -- Read settings to this instance from json
+                    return self.update_from_json_cfg(cfg)
                 case BaseModCfgType.vrp_mod:
                     # -- Read settings to this instance from yaml
-                    self.from_yaml(cfg)
-                    return True
+                    return self.update_from_yaml_cfg(cfg)
         except Exception as e:
             logging.error('Error reading Settings from CFG file: %s', e)
 
@@ -88,24 +79,21 @@ class BaseModSettings(JsonRepr):
 
     def write_cfg(self, plugin_path) -> bool:
         cfg = plugin_path / self.CFG_FILE
-        result = False
 
         try:
             match self.CFG_TYPE:
                 case BaseModCfgType.open_vr_mod:
-                    with open(cfg, 'w') as f:
-                        json.dump(self.to_cfg_json(), f, indent=2)
-                    result = True
+                    ModCfgJsonHandler.write_cfg(self, cfg)
                 case BaseModCfgType.vrp_mod:
                     if not cfg.exists():
                         copyfile(self.mod_dll_location.parent / cfg.name, cfg)
-                    result = ModCfgYamlHandler.write_cfg(self, cfg)
+                    ModCfgYamlHandler.write_cfg(self, cfg)
         except Exception as e:
-            logging.error('Error writing FSR settings to cfg file: %s', e)
+            logging.error('Error writing Settings to CFG file: %s', e)
             return False
 
         logging.info('Written updated config at: %s', plugin_path)
-        return result
+        return True
 
     def delete_cfg(self, plugin_path) -> bool:
         cfg = plugin_path / self.CFG_FILE
@@ -120,48 +108,23 @@ class BaseModSettings(JsonRepr):
             return False
         return True
 
-    @staticmethod
-    def _cfg_to_json(cfg_file: Path) -> dict:
-        try:
-            with open(cfg_file, 'r') as f:
-                return read_json_cfg(f)
-        except Exception as e:
-            logging.error(f'Error reading CFG file {cfg_file}: {e}')
-
-        return dict()
-
     def to_js(self, export: bool = False) -> list:
         return [s.to_js_object(export) for s in self.get_options()]
 
-    def to_cfg_json(self) -> dict:
-        options_dict = dict()
+    def update_from_json_cfg(self, file: Path) -> bool:
+        data = ModCfgJsonHandler.read_cfg(self, file)
+        return True if data else False
 
-        for o in self.get_options():
-            if o.parent:
-                parent_option = self.get_option_by_key(o.parent)
-                if parent_option.key not in options_dict:
-                    options_dict[parent_option.key] = dict()
-                options_dict[parent_option.key][o.key] = o.value
-            else:
-                options_dict[o.key] = o.value
-
-        return {self.cfg_key: options_dict}
-
-    def from_json(self, settings: dict):
-        for key, value in settings.items():
-            if isinstance(value, dict):
-                self.update_option(value)
-            else:
-                self.update_option({'key': key, 'value': value})
-
-    def from_yaml(self, file: Path):
+    def update_from_yaml_cfg(self, file: Path) -> bool:
         # -- This updates this class directly
-        ModCfgYamlHandler.read_cfg(self, file)
+        data = ModCfgYamlHandler.read_cfg(self, file)
 
         # -- Restore empty data for hidden settings just defining parents
         for option in self.get_options():
             if option.hidden:
                 option.value = dict()
+
+        return True if data else False
 
     def from_js_dict(self, js_object_list: list):
         if not js_object_list:
