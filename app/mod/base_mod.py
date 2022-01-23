@@ -5,6 +5,7 @@ from typing import Optional, Iterable
 
 import app
 from app.app_settings import AppSettings
+from app.cfg import BaseModCfgType, BaseModSettings
 
 
 class BaseModType:
@@ -31,7 +32,7 @@ class BaseMod:
         """ Mod base class to handle installation/uninstallation
         
         :param dict manifest: The app's Steam manifest with additional settings dict
-        :param app.cfg.base_mod_cfg.BaseModSettings settings: Cfg settings handler
+        :param BaseModSettings settings: Cfg settings handler
         :param Path mod_dll_location: Path to the OpenVRMod dll to install
         """
         self.manifest = manifest
@@ -155,20 +156,21 @@ class BaseMod:
         return True
 
     def _uninstall_mod(self, org_engine_dll: Path):
-        legacy_dll_bak = self.engine_dll.with_suffix('.original')
+        # -- Restore original open_vr.dll
+        if self.settings.CFG_TYPE == BaseModCfgType.open_vr_mod:
+            legacy_dll_bak = self.engine_dll.with_suffix('.original')
 
-        if org_engine_dll.exists() or legacy_dll_bak.exists():
-            # Remove Fsr dll
-            self.engine_dll.unlink(missing_ok=True)
+            if org_engine_dll.exists() or legacy_dll_bak.exists():
+                # Remove Fsr dll
+                self.engine_dll.unlink(missing_ok=True)
 
-            # Rename original open vr dll
-            if org_engine_dll.exists():
-                org_engine_dll.rename(self.engine_dll)
-            if legacy_dll_bak.exists():
-                legacy_dll_bak.rename(self.engine_dll)
-
-        # -- Remove installed dll
-        if self.TYPE == BaseModType.vrp:
+                # Rename original open vr dll
+                if org_engine_dll.exists():
+                    org_engine_dll.rename(self.engine_dll)
+                if legacy_dll_bak.exists():
+                    legacy_dll_bak.rename(self.engine_dll)
+        # -- Remove installed dxgi.dll
+        elif self.settings.CFG_TYPE == BaseModCfgType.vrp_mod:
             self.engine_dll.unlink()
 
         # Remove Cfg
@@ -201,6 +203,8 @@ class BaseMod:
             version_dict = AppSettings.open_vr_fsr_versions
         elif mod_type == BaseModType.foveated:
             version_dict = AppSettings.open_vr_foveated_versions
+        elif mod_type == BaseModType.vrp:
+            version_dict = AppSettings.vrperfkit_versions
 
         for version, hash_str in version_dict.items():
             if file_hash != hash_str:
