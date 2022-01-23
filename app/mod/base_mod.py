@@ -243,7 +243,7 @@ class BaseMod:
     def verify_engine_dll_selected_paths(self, manifest) -> bool:
         """ Verify all selected paths still exist """
         results = list()
-        for selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY_SELECTED, list()):
+        for selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY_SELECTED, list()) or list():
             results.append(selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY))
 
         if results:
