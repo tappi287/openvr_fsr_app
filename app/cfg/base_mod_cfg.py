@@ -74,8 +74,8 @@ class BaseModSettings(JsonRepr):
                     self.from_json(json_dict[self.cfg_key])
                     return True
                 case BaseModCfgType.vrp_mod:
-                    # -- Read yaml
-                    ModCfgYamlHandler.read_cfg(self, cfg)
+                    # -- Read settings to this instance from yaml
+                    self.from_yaml(cfg)
                     return True
         except Exception as e:
             logging.error('Error reading Settings from CFG file: %s', e)
@@ -147,6 +147,15 @@ class BaseModSettings(JsonRepr):
                 self.update_option(value)
             else:
                 self.update_option({'key': key, 'value': value})
+
+    def from_yaml(self, file: Path):
+        # -- This updates this class directly
+        ModCfgYamlHandler.read_cfg(self, file)
+
+        # -- Restore empty data for hidden settings just defining parents
+        for option in self.get_options():
+            if option.hidden:
+                option.value = dict()
 
     def from_js_dict(self, js_object_list: list):
         if not js_object_list:
