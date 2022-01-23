@@ -367,10 +367,10 @@ class ModCfgYamlHandler:
         """
         if isinstance(current_data, dict):
             for k in current_data:
-                cls.set_data(data, settings, current_data[k], k, key)
+                cls.set_data(data, settings, current_data[k], k, key, write=write)
         elif isinstance(current_data, list):
             for item in current_data:
-                cls.set_data(data, settings, item, parent_key)
+                cls.set_data(data, settings, item, parent_key, write=write)
 
         option = settings.get_option_by_key(key, parent_key)
 
