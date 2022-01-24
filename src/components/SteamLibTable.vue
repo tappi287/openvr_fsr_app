@@ -227,7 +227,7 @@ export default {
       tableData.forEach(rowItem => {
         // Button Filter
         if (this.filterVr && !rowItem.openVr) { return }
-        if (this.filterInstalled && !rowItem.fsrInstalled && !rowItem.fovInstalled) { return }
+        if (this.filterInstalled && !rowItem.fsrInstalled && !rowItem.fovInstalled && !rowItem.vrpInstalled) { return }
 
         // Text Filter
         if (filterText === '') { filteredList.push(rowItem); return }
