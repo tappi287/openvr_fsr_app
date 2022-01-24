@@ -112,12 +112,15 @@ class BaseMod:
         return True
 
     def _update_engine_dll_paths(self):
-        for dll_path in self.manifest.get(self.DLL_LOC_KEY_SELECTED) or list():
-            if not dll_path:
+        # -- Merge e.g. multiple executables in the same directory
+        dll_path_dirs = {Path(p).parent for p in self.manifest.get(self.DLL_LOC_KEY_SELECTED) or list()}
+
+        for dll_path_dir in dll_path_dirs:
+            if not dll_path_dir.exists():
                 self.error = f'{self.DLL_NAME} not found in: ' + self.manifest.get('name')
                 yield None
 
-            engine_dll_path = Path(dll_path).parent / self.DLL_NAME
+            engine_dll_path = dll_path_dir / self.DLL_NAME
             self.engine_dll = engine_dll_path
             yield engine_dll_path
 
