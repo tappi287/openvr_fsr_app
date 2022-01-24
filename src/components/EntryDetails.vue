@@ -17,14 +17,14 @@
                                :disabled="entry.fsrInstalled || entry.fovInstalled || entry.vrpInstalled"
                                :options="entry.openVrDllPaths"
                                v-model="entry.openVrDllPathsSelected"
-                               @change="saveEntry"
+                               @change="saveEntryDebounced"
                                class="text-primary"
         />
         <b-form-checkbox-group stacked switches
                                :disabled="entry.fsrInstalled || entry.fovInstalled || entry.vrpInstalled"
                                :options="entry.executablePaths"
                                v-model="entry.executablePathsSelected"
-                               @change="saveEntry"
+                               @change="saveEntryDebounced"
                                class="text-info"
         />
       </div>
@@ -198,7 +198,8 @@ export default {
   data: function () {
     return {
       id: this._uid,
-      settingsAboutToReset: false
+      settingsAboutToReset: false,
+      debounceTimeout: null, debounceRate: 1500,
     }
   },
   props: {
@@ -282,6 +283,10 @@ export default {
         this.$emit('entry-updated', this.entry)
       }
       this.$eventHub.$emit('set-busy', false)
+    },
+    saveEntryDebounced: function() {
+      clearTimeout(this.debounceTimeout)
+      this.debounceTimeout = setTimeout(this.saveEntry, this.debounceRate)
     },
     saveEntry: function() {
       if (this.steamLibBusy) { return }
