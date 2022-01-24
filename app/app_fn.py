@@ -27,7 +27,7 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
         reduced_dict[app_id]['appid'] = entry.get('appid')
 
         # Mod specific data
-        if entry.get('openVr'):
+        if entry.get('openVr') or entry.get('vrpInstalled'):
             for mod in get_available_mods(entry):
                 reduced_dict[app_id][mod.VAR_NAMES['settings']] = mod.settings.to_js(export=True)
                 reduced_dict[app_id][mod.VAR_NAMES['installed']] = entry.get(mod.VAR_NAMES['installed'], False)
@@ -42,7 +42,7 @@ def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
     for app_id, entry in steam_apps.items():
         entry['userApp'] = flag_as_user_app
 
-        if entry.get('openVr'):
+        if entry.get('openVr') or entry.get('vrpInstalled'):
             for mod in get_available_mods(entry):
                 entry[mod.VAR_NAMES['settings']] = mod.settings.to_js(export=False)
 
