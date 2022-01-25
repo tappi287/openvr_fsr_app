@@ -4,9 +4,9 @@ import subprocess
 from pathlib import WindowsPath, Path
 
 import app
+import app.mod
 from app.app_settings import AppSettings
 from app.util.manifest_worker import ManifestWorker
-from app.mod import get_mod, get_available_mods
 
 
 def reduce_steam_apps_for_export(steam_apps) -> dict:
@@ -28,7 +28,7 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
 
         # Mod specific data
         if entry.get('openVr') or entry.get('vrpInstalled'):
-            for mod in get_available_mods(entry):
+            for mod in app.mod.get_available_mods(entry):
                 reduced_dict[app_id][mod.VAR_NAMES['settings']] = mod.settings.to_js(export=True)
                 reduced_dict[app_id][mod.VAR_NAMES['installed']] = entry.get(mod.VAR_NAMES['installed'], False)
                 reduced_dict[app_id][mod.VAR_NAMES['version']] = entry.get(mod.VAR_NAMES['version'], '')
@@ -43,7 +43,7 @@ def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
         entry['userApp'] = flag_as_user_app
 
         if entry.get('openVr') or entry.get('vrpInstalled'):
-            for mod in get_available_mods(entry):
+            for mod in app.mod.get_available_mods(entry):
                 entry[mod.VAR_NAMES['settings']] = mod.settings.to_js(export=False)
 
     return steam_apps
@@ -194,7 +194,7 @@ def add_custom_app_fn(app_dict: dict):
     }
 
     # -- Add Mod specific data
-    for mod in get_available_mods(manifest):
+    for mod in app.mod.get_available_mods(manifest):
         installed_results = list()
         for p in openvr_paths:
             installed_results.append(mod.settings.read_from_cfg(p.parent))
@@ -210,22 +210,17 @@ def add_custom_app_fn(app_dict: dict):
 
 @app.utils.capture_app_exceptions
 def get_mod_dir_fn(mod_type: int):
-    if AppSettings.openvr_fsr_dir is not None and Path(AppSettings.openvr_fsr_dir).exists():
-        open_fsr_dir = str(WindowsPath(AppSettings.openvr_fsr_dir))
-        logging.info('Providing FSR Dir to FrontEnd: %s', open_fsr_dir)
-        return open_fsr_dir
+    return json.dumps({'result': False})
 
 
 @app.utils.capture_app_exceptions
-def set_mod_dir_fn(mod_type: int):
-    if not directory_str:
-        directory_str = str(WindowsPath(app.globals.get_data_dir() / 'openvr_fsr'))
-    return json.dumps({'result': AppSettings.update_fsr_dir(directory_str)})
+def set_mod_dir_fn(directory_str, mod_type: int):
+    return json.dumps({'result': False})
 
 
 @app.utils.capture_app_exceptions
 def update_mod_fn(manifest: dict, mod_type: int = 0, write: bool = False):
-    mod = get_mod(manifest, mod_type)
+    mod = app.mod.get_mod(manifest, mod_type)
     if not mod:
         return json.dumps({'result': False, 'msg': 'No Mod Type provided', 'manifest': manifest})
 
@@ -240,7 +235,7 @@ def update_mod_fn(manifest: dict, mod_type: int = 0, write: bool = False):
 
 @app.utils.capture_app_exceptions
 def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
-    mod = get_mod(manifest, mod_type)
+    mod = app.mod.get_mod(manifest, mod_type)
     mod_installed = mod.manifest.get(mod.VAR_NAMES['installed'], False)
 
     if not mod:
@@ -262,7 +257,7 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
 
 @app.utils.capture_app_exceptions
 def reset_mod_settings_fn(manifest: dict, mod_type: int = 0):
-    mod = get_mod(manifest, mod_type)
+    mod = app.mod.get_mod(manifest, mod_type)
 
     if mod.reset_settings():
         update_result = mod.write_updated_cfg()
