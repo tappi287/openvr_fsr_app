@@ -2,7 +2,7 @@ import shutil
 
 import pytest
 from pathlib import Path, WindowsPath
-from distutils.dir_util import copy_tree, remove_tree
+from distutils.dir_util import copy_tree
 
 import app
 import app.mod
