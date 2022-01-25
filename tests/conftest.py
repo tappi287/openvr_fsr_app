@@ -153,8 +153,13 @@ def test_app_writeable(steam_apps_obj):
     return manifest
 
 
+def pytest_generate_tests(metafunc):
+    if "app_settings" in metafunc.fixturenames:
+        metafunc.parametrize("app_settings", ["app_settings_old", "app_settings"], indirect=True)
+
+
 @pytest.fixture
-def app_settings(steam_apps_obj):
+def app_settings(request, steam_apps_obj):
     manifest = {
         'appid': test_user_app_id,
         "name": 'User Test App',
@@ -162,9 +167,14 @@ def app_settings(steam_apps_obj):
         'sizeGb': 0, 'SizeOnDisk': 0,
         'userApp': True,
     }
-
     _setup_manifest_paths(manifest)
     _setup_manifest_mods(manifest)
+
+    if request.param == "app_settings":
+        AppSettings.mod_data_dirs = dict()
+    elif request.param == "app_settings_old":
+        AppSettings.SETTINGS_FILE_OVR = test_data_input_path / "settings_0.6.4.json"
+        AppSettings.load()
 
     AppSettings.user_apps[test_user_app_id] = manifest
     return AppSettings

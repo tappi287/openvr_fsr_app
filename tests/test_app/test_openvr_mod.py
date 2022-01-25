@@ -7,7 +7,7 @@ import app.mod
 from app import app_fn, globals
 from app.mod import BaseModType
 from app.mod.fsr_mod import FsrMod
-from conftest import create_manipulated_settings
+from tests.conftest import create_manipulated_settings
 
 
 def test_get_fsr_dir_fn(app_settings, open_vr_fsr_dir):

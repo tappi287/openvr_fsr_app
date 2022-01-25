@@ -2,7 +2,7 @@ import logging
 import json
 
 from app import app_fn
-from conftest import test_user_app_id, user_app_path
+from tests.conftest import test_user_app_id, user_app_path
 
 LOGGER = logging.getLogger(__name__)
 

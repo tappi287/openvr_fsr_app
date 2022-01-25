@@ -7,7 +7,7 @@ from app import app_fn, globals
 from app.app_settings import AppSettings
 from app.cfg.cfg_file_handler import ModCfgYamlHandler
 from app.mod import BaseModType, VRPerfKitMod
-from conftest import create_manipulated_settings
+from tests.conftest import create_manipulated_settings
 
 
 def _create_test_output(output_path, vrperfkit_dir):

@@ -1,15 +1,15 @@
 import json
 import logging
-from pathlib import Path, WindowsPath
-from typing import Union
+from pathlib import Path
 
-from app.globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, APPS_STORE_FILE_NAME, KNOWN_APPS
+from app.globals import get_settings_dir, SETTINGS_FILE_NAME, APPS_STORE_FILE_NAME, KNOWN_APPS
 from app.util.utils import JsonRepr
 
 
 class AppSettings(JsonRepr):
     skip_keys = ['open_vr_fsr_versions', 'open_vr_foveated_versions', 'vrperfkit_versions',
-                 'current_fsr_version', 'current_foveated_version', 'current_vrperfkit_version']
+                 'current_fsr_version', 'current_foveated_version', 'current_vrperfkit_version',
+                 'SETTINGS_FILE_OVR']
 
     backup_created = False
     needs_admin = False
@@ -49,13 +49,18 @@ class AppSettings(JsonRepr):
     # Default plugin paths
     mod_data_dirs = dict()
 
+    SETTINGS_FILE_OVR = ''
+
     def __init__(self):
         self.needs_admin = AppSettings.needs_admin
         self.backup_created = AppSettings.backup_created
 
-    @staticmethod
-    def _get_settings_file() -> Path:
-        return get_settings_dir() / SETTINGS_FILE_NAME
+    @classmethod
+    def _get_settings_file(cls) -> Path:
+        override_path = None
+        if cls.SETTINGS_FILE_OVR:
+            override_path = Path(cls.SETTINGS_FILE_OVR)
+        return override_path or get_settings_dir() / SETTINGS_FILE_NAME
 
     @staticmethod
     def _get_steam_apps_file() -> Path:
