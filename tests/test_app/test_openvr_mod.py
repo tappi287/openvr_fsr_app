@@ -14,11 +14,20 @@ def test_get_fsr_dir_fn(app_settings, open_vr_fsr_dir):
     assert Path(result) == open_vr_fsr_dir
 
 
-def test_set_fsr_dir_fn(app_settings, input_path, open_vr_fsr_test_mod_dir):
+def test_set_fsr_dir_fn(app_settings, open_vr_fsr_test_mod_dir):
     result_dict = json.loads(app_fn.set_mod_dir_fn(open_vr_fsr_test_mod_dir.as_posix(), 0))
 
     assert result_dict['result'] is True
     assert Path(app_settings.mod_data_dirs[0]) == open_vr_fsr_test_mod_dir
+
+
+def test_reset_fsr_dir_fn(app_settings, open_vr_fsr_dir, open_vr_fsr_test_mod_dir):
+    app_settings.mod_data_dirs[0] = open_vr_fsr_dir
+    json.loads(app_fn.set_mod_dir_fn(open_vr_fsr_test_mod_dir, 0))
+    result_dict = json.loads(app_fn.set_mod_dir_fn('', 0))
+
+    assert result_dict['result'] is True
+    assert Path(app_settings.mod_data_dirs[0]) == open_vr_fsr_dir
 
 
 def _create_test_output(output_path, open_vr_fsr_dir) -> Tuple[Path, Path]:
