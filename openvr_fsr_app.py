@@ -5,8 +5,7 @@ import webbrowser
 
 import eel
 
-from app import expose_app_methods
-from app.app_main import CLOSE_EVENT
+from app import expose_app_methods, CLOSE_EVENT
 from app.app_settings import AppSettings
 from app.globals import FROZEN, get_version
 from app.log import setup_logging
