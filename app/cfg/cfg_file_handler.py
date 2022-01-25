@@ -184,12 +184,15 @@ class ModCfgYamlHandler:
         :return:
         """
         match type(value).__name__:
+            # -- construct Float
             case 'float':
                 node = cls.yaml.representer.represent_data(value)
                 data[key] = cls.yaml.constructor.construct_object(node)
-            case 'list':
+            # -- update CommentedSeq
+            case 'list' if isinstance(data[key], list):
                 for idx, item in enumerate(value):
                     data[key][idx] = item
+            # -- bool, str, int
             case _:
                 data[key] = value
 

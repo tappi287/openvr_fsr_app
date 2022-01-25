@@ -76,10 +76,12 @@ class BaseMod:
             if not engine_dll:
                 continue
 
+            # -- Write updated settings to disk
             if write:
-                # -- Write updated settings to disk
                 r = self.settings.write_cfg(self.engine_dll.parent, self.get_source_dir())
                 cfg_results.append(r)
+                if not r:
+                    self.error = f'Error writing updated Settings CFG.'
                 continue
 
             # -- Read settings from disk
@@ -92,7 +94,7 @@ class BaseMod:
                 self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
 
         self.manifest[self.VAR_NAMES['installed']] = any(cfg_results)
-        return True
+        return all(cfg_results) if cfg_results else False
 
     def _update_cfg_single(self) -> bool:
         if not self.settings.write_cfg(self.engine_dll.parent, self.get_source_dir()):

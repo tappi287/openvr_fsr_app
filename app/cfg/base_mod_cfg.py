@@ -79,17 +79,15 @@ class BaseModSettings(JsonRepr):
     def write_cfg(self, plugin_path: Path, plugin_src_dir: Path) -> bool:
         cfg = plugin_path / self.CFG_FILE
 
-        try:
-            match self.CFG_TYPE:
-                case BaseModCfgType.open_vr_mod:
-                    ModCfgJsonHandler.write_cfg(self, cfg)
-                case BaseModCfgType.vrp_mod:
-                    if not cfg.exists():
-                        copyfile(plugin_src_dir / cfg.name, cfg)
-                    ModCfgYamlHandler.write_cfg(self, cfg)
-        except Exception as e:
-            logging.error('Error writing Settings to CFG file: %s', e)
-            return False
+        match self.CFG_TYPE:
+            case BaseModCfgType.open_vr_mod:
+                ModCfgJsonHandler.write_cfg(self, cfg)
+            case BaseModCfgType.vrp_mod:
+                if not cfg.exists():
+                    copyfile(plugin_src_dir / cfg.name, cfg)
+                ModCfgYamlHandler.write_cfg(self, cfg)
+            case _:
+                return False
 
         logging.info('Written updated config at: %s', plugin_path)
         return True

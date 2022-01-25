@@ -155,7 +155,8 @@ export default {
       listening: false,
       eventCaptured: false,
       capturedEvent: null,
-      modifierKeys: ['ctrl', 'alt', 'shift'],
+      modifierKeys: ['ctrl', 'alt', 'shift', 'Single Key'],
+      modifierKeyEmpty: 'Single Key',
       modifierKey: 'ctrl',
       modalId: 'assign' + this._uid,
     }
@@ -244,7 +245,7 @@ export default {
     },
     startListening: function () {
       this.eventCaptured = false; this.capturedEvent = null; this.listening = true
-      this.modifierKey = this.setting.value[0]
+      if (Array.isArray(this.setting.value)) { this.modifierKey = this.setting.value[0] }
       this.$nextTick(() => { this.listenToKeyboard(false) })
     },
     abortListening: function () {
@@ -258,6 +259,10 @@ export default {
       }
     },
     confirmAssign: async function () {
+      if (Array.isArray(this.capturedEvent.value) && this.modifierKey === this.modifierKeyEmpty) {
+        // Remove Modifier Key
+        this.capturedEvent.value = this.capturedEvent.value[1]
+      }
       this.selectSetting(this.capturedEvent)
       this.abortListening()
     },
@@ -294,6 +299,7 @@ export default {
           this.inputType = 'key'
         } else if (this.setting.settings[0].settingType === 'keyCombo') {
           this.inputType = 'keyCombo'
+          if (!Array.isArray(this.setting.value)) { this.modifierKey = this.modifierKeyEmpty }
         }
       }
     }
@@ -331,12 +337,18 @@ export default {
       if (this.inputType === 'key') {
         return this.keyCodeValueToDisplayString(this.setting.value)
       } else if (this.inputType === 'keyCombo') {
+        if (!Array.isArray(this.setting.value)) {
+          return String(this.setting.value).toUpperCase()
+        }
         return String(this.setting.value[1]).toUpperCase()
       }
       return 'Undefined'
     },
     settingKeyComboName() {
       if (this.setting === undefined) { return 'Undefined' }
+      if (!Array.isArray(this.setting.value)) {
+        return String(this.setting.value).toUpperCase()
+      }
       return String(this.setting.value[0]).toUpperCase() + " " + String(this.setting.value[1]).toUpperCase()
     },
     capturedValueName() {
