@@ -7,6 +7,21 @@ from tests.conftest import test_app_path, user_app_path, test_user_app_id
 LOGGER = logging.getLogger(__name__)
 
 
+def test_reduce_steam_apps_for_export(steam_apps_obj):
+    reduced_apps = app_fn.reduce_steam_apps_for_export(steam_apps_obj.steam_apps)
+    assert len(reduced_apps) == len(steam_apps_obj.steam_apps)
+
+
+def test_load_steam_apps_with_mod_settings(steam_apps_obj):
+    new_steam_apps = app_fn._load_steam_apps_with_mod_settings(steam_apps_obj.steam_apps)
+
+    assert len(new_steam_apps) == len(steam_apps_obj.steam_apps)
+    for app_id, manifest in new_steam_apps.items():
+        assert 'userApp' in manifest
+        if manifest.get('openVr') or manifest.get('vrpInstalled'):
+            assert 'settings' in manifest
+
+
 def test_load_steam_lib_fn(app_settings):
     result_dict = json.loads(app_fn.load_steam_lib_fn())
     user_app = result_dict['data'][test_user_app_id]
