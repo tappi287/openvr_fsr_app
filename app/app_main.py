@@ -56,13 +56,13 @@ def add_custom_app(app: dict):
 
 
 @eel.expose
-def get_fsr_dir():
-    return app_fn.get_fsr_dir_fn()
+def get_mod_dir(mod_type):
+    return app_fn.get_mod_dir_fn(mod_type)
 
 
 @eel.expose
-def set_fsr_dir(directory_str):
-    return app_fn.set_fsr_dir_fn(directory_str)
+def set_mod_dir(directory_str, mod_type):
+    return app_fn.set_mod_dir_fn(directory_str, mod_type)
 
 
 @eel.expose

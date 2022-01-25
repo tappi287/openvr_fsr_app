@@ -1,8 +1,8 @@
 {
   "main": {
-    "folderSelect": "OpenVR FSR gefunden in <i>{folder}</i>. Klicken um den Plugin Quellpfad zu ändern.",
-    "folderSelectError": "<b>OpenVR FSR PlugIn nicht gefunden!</b> Download\n <a href=\"https://github.com/fholger/openvr_fsr/releases/latest\" target=\"_blank\">OpenVR FSR</a>\n entpacke es in einen Ordner und Pfad zu diesem Verzeichnis hier angeben.",
-    "folderPop": "OpenVR FSR PlugIn Verzeichnis",
+    "folderSelect": "Mod Quellen gefunden in <i>{folder}</i>. Klicken um den Plugin Quellpfad zu ändern.",
+    "folderSelectError": "<b>Mod Quellen nicht gefunden!</b> Download\n <a href=\"https://github.com/fholger/openvr_fsr/releases/latest\" target=\"_blank\">OpenVR FSR</a>\n entpacke es in einen Ordner und Pfad zu diesem Verzeichnis hier angeben.",
+    "folderPop": "Mod PlugIn Verzeichnis",
     "folderPopText": "Quellpfad im Format <i>C:\\Dir\\MyDir</i> einfügen von dem die Plugin dll kopiert werden soll..",
     "folderPopHint": "Pfad einfügen",
     "folderPopUpdate": "Aktualisieren",

@@ -9,14 +9,14 @@
       <b-navbar-nav class="ml-auto">
         <!-- Folder -->
         <!-- FSR Folder Select -->
-        <b-button variant="secondary" size="sm" id="fsr-folder">
+        <b-button variant="secondary" size="sm" id="mod-folder">
           <b-icon icon="folder-fill"></b-icon>
         </b-button>
 
         <!-- Folder Select Message Hover -->
-        <b-popover target="fsr-folder" triggers="hover">
-          <template v-if="openFsrDir !== null">
-            <span v-html="$t('main.folderSelect', { folder: openFsrDir })" />
+        <b-popover target="mod-folder" triggers="hover">
+          <template v-if="modDataDirs[selectedModType] !== null">
+            <span v-html="$t('main.folderSelect', { folder: modDataDirs[selectedModType] })" />
           </template>
           <template v-else>
             <span v-html="$t('main.folderSelectError')" />
@@ -24,22 +24,28 @@
         </b-popover>
 
         <!-- Folder Select Popover -->
-        <b-popover target="fsr-folder" triggers="click">
+        <b-popover target="mod-folder" triggers="click">
           <h5>{{ $t('main.folderPop') }}</h5>
+          <b-dropdown :text="modNames[selectedModType]" size="sm">
+            <b-dropdown-item v-for="modType in modTypes" :key="modType" @click="selectedModType = modType">
+              {{ modNames[modType] }}
+            </b-dropdown-item>
+          </b-dropdown>
           <p v-html="$t('main.folderPopText')" />
-          <b-form-input size="sm" v-model="fsrDirInput"
+          <b-form-input size="sm" v-model="modDirInput"
                         :placeholder="$t('main.folderPopHint')">
           </b-form-input>
+          <!-- Buttons -->
           <div class="text-right mt-1">
-            <b-button @click="setFsrDir" size="sm" variant="primary"
+            <b-button @click="setModDir(selectedModType)" size="sm" variant="primary"
                       aria-label="Save">
               {{ $t('main.folderPopUpdate') }}
             </b-button>
-            <b-button @click="resetFsrDir" size="sm" variant="warning"
+            <b-button @click="resetModDir(selectedModType)" size="sm" variant="warning"
                       class="ml-2">
               {{ $t('main.folderPopReset') }}
             </b-button>
-            <b-button @click="$root.$emit('bv::hide::popover', 'fsr-folder')"
+            <b-button @click="$root.$emit('bv::hide::popover', 'mod-folder')"
                       size="sm" aria-label="Close" class="ml-2">
               {{ $t('main.folderPopClose') }}
             </b-button>
@@ -117,8 +123,11 @@ export default {
   name: 'Main',
   data: function () {
     return {
-      fsrDirInput: '',
-      openFsrDir: null,
+      modDirInput: '',
+      modDataDirs: {0: null, 1: null, 2: null},
+      selectedModType: 0,
+      modTypes: [0, 1, 2],
+      modNames: {0: 'Open VR FSR', 1: 'Open VR Foveated', 2: 'VR Performance Toolkit'},
       version: version,
       isBusy: false,
       appName: process.env.VUE_APP_FRIENDLY_NAME,
@@ -139,26 +148,28 @@ export default {
       })
     },
     setBusy: function (busy) { this.isBusy = busy},
-    getFsrDir: async function () {
-      const r = await window.eel.get_fsr_dir()()
-      if (r !== undefined) { this.openFsrDir = r }
+    getModDir: async function (modType = 0) {
+      const r = await window.eel.get_mod_dir(Number(modType))()
+      if (r !== undefined) { this.modDataDirs[modType] = r }
     },
-    resetFsrDir: async function() {
-      this.fsrDirInput = ''
-      await this.setFsrDir()
+    resetModDir: async function(modType = 0) {
+      this.modDirInput = ''
+      await this.setModDir(modType)
     },
-    setFsrDir: async function () {
-      const r = await getEelJsonObject(window.eel.set_fsr_dir(this.fsrDirInput)())
+    setModDir: async function (modType) {
+      const r = await getEelJsonObject(window.eel.set_mod_dir(this.modDirInput, Number(modType))())
 
       if (r !== undefined && r.result) {
-        await this.getFsrDir()
-        this.makeToast('Updated OpenVR FSR directory to: ' + this.openFsrDir, 'success')
+        await this.getModDir(modType)
+        this.makeToast('Updated ' + this.modNames[modType] + ' directory to: ' + this.modDataDirs[modType],
+            'success', this.modNames[modType])
       } else {
-        this.makeToast('Could not update OpenVR FSR directory. Provided path does not exists, ' +
-            'is not accessible or does not contain the PlugIn Dll and cfg file.', 'danger')
-        await this.getFsrDir()
+        this.makeToast('Could not update Mod source directory. Provided path does not exists, ' +
+            'is not accessible or does not contain the PlugIn Dll and cfg file.',
+            'danger', this.modNames[modType])
+        await this.getModDir(modType)
       }
-      this.$root.$emit('bv::hide::popover', 'fsr-folder')
+      this.$root.$emit('bv::hide::popover', 'mod-folder')
     },
     setError: async function (error) { this.$emit('error', error) },
   },
@@ -167,7 +178,9 @@ export default {
   async created() {
     this.$eventHub.$on('make-toast', this.makeToast)
     this.$eventHub.$on('set-busy', this.setBusy)
-    await this.getFsrDir()
+    for (const modType in this.modTypes) {
+      await this.getModDir(modType)
+    }
   },
   beforeDestroy() {
     this.$eventHub.$off('make-toast')
