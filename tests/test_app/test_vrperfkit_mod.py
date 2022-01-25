@@ -2,10 +2,12 @@ import json
 import shutil
 from pathlib import Path
 
+import app.mod
 from app import app_fn, globals
 from app.app_settings import AppSettings
-from app.mod import BaseModType, VRPerfKitMod
 from app.cfg.cfg_file_handler import ModCfgYamlHandler
+from app.mod import BaseModType, VRPerfKitMod
+from conftest import create_manipulated_settings
 
 
 def _create_test_output(output_path, vrperfkit_dir):
@@ -28,21 +30,10 @@ def test_update_mod_fn(test_app, output_path, vrperfkit_dir):
     # test_app['executablePathsSelected'] = test_app['executablePaths']
 
     # -- Create Test Settings
-    test_settings = list()
-    for _key_pair, _test_value in zip(
-            [('method', 'upscaling'), ('renderScale', 'upscaling'), ('debugMode', None),
-             ('cycleUpscalingMethod', 'hotkeys')],
-            ['nis', 2.50, True, ["shift", "l"]]):
-        _key, _parent = _key_pair
-        test_setting = {'key': _key, 'parent': _parent, 'value': _test_value}
-        test_settings.append(test_setting)
-
-    # -- Manipulate example settings
-    mod_settings = test_app[VRPerfKitMod.VAR_NAMES['settings']]
-    for _s in mod_settings:
-        for _test_s in test_settings:
-            if _s.get('key') == _test_s.get('key') and _s.get('parent') == _test_s.get('parent'):
-                _s['value'] = _test_s.get('value')
+    test_set = ([('method', 'upscaling'), ('renderScale', 'upscaling'), ('debugMode', None),
+                 ('cycleUpscalingMethod', 'hotkeys')],
+                ['nis', 2.50, True, ["shift", "l"]])
+    test_app, test_settings = create_manipulated_settings(test_app, test_set, app.mod.get_mod(dict(), BaseModType.vrp))
 
     # -- Test Fn
     result_dict = json.loads(app_fn.update_mod_fn(test_app, BaseModType.vrp, True))
@@ -121,3 +112,36 @@ def test_toggle_mod_install_fn(test_app_writeable):
         # -- Test config file removed
         cfg_file = written_dll.parent / globals.VRPERFKIT_CFG
         assert cfg_file.exists() is False
+
+
+def test_reset_mod_settings_fn(test_app_writeable):
+    test_set = ([('method', 'upscaling'), ('renderScale', 'upscaling'), ('debugMode', None),
+                 ('cycleUpscalingMethod', 'hotkeys')],
+                ['nis', 2.50, True, ["shift", "l"]])
+    test_app, test_settings = create_manipulated_settings(test_app_writeable, test_set,
+                                                          app.mod.get_mod(dict(), BaseModType.vrp))
+
+    mod = app.mod.get_mod(test_app, BaseModType.vrp)
+    result_dict = json.loads(app_fn.reset_mod_settings_fn(mod.manifest, BaseModType.vrp))
+    assert result_dict['result'] is True
+
+    manifest = result_dict['manifest']
+    mod_settings = manifest[mod.VAR_NAMES['settings']]
+
+    mod = app.mod.get_mod(dict(), BaseModType.vrp)
+    for _s in mod_settings:
+        for _test_s in test_settings:
+            if _s.get('key') == _test_s.get('key') and _s.get('parent') == _test_s.get('parent'):
+                # -- Test reset settings returning actual settings
+                assert _s.get('value') != _test_s.get('value')
+
+                # -- Test reset settings returning default settings
+                option = mod.settings.get_option_by_key(_s.get('key'), _s.get('parent'))
+                assert _s.get('value') == option.value
+
+    # -- Test reset settings written to disk
+    mod = app.mod.get_mod(test_app, BaseModType.vrp)
+    mod.update_from_disk()
+    for _test_s in test_settings:
+        option = mod.settings.get_option_by_key(_test_s.get('key'), _test_s.get('parent'))
+        assert option.value != _test_s.get('value')

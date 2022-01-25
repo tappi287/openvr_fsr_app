@@ -3,9 +3,11 @@ import shutil
 from pathlib import Path
 from typing import Tuple
 
+import app.mod
 from app import app_fn, globals
 from app.mod import BaseModType
 from app.mod.fsr_mod import FsrMod
+from conftest import create_manipulated_settings
 
 
 def test_get_fsr_dir_fn(app_settings, open_vr_fsr_dir):
@@ -117,3 +119,34 @@ def test_toggle_mod_install_fn(app_settings, test_app_writeable, open_vr_fsr_dir
         # -- Test config file removed
         cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
         assert cfg_file.exists() is False
+
+
+def test_reset_mod_settings_fn(test_app_writeable):
+    test_set = ([('applyMIPBias', None), ('requireCtrl', 'hotkeys'), ('renderScale', None)],
+                [False, True, 3.00])
+    test_app, test_settings = create_manipulated_settings(test_app_writeable, test_set, app.mod.get_mod(dict(), 0))
+
+    mod = app.mod.get_mod(test_app, 0)
+    result_dict = json.loads(app_fn.reset_mod_settings_fn(mod.manifest, 0))
+    assert result_dict['result'] is True
+
+    manifest = result_dict['manifest']
+    mod_settings = manifest[mod.VAR_NAMES['settings']]
+
+    mod = app.mod.get_mod(dict(), 0)
+    for _s in mod_settings:
+        for _test_s in test_settings:
+            if _s.get('key') == _test_s.get('key') and _s.get('parent') == _test_s.get('parent'):
+                # -- Test reset settings returning actual settings
+                assert _s.get('value') != _test_s.get('value')
+
+                # -- Test reset settings returning default settings
+                option = mod.settings.get_option_by_key(_s.get('key'), _s.get('parent'))
+                assert _s.get('value') == option.value
+
+    # -- Test reset settings written to disk
+    mod = app.mod.get_mod(test_app, 0)
+    mod.update_from_disk()
+    for _test_s in test_settings:
+        option = mod.settings.get_option_by_key(_test_s.get('key'), _test_s.get('parent'))
+        assert option.value != _test_s.get('value')

@@ -1,4 +1,5 @@
 import shutil
+from typing import Tuple
 
 import pytest
 from pathlib import Path, WindowsPath
@@ -36,6 +37,25 @@ test_apps_file.unlink(missing_ok=True)
 # -- CleanUp Output Dir
 shutil.rmtree(test_data_output_path, ignore_errors=True)
 test_data_output_path.mkdir(exist_ok=True)
+
+
+def create_manipulated_settings(test_app_manifest, test_keys_values: Tuple[list, list], mod) -> Tuple[dict, list]:
+    # -- Create Test Settings
+    test_settings = list()
+
+    for _key_pair, _test_value in zip(test_keys_values[0], test_keys_values[1]):
+        _key, _parent = _key_pair
+        test_setting = {'key': _key, 'parent': _parent, 'value': _test_value}
+        test_settings.append(test_setting)
+
+    # -- Manipulate example settings
+    mod_settings = test_app_manifest[mod.VAR_NAMES['settings']]
+    for _s in mod_settings:
+        for _test_s in test_settings:
+            if _s.get('key') == _test_s.get('key') and _s.get('parent') == _test_s.get('parent'):
+                _s['value'] = _test_s.get('value')
+
+    return test_app_manifest, test_settings
 
 
 @pytest.fixture(scope='session')
