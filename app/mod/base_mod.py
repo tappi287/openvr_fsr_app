@@ -189,6 +189,9 @@ class BaseMod:
 
     @staticmethod
     def get_mod_version_from_dll(engine_dll: Path, mod_type: int) -> Optional[str]:
+        if not engine_dll.exists():
+            return
+
         file_hash = app.utils.get_file_hash(engine_dll.as_posix())
         version_dict = dict()
 
