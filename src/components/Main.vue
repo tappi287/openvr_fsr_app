@@ -153,15 +153,16 @@ export default {
     },
     setBusy: function (busy) { this.isBusy = busy},
     getModDir: async function (modType = 0) {
-      const r = await window.eel.get_mod_dir(Number(modType))()
+      const r = await window.eel.get_mod_dir(modType)()
       if (r !== undefined) { this.modDataDirs[modType] = r }
     },
     resetModDir: async function(modType = 0) {
+      modType = Number(modType)
       this.modDirInput = ''
       await this.setModDir(modType)
     },
     setModDir: async function (modType) {
-      const r = await getEelJsonObject(window.eel.set_mod_dir(this.modDirInput, Number(modType))())
+      const r = await getEelJsonObject(window.eel.set_mod_dir(this.modDirInput, modType)())
 
       if (r !== undefined && r.result) {
         await this.getModDir(modType)
@@ -183,7 +184,7 @@ export default {
     this.$eventHub.$on('make-toast', this.makeToast)
     this.$eventHub.$on('set-busy', this.setBusy)
     for (const modType in this.modTypes) {
-      await this.getModDir(modType)
+      await this.getModDir(Number(modType))
     }
   },
   beforeDestroy() {

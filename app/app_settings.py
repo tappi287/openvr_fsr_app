@@ -93,6 +93,8 @@ class AppSettings(JsonRepr):
             logging.error('Could not load application settings! %s', e)
             return False
 
+        # -- Convert str dict keys to int
+        AppSettings.mod_data_dirs = {int(k): v for k, v in AppSettings.mod_data_dirs.items()}
         return True
 
     @classmethod

@@ -220,12 +220,12 @@ def set_mod_dir_fn(directory_str, mod_type: int):
 
     # -- Reset
     if not directory_str:
-        AppSettings.mod_data_dirs.pop(mod_type)
+        AppSettings.mod_data_dirs.pop(mod_type, None)
         app.mod.update_mod_data_dirs()
         result = True
 
     # -- Set
-    if app.mod.check_mod_data_dir(Path(directory_str), int(mod_type)):
+    if app.mod.check_mod_data_dir(Path(directory_str), mod_type):
         AppSettings.mod_data_dirs[mod_type] = str(WindowsPath(directory_str))
         AppSettings.save()
         result = True
