@@ -12,7 +12,7 @@ def get_mod(manifest, mod_type):
 
     :param dict manifest:
     :param int mod_type:
-    :return app.mod.base_mod.BaseMod mod:
+    :rtype: app.mod.base_mod.BaseMod
     """
     mod_type_class = getattr(app.mod, BaseModType.mod_types.get(mod_type))
     return mod_type_class(manifest)
@@ -22,7 +22,7 @@ def get_available_mods(manifest):
     """ Get iterator with available Mod Types
 
     :param dict manifest:
-    :return Iterable[app.mod.base_mod.BaseMod]:
+    :rtype: list[app.mod.base_mod.BaseMod]
     """
     for mod_type in BaseModType.mod_types.keys():
         yield get_mod(manifest, mod_type)
