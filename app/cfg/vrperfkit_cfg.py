@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from app.globals import VRPERFKIT_CFG
 from app.cfg import BaseModCfgSetting, BaseModSettings, BaseModCfgType
 
@@ -10,7 +8,7 @@ class VRPerfKitSettings(BaseModSettings):
     CFG_FILE = VRPERFKIT_CFG
     CFG_TYPE = BaseModCfgType.vrp_mod
 
-    def __init__(self, mod_dll_location: Path = None):
+    def __init__(self):
         # --
         # Upscaling Settings
         # --
@@ -277,4 +275,4 @@ class VRPerfKitSettings(BaseModSettings):
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
 
-        super(VRPerfKitSettings, self).__init__(mod_dll_location)
+        super(VRPerfKitSettings, self).__init__()

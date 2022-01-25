@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional, List
 
 from app.globals import OPEN_VR_DLL, EXE_NAME
-from app.mod.base_mod import get_available_mods
+from app.mod import get_available_mods
 
 
 class ManifestWorker:

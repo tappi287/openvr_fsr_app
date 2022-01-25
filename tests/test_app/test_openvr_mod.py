@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Tuple
 
 from app import app_fn, globals
-from app.mod.base_mod import BaseModType
+from app.mod import BaseModType
 from app.mod.fsr_mod import FsrMod
 
 

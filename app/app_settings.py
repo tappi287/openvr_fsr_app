@@ -1,9 +1,9 @@
 import json
 import logging
 from pathlib import Path, WindowsPath
-from typing import Optional, Union
+from typing import Union
 
-from app.globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, get_data_dir, APPS_STORE_FILE_NAME, KNOWN_APPS
+from app.globals import get_settings_dir, SETTINGS_FILE_NAME, OPEN_VR_DLL, APPS_STORE_FILE_NAME, KNOWN_APPS
 from app.util.utils import JsonRepr
 
 
@@ -46,10 +46,8 @@ class AppSettings(JsonRepr):
     current_foveated_version = 'v0.2'
     current_vrperfkit_version = 'v0.2.2'
 
-    # Default plugin path
-    openvr_fsr_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
-    openvr_foveated_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'openvr_foveated'))
-    vrperfkit_dir: Optional[str] = str(WindowsPath(get_data_dir() / 'vrperfkit'))
+    # Default plugin paths
+    mod_data_dirs = dict()
 
     def __init__(self):
         self.needs_admin = AppSettings.needs_admin
@@ -90,8 +88,6 @@ class AppSettings(JsonRepr):
             logging.error('Could not load application settings! %s', e)
             return False
 
-        if not cls.verify_mod_data_dirs():
-            cls.reset_mod_data_dirs()
         return True
 
     @classmethod
@@ -127,20 +123,6 @@ class AppSettings(JsonRepr):
                 entry.update(KNOWN_APPS[app_id])
 
         return steam_apps
-
-    @classmethod
-    def verify_mod_data_dirs(cls):
-        for mod_dir in (cls.openvr_fsr_dir, cls.openvr_foveated_dir, cls.vrperfkit_dir):
-            p = Path(mod_dir)
-            if not p.exists():
-                return False
-        return True
-
-    @classmethod
-    def reset_mod_data_dirs(cls):
-        cls.openvr_fsr_dir = str(WindowsPath(get_data_dir() / 'openvr_fsr'))
-        cls.openvr_foveated_dir = str(WindowsPath(get_data_dir() / 'openvr_foveated'))
-        cls.vrperfkit_dir = str(WindowsPath(get_data_dir() / 'vrperfkit'))
 
     @staticmethod
     def update_fsr_dir(fsr_plugin_dir: Union[str, Path]) -> bool:

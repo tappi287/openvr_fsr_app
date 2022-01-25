@@ -1,20 +1,12 @@
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Optional, Iterable
+from typing import Optional
 
-import app
+import app.cfg
 from app.app_settings import AppSettings
 from app.cfg import BaseModCfgType, BaseModSettings
-
-
-class BaseModType:
-    invalid = -1
-    fsr = 0
-    foveated = 1
-    vrp = 2
-
-    mod_types = {0: 'FsrMod', 1: 'FoveatedMod', 2: 'VRPerfKitMod'}
+from app.mod import BaseModType, update_mod_data_dirs
 
 
 class BaseMod:
@@ -28,12 +20,11 @@ class BaseMod:
     DLL_LOC_KEY = 'openVrDllPaths'
     DLL_NAME = app.globals.OPEN_VR_DLL
 
-    def __init__(self, manifest, settings, mod_dll_location):
+    def __init__(self, manifest, settings):
         """ Mod base class to handle installation/uninstallation
         
         :param dict manifest: The app's Steam manifest with additional settings dict
         :param BaseModSettings settings: Cfg settings handler
-        :param Path mod_dll_location: Path to the OpenVRMod dll to install
         """
         self.manifest = manifest
         self.settings = settings
@@ -42,7 +33,6 @@ class BaseMod:
             self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
 
         self.engine_dll: Optional[Path] = None
-        self.mod_dll_location = mod_dll_location
         self._error_ls = list()
 
         # -- Verify paths are up-to-date after updates/game movement
@@ -60,7 +50,7 @@ class BaseMod:
     def reset_settings(self) -> bool:
         try:
             settings_class_name = type(self.settings).__name__
-            settings_class = getattr(app, settings_class_name)
+            settings_class = getattr(app.cfg, settings_class_name)
             self.settings = settings_class()
             self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
         except Exception as e:
@@ -88,7 +78,7 @@ class BaseMod:
 
             if write:
                 # -- Write updated settings to disk
-                r = self.settings.write_cfg(self.engine_dll.parent)
+                r = self.settings.write_cfg(self.engine_dll.parent, self.get_source_dir())
                 cfg_results.append(r)
                 continue
 
@@ -105,7 +95,7 @@ class BaseMod:
         return True
 
     def _update_cfg_single(self) -> bool:
-        if not self.settings.write_cfg(self.engine_dll.parent):
+        if not self.settings.write_cfg(self.engine_dll.parent, self.get_source_dir()):
             msg = 'Error writing OpenVRMod CFG file.'
             self.error = msg
             return False
@@ -190,16 +180,16 @@ class BaseMod:
             self.engine_dll.unlink()
 
         # Copy
-        copyfile(self.mod_dll_location, self.engine_dll)
+        copyfile(self.get_source_dll(), self.engine_dll)
 
-        if not self.settings.write_cfg(self.engine_dll.parent):
+        if not self.settings.write_cfg(self.engine_dll.parent, self.get_source_dir()):
             self.error = 'Error writing Mod CFG file.'
             return False
         return True
 
     @staticmethod
     def get_mod_version_from_dll(engine_dll: Path, mod_type: int) -> Optional[str]:
-        file_hash = app.util.utils.get_file_hash(engine_dll.as_posix())
+        file_hash = app.utils.get_file_hash(engine_dll.as_posix())
         version_dict = dict()
 
         if mod_type == BaseModType.fsr:
@@ -253,12 +243,8 @@ class BaseMod:
             return all(results)
         return False
 
+    def get_source_dir(self) -> Path:
+        return Path(update_mod_data_dirs().get(self.TYPE))
 
-def get_mod(manifest: dict, mod_type: int = 0) -> BaseMod:
-    mod_type_class = getattr(app, BaseModType.mod_types.get(mod_type))
-    return mod_type_class(manifest)
-
-
-def get_available_mods(manifest: dict) -> Iterable[BaseMod]:
-    for mod_type in BaseModType.mod_types.keys():
-        yield get_mod(manifest, mod_type)
+    def get_source_dll(self) -> Path:
+        return self.get_source_dir() / self.DLL_NAME

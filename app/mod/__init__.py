@@ -1,7 +1,9 @@
-from .base_mod import BaseMod, BaseModType, get_mod, get_available_mods
+from .base_mod_type import BaseModType
+from .mod_utils import get_mod, get_available_mods, check_mod_data_dir, update_mod_data_dirs
+from .base_mod import BaseMod
 from .fsr_mod import FsrMod
 from .foveated_mod import FoveatedMod
 from .vrperfkit_mod import VRPerfKitMod
 
-__all__ = ['BaseMod', 'BaseModType', 'get_mod', 'get_available_mods',
-           'FsrMod', 'FoveatedMod', 'VRPerfKitMod']
+__all__ = ['BaseMod', 'BaseModType', 'FsrMod', 'FoveatedMod', 'VRPerfKitMod',
+           'get_mod', 'get_available_mods', 'check_mod_data_dir', 'update_mod_data_dirs']

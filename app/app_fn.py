@@ -209,7 +209,7 @@ def add_custom_app_fn(app_dict: dict):
 
 
 @app.utils.capture_app_exceptions
-def get_mod_dir_fn():
+def get_mod_dir_fn(mod_type: int):
     if AppSettings.openvr_fsr_dir is not None and Path(AppSettings.openvr_fsr_dir).exists():
         open_fsr_dir = str(WindowsPath(AppSettings.openvr_fsr_dir))
         logging.info('Providing FSR Dir to FrontEnd: %s', open_fsr_dir)
@@ -217,7 +217,7 @@ def get_mod_dir_fn():
 
 
 @app.utils.capture_app_exceptions
-def set_mod_dir_fn(directory_str):
+def set_mod_dir_fn(mod_type: int):
     if not directory_str:
         directory_str = str(WindowsPath(app.globals.get_data_dir() / 'openvr_fsr'))
     return json.dumps({'result': AppSettings.update_fsr_dir(directory_str)})

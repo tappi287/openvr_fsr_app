@@ -5,9 +5,10 @@ from pathlib import Path, WindowsPath
 from distutils.dir_util import copy_tree, remove_tree
 
 import app
+import app.mod
 from app.app_settings import AppSettings
 from app.util.manifest_worker import ManifestWorker
-from app.mod.base_mod import get_available_mods
+from app.mod import get_available_mods
 
 libraryfolders_content = '''"libraryfolders"
 {{
@@ -45,6 +46,11 @@ def input_path():
 @pytest.fixture(scope='session')
 def output_path():
     return test_data_output_path
+
+
+@pytest.fixture(scope='session')
+def open_vr_fsr_test_mod_dir():
+    return test_data_input_path / 'mod_dir'
 
 
 @pytest.fixture(scope='session')
@@ -158,9 +164,9 @@ def outdated_apps_app_settings(steam_apps_obj):
     _setup_manifest_mods(manifest)
 
     # -- Remove new
-    manifest.pop(app.VRPerfKitMod.VAR_NAMES['settings'])
-    manifest.pop(app.VRPerfKitMod.DLL_LOC_KEY_SELECTED)
-    manifest.pop(app.VRPerfKitMod.DLL_LOC_KEY)
+    manifest.pop(app.mod.VRPerfKitMod.VAR_NAMES['settings'])
+    manifest.pop(app.mod.VRPerfKitMod.DLL_LOC_KEY_SELECTED)
+    manifest.pop(app.mod.VRPerfKitMod.DLL_LOC_KEY)
 
     AppSettings.user_apps[test_user_app_id] = manifest
     return AppSettings
