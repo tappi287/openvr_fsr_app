@@ -216,17 +216,22 @@ def get_mod_dir_fn(mod_type: int):
 
 @app.utils.capture_app_exceptions
 def set_mod_dir_fn(directory_str, mod_type: int):
+    result = False
+
     # -- Reset
     if not directory_str:
         AppSettings.mod_data_dirs.pop(mod_type)
         app.mod.update_mod_data_dirs()
-        return json.dumps({'result': True})
+        result = True
 
     # -- Set
     if app.mod.check_mod_data_dir(Path(directory_str), int(mod_type)):
         AppSettings.mod_data_dirs[mod_type] = str(WindowsPath(directory_str))
-        return json.dumps({'result': True})
-    return json.dumps({'result': False})
+        AppSettings.save()
+        result = True
+
+    AppSettings.save()
+    return json.dumps({'result': result})
 
 
 @app.utils.capture_app_exceptions
