@@ -1,6 +1,7 @@
 {
   "main": {
-    "folderSelect": "Mod source data found at <i>{folder}</i>. Click to customize PlugIn source path.",
+    "folderSelect": "Mod source data found at:",
+    "folderSelectClick": "Click to customize PlugIn source path.",
     "folderSelectError": "<b>Mod PlugIn data not found!</b> Download\n <a href=\"https://github.com/fholger/openvr_fsr/releases/latest\" target=\"_blank\">OpenVR FSR</a>\n extract it to a folder and provide the path to that folder here.",
     "folderPop": "Mod PlugIn Source Folder",
     "folderPopText": "Paste a path in the Format <i>C:\\Dir\\MyDir</i> where you want to copy the PlugIn dll from.",

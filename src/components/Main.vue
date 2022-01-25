@@ -16,7 +16,11 @@
         <!-- Folder Select Message Hover -->
         <b-popover target="mod-folder" triggers="hover">
           <template v-if="modDataDirs[selectedModType] !== null">
-            <span v-html="$t('main.folderSelect', { folder: modDataDirs[selectedModType] })" />
+            <span>{{ $t('main.folderSelect')}}</span><br />
+            <span v-for="modType in modTypes" :key="modType">
+              <i>{{ modDataDirs[modType] }}</i><br />
+            </span><br />
+            <span>{{ $t('main.folderSelectClick')}}</span>
           </template>
           <template v-else>
             <span v-html="$t('main.folderSelectError')" />
