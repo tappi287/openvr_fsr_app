@@ -49,7 +49,7 @@ def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False):
     return steam_apps
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def save_steam_lib(steam_apps):
     logging.info('Updating SteamApp disk cache.')
 
@@ -74,7 +74,7 @@ def save_steam_lib(steam_apps):
     AppSettings.save()
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def load_steam_lib_fn():
     """ Load saved SteamApps from disk """
     steam_apps = _load_steam_apps_with_mod_settings(AppSettings.load_steam_apps())
@@ -97,7 +97,7 @@ def load_steam_lib_fn():
     return json.dumps({'result': True, 'data': steam_apps, 'reScanRequired': re_scan_required})
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def get_steam_lib_fn():
     """ Refresh SteamLib and re-scan every app directory """
     logging.debug('Reading Steam Library')
@@ -143,7 +143,7 @@ def get_steam_lib_fn():
     return json.dumps({'result': True, 'data': steam_apps})
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def remove_custom_app_fn(app_dict: dict):
     if app_dict.get('appid') not in AppSettings.user_apps:
         return json.dumps({'result': False, 'msg': f'Could not find app with Id: {app_dict.get("appid")}'})
@@ -154,7 +154,7 @@ def remove_custom_app_fn(app_dict: dict):
     return json.dumps({'result': True, 'msg': f'App entry {entry.get("name")} {entry.get("appid")} created.'})
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def add_custom_app_fn(app_dict: dict):
     # -- Check path
     if app_dict.get('path') in (None, ''):
@@ -208,22 +208,22 @@ def add_custom_app_fn(app_dict: dict):
     return json.dumps({'result': True, 'msg': f'App entry {app_id} created.'})
 
 
-@app.util.utils.capture_app_exceptions
-def get_fsr_dir_fn():
+@app.utils.capture_app_exceptions
+def get_mod_dir_fn():
     if AppSettings.openvr_fsr_dir is not None and Path(AppSettings.openvr_fsr_dir).exists():
         open_fsr_dir = str(WindowsPath(AppSettings.openvr_fsr_dir))
         logging.info('Providing FSR Dir to FrontEnd: %s', open_fsr_dir)
         return open_fsr_dir
 
 
-@app.util.utils.capture_app_exceptions
-def set_fsr_dir_fn(directory_str):
+@app.utils.capture_app_exceptions
+def set_mod_dir_fn(directory_str):
     if not directory_str:
         directory_str = str(WindowsPath(app.globals.get_data_dir() / 'openvr_fsr'))
     return json.dumps({'result': AppSettings.update_fsr_dir(directory_str)})
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def update_mod_fn(manifest: dict, mod_type: int = 0, write: bool = False):
     mod = get_mod(manifest, mod_type)
     if not mod:
@@ -238,7 +238,7 @@ def update_mod_fn(manifest: dict, mod_type: int = 0, write: bool = False):
                        'msg': mod.error, 'manifest': mod.manifest})
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
     mod = get_mod(manifest, mod_type)
     mod_installed = mod.manifest.get(mod.VAR_NAMES['installed'], False)
@@ -260,7 +260,7 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
         return json.dumps({'result': uninstall_result, 'msg': mod.error, 'manifest': mod.manifest})
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def reset_mod_settings_fn(manifest: dict, mod_type: int = 0):
     mod = get_mod(manifest, mod_type)
 
@@ -271,7 +271,7 @@ def reset_mod_settings_fn(manifest: dict, mod_type: int = 0):
     return json.dumps({'result': False, 'msg': mod.error, 'manifest': mod.manifest})
 
 
-@app.util.utils.capture_app_exceptions
+@app.utils.capture_app_exceptions
 def launch_app_fn(manifest: dict):
     app_id = manifest.get('appid')
     if not app_id:
