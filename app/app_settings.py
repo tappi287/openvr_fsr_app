@@ -123,28 +123,3 @@ class AppSettings(JsonRepr):
                 entry.update(KNOWN_APPS[app_id])
 
         return steam_apps
-
-    @staticmethod
-    def update_fsr_dir(fsr_plugin_dir: Union[str, Path]) -> bool:
-        fsr_plugin_dir = Path(fsr_plugin_dir)
-        dir_str = str(WindowsPath(fsr_plugin_dir))
-
-        try:
-            if fsr_plugin_dir.exists():
-                verified = False
-                for _ in fsr_plugin_dir.glob(OPEN_VR_DLL):
-                    verified = True
-                    break
-                if not verified:
-                    logging.error('Could not find OpenVR Api Dll in provided directory!')
-                    return False
-                logging.info('Updating FSR PlugIn Dir: %s', dir_str)
-                AppSettings.openvr_fsr_dir = dir_str
-                AppSettings.save()
-            else:
-                logging.error('Selected Presets Directory does not exist: %s', fsr_plugin_dir.as_posix())
-                return False
-        except Exception as e:
-            logging.error('Error accessing path: %s', e)
-            return False
-        return True

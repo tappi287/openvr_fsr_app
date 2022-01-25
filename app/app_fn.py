@@ -210,11 +210,15 @@ def add_custom_app_fn(app_dict: dict):
 
 @app.utils.capture_app_exceptions
 def get_mod_dir_fn(mod_type: int):
-    return json.dumps({'result': False})
+    mod = app.mod.get_mod(dict(), mod_type)
+    return str(WindowsPath(mod.get_source_dir()))
 
 
 @app.utils.capture_app_exceptions
 def set_mod_dir_fn(directory_str, mod_type: int):
+    if app.mod.check_mod_data_dir(Path(directory_str), mod_type):
+        AppSettings.mod_data_dirs[mod_type] = str(WindowsPath(directory_str))
+        return json.dumps({'result': True})
     return json.dumps({'result': False})
 
 
