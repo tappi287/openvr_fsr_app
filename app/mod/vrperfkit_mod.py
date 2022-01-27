@@ -12,7 +12,7 @@ class VRPerfKitMod(BaseMod):
     }
     DLL_LOC_KEY_SELECTED = 'executablePathsSelected'
     DLL_LOC_KEY = 'executablePaths'
-    DLL_NAME = DXGI_DLL
+    DLL_NAME = DXGI_DLL  # Alternative would be d3d11.dll
 
     def __init__(self, manifest: dict):
         self.settings = VRPerfKitSettings()
