@@ -137,7 +137,7 @@ class SteamApps:
                                 continue
 
                             # -- Add human readable size
-                            manifest['sizeGb'] = f"{convert_unit(manifest.get('SizeOnDisk', 0), SizeUnit.GB):.0f} GB"
+                            manifest['sizeGb'] = f"{convert_unit(manifest.get('SizeOnDisk', 0), SizeUnit.GB):.1f} GB"
 
                             # -- Add Path information
                             self._add_path(manifest, lib_folders)
