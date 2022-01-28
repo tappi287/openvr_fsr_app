@@ -7,9 +7,13 @@
     <b-card-text>
       <!-- Install Path Selection -->
       <div class="mt-4 mb-4">
-        <h6>
-          {{ $t('lib.installLoc') }}
-          <b-icon icon="info-square-fill"
+        <h6 style="line-height: 1.25rem;">
+          <b-checkbox switch :checked="true" class="d-inline mr-1"
+                      @change="toggleModInstallPaths"
+                      :disabled="entry.fsrInstalled || entry.fovInstalled || entry.vrpInstalled">
+            {{ $t('lib.installLoc') }}
+          </b-checkbox>
+          <b-icon icon="info-square-fill" class="ml-1" style="opacity: 0.75;"
                   v-b-popover.top.hover="$t('lib.installHint')"
           />
         </h6>
@@ -37,18 +41,6 @@
         FSR {{ entry.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
       </b-button>
 
-      <!-- Version Report -->
-      <span v-if="entry.fsrInstalled"
-            :class="entry.fsrVersion !== currentFsrVersion ? 'text-warning' : ''">
-        OpenVR FSR: {{ entry.fsrVersion }}
-        <template v-if="entry.fsrVersion !== currentFsrVersion">
-          <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
-        </template>
-        <template v-else>
-          <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
-        </template>
-      </span>
-
       <!-- Foveated PlugIn Install / Uninstall Button -->
       <b-button :variant="entry.fovInstalled ? 'success' : 'primary'"
                 :disabled="!modInstallAllowed(1)"
@@ -56,18 +48,6 @@
         <b-icon class="mr-1" :icon="entry.fovInstalled ? 'square-fill' : 'square'" />
         Foveated {{ entry.fovInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
       </b-button>
-
-      <!-- Version Report -->
-      <span v-if="entry.fovInstalled"
-            :class="entry.fovVersion !== currentFovVersion ? 'text-warning' : ''">
-        OpenVR Foveated: {{ entry.fovVersion }}
-        <template v-if="entry.fovVersion !== currentFovVersion">
-          <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
-        </template>
-        <template v-else>
-          <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
-        </template>
-      </span>
 
       <!-- VrPerfKit PlugIn Install / Uninstall Button -->
       <b-button :variant="entry.vrpInstalled ? 'success' : 'info'"
@@ -77,33 +57,21 @@
         VrPerfKit {{ entry.vrpInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
       </b-button>
 
-      <!-- VRP Version Report -->
-      <span v-if="entry.vrpInstalled"
-            :class="entry.vrpVersion !== currentVrpVersion ? 'text-warning' : ''">
-        VrPerfKit: {{ entry.vrpVersion }}
-        <template v-if="entry.vrpVersion !== currentVrpVersion">
-          <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
-        </template>
-        <template v-else>
-          <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
-        </template>
-      </span>
-
       <b-button v-if="entry.fsrInstalled" variant="warning"
                 @click="resetModSettings(0)"
-                class="float-right warning" size="sm">
+                class="float-right warning no-border" size="sm">
         <b-icon class="mr-1" icon="arrow-counterclockwise"/>
         Reset FSR Settings
       </b-button>
       <b-button v-if="entry.fovInstalled" variant="warning"
                 @click="resetModSettings(1)"
-                class="float-right warning" size="sm">
+                class="float-right warning no-border" size="sm">
         <b-icon class="mr-1" icon="arrow-counterclockwise"/>
         Reset FFR Settings
       </b-button>
       <b-button v-if="entry.vrpInstalled" variant="warning"
                 @click="resetModSettings(2)"
-                class="float-right warning" size="sm">
+                class="float-right warning no-border" size="sm">
         <b-icon class="mr-1" icon="arrow-counterclockwise"/>
         Reset VRP Settings
       </b-button>
@@ -292,6 +260,16 @@ export default {
       if (this.steamLibBusy) { return }
       // Update disk cache
       this.$emit('entry-updated')
+    },
+    toggleModInstallPaths: function (checked) {
+      if (checked) {
+        this.entry.openVrDllPathsSelected = this.entry.openVrDllPaths
+        this.entry.executablePathsSelected = this.entry.executablePaths
+      } else {
+        this.entry.openVrDllPathsSelected = []
+        this.entry.executablePathsSelected = []
+      }
+      this.saveEntryDebounced()
     },
     updateModSetting: async function(modType = -1) {
       await this.updateMod(modType, true)

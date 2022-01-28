@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Filter -->
-    <b-input-group size="md" class="mt-2">
+    <b-input-group size="sm" class="mt-2">
       <b-input-group-prepend>
         <!-- Add User App -->
         <b-button @click="showAddAppModal=!showAddAppModal" variant="primary"
@@ -34,7 +34,7 @@
       </b-form-input>
 
       <b-input-group-append>
-        <b-button-group>
+        <b-button-group size="sm">
           <b-button @click="filterVr = !filterVr" :variant="filterVr ? 'dark' : ''">
             <b-icon :icon="filterVr ? 'plug-fill' : 'plug'" :variant="filterVr ? 'success' : 'white'" />
             <span class="ml-2">{{ $t('openVr') }}</span>
@@ -71,8 +71,30 @@
         </b-link>
       </template>
 
+      <!-- Mod Column -->
+      <template v-slot:cell(mod)="row">
+        <span :class="getRowModInfo(row.item).version ? '' : 'text-warning'"
+              v-if="getRowModInfo(row.item).text !== ''">
+          {{ getRowModInfo(row.item).text }}
+          <template v-if="getRowModInfo(row.item).version">
+            <b-icon icon="info-circle-fill" class="text-success" v-b-popover.top.hover="$t('main.versionMatch')" />
+          </template>
+          <template v-else>
+            <b-icon icon="info-circle-fill" v-b-popover.top.hover="$t('main.versionMismatch')" />
+          </template>
+        </span>
+      </template>
+
+      <!-- OpenVR Column -->
       <template v-slot:cell(openVr)="row">
         <b-icon :icon="row.item.openVr ? 'check2-square' : 'square'"></b-icon>
+      </template>
+
+      <!-- Size Column -->
+      <template v-slot:cell(sizeGb)="row">
+        <span v-if="row.item.sizeGb !== '0.0 GB' && row.item.sizeGb !== '0'">
+          {{ row.item.sizeGb }}
+        </span>
       </template>
 
       <!-- Row Details -->
@@ -149,6 +171,7 @@ export default {
       fields: [
         { key: 'id', label: '', sortable: true, class: 'text-left' },
         { key: 'name', label: '', sortable: true, class: 'text-left' },
+        { key: 'mod', label: 'Mod', sortable: false, class: 'text-right' },
         { key: 'sizeGb', label: '', sortable: true, class: 'text-right' },
         { key: 'openVr', label: 'Open VR', sortable: true, class: 'text-right' },
       ],
@@ -176,6 +199,22 @@ export default {
         }
       }
       return textClass
+    },
+    getRowModInfo: function (manifest) {
+      if (manifest.fsrInstalled) {
+        if (manifest.fsrVersion !== undefined) {
+          return {text: 'FSR ' + manifest.fsrVersion, version: manifest.fsrVersion === this.currentFsrVersion}
+        }
+      } else if (manifest.fovInstalled) {
+        if (manifest.fovVersion !== undefined) {
+          return {text: 'Foveated ' + manifest.fovVersion, version: manifest.fovVersion === this.currentFovVersion}
+        }
+      } else if (manifest.vrpInstalled) {
+        if (manifest.vrpVersion !== undefined) {
+          return {text: 'VrPerfKit ' + manifest.vrpVersion, version: manifest.vrpVersion === this.currentVrpVersion}
+        }
+      }
+      return {text: '', version: false}
     },
     saveSteamApps: async function() {
       this.$eventHub.$emit('set-busy', true)
