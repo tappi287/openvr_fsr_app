@@ -94,6 +94,11 @@ if not PYTEST:
 else:
     APPS_STORE_FILE_NAME = 'steam_apps_tests.json'
 
+if not PYTEST:
+    CUSTOM_APPS_STORE_FILE_NAME = '_apps.json'
+else:
+    CUSTOM_APPS_STORE_FILE_NAME = '_apps_tests.json'
+
 
 def check_and_create_dir(directory: Union[str, Path]) -> str:
     if not os.path.exists(directory):

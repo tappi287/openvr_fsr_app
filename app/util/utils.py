@@ -276,3 +276,10 @@ def get_file_hash(file):
         buf = f.read()
         md5.update(buf)
     return md5.hexdigest()
+
+
+def get_name_id(name: str) -> str:
+    """ Return last 4 digits of an integer hash based on a string """
+    m = hashlib.md5()
+    m.update(name.encode('utf-8'))
+    return str(int(m.hexdigest(), 16))[-4:]

@@ -9,6 +9,7 @@ import app
 import app.mod
 from app.app_settings import AppSettings
 from app.util.manifest_worker import ManifestWorker
+from app.util.utils import get_name_id
 from app.mod import get_available_mods
 
 libraryfolders_content = '''"libraryfolders"
@@ -66,6 +67,21 @@ def input_path():
 @pytest.fixture(scope='session')
 def output_path():
     return test_data_output_path
+
+
+@pytest.fixture(scope='session')
+def custom_lib_path(input_path):
+    return  input_path / 'custom_dir'
+
+
+@pytest.fixture(scope='session')
+def custom_dir_id(custom_lib_path):
+    return f'{custom_lib_path.stem[:2]}{0:02d}'
+
+
+@pytest.fixture(scope='session')
+def custom_app_id(custom_dir_id):
+    return f'{custom_dir_id}_{get_name_id("custom_app_writeable")}'
 
 
 @pytest.fixture(scope='session')
