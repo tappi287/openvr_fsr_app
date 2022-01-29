@@ -13,7 +13,7 @@
           </b-iconstack>
         </b-button>
         <!-- Add User Dir -->
-        <b-button @click="showAddAppModal=!showAddAppModal" variant="primary"
+        <b-button @click="showAddDirModal=!showAddDirModal" variant="primary"
                   :disabled="backgroundBusy || steamlibBusy"
                   v-b-popover.hover.top="$t('lib.addAppHint')">
           <b-icon icon="folder-plus"></b-icon>
@@ -159,6 +159,22 @@
         <b-button variant="secondary" @click="showAddAppModal=false" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
       </template>
     </b-modal>
+
+    <!-- Add App Dir modal -->
+    <b-modal v-model="showAddDirModal" :title="$t('lib.addDirTitle')">
+      <div class="mb-2" v-html="$t('lib.addDirText')" />
+
+      <b-form @submit.prevent @reset.prevent>
+        <b-form-group id="input-group-2" :label="$t('lib.addAppPath')" label-for="input-1"
+                      :description="$t('lib.addDirPathHint')">
+          <b-form-input id="input-2" v-model="addDir" required :placeholder="$t('lib.addAppPathPlace')" />
+        </b-form-group>
+      </b-form>
+      <template #modal-footer>
+        <b-button variant="primary" @click="addUsrDir">{{ $t('lib.addDirSubmit') }}</b-button>
+        <b-button variant="secondary" @click="showAddDirModal=false" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -175,8 +191,9 @@ export default {
       textFilter: null, filterVr: false, filterInstalled: false,
       steamApps: {}, libUpdateRequired: false, reScanRequired: false,
       steamlibBusy: false, backgroundBusy: false,
-      showAddAppModal: false,
+      showAddAppModal: false, showAddDirModal: false,
       addApp: { name: '', path: '' },
+      addDir: '',
       fields: [
         { key: 'id', label: '', sortable: true, class: 'text-left' },
         { key: 'name', label: '', sortable: true, class: 'text-left' },
@@ -302,6 +319,23 @@ export default {
       this.addApp = { name: '', path: '' }
       this.$eventHub.$emit('set-busy', false)
     },
+    addUsrDir: async function() {
+      if (this.isBusy()) { return }
+      this.$eventHub.$emit('set-busy', true)
+      this.showAddDirModal = false
+      const r = await getEelJsonObject(window.eel.add_custom_dir(this.addDir)())
+      if (!r.result) {
+        // Error
+        this.$eventHub.$emit('make-toast',
+            'Error adding custom folder entry: ' + r.msg, 'danger', 'Add Folder Entry', true, -1)
+      } else {
+        // Success
+        await this.loadSteamLib()
+      }
+
+      this.addDir = ''
+      this.$eventHub.$emit('set-busy', false)
+    }
   },
   computed: {
     tableBusy() {
