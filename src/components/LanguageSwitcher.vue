@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-dropdown right :text="$i18n.locale">
+    <b-dropdown right variant="secondary" :text="$i18n.locale">
       <b-dropdown-item v-for="(lang, i) in languages"
                        :key="`lang-${i}`"
                        @click="selectLanguage(lang)">

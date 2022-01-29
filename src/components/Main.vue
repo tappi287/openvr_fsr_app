@@ -1,15 +1,17 @@
 <template>
   <div id="main" class="text-left">
-    <b-navbar type="dark" class="pl-0 pr-0">
-      <b-navbar-brand href="#" class="mr-2">
+    <b-navbar type="dark" class="pl-0 pr-0 mt-0 mb-2">
+      <b-navbar-brand class="mr-2" tag="div">
         <b-img width="32px" key="1" src="@/assets/app_logo_inkscape.svg"></b-img>
       </b-navbar-brand>
-      <h4 class="mt-2">{{ appName }} v{{ version }}</h4>
+      <b-navbar-brand class="mr-2" tag="div">
+        <span class="app-title">{{ appName }} v{{ version }}</span>
+      </b-navbar-brand>
 
-      <b-navbar-nav class="ml-auto">
+      <b-navbar-nav class="ml-auto" small>
         <!-- Folder -->
         <!-- FSR Folder Select -->
-        <b-button variant="secondary" size="sm" id="mod-folder">
+        <b-button variant="secondary" size="sm" id="mod-folder" class="mr-2">
           <b-icon icon="folder-fill"></b-icon>
         </b-button>
 
@@ -57,12 +59,12 @@
         </b-popover>
 
         <!-- Info Toggle -->
-        <b-button size="sm" variant="secondary" v-b-toggle.info-collapse class="ml-2">
+        <b-button size="sm" variant="secondary" class="mr-2" v-b-toggle.info-collapse>
           <b-icon icon="info-square-fill" />
         </b-button>
 
         <!-- Languages -->
-        <LanguageSwitcher class="ml-2" />
+        <LanguageSwitcher />
       </b-navbar-nav>
     </b-navbar>
 

@@ -7,7 +7,16 @@
         <b-button @click="showAddAppModal=!showAddAppModal" variant="primary"
                   :disabled="backgroundBusy || steamlibBusy"
                   v-b-popover.hover.top="$t('lib.addAppHint')">
-          <b-icon icon="plus-square"></b-icon>
+          <b-iconstack>
+            <b-icon stacked icon="app-indicator"></b-icon>
+            <b-icon stacked icon="plus"></b-icon>
+          </b-iconstack>
+        </b-button>
+        <!-- Add User Dir -->
+        <b-button @click="showAddAppModal=!showAddAppModal" variant="primary"
+                  :disabled="backgroundBusy || steamlibBusy"
+                  v-b-popover.hover.top="$t('lib.addAppHint')">
+          <b-icon icon="folder-plus"></b-icon>
         </b-button>
         <!-- Manual Update -->
         <b-button @click="scanSteamLib" v-if="!libUpdateRequired"
@@ -53,7 +62,7 @@
 
     <!-- Steam Library Table -->
     <b-table :items="computedList" :fields="fields" :busy="steamlibBusy"
-             table-variant="dark" small borderless show-empty
+             table-variant="dark" small borderless show-empty sort-icon-left
              primary-key="id" class="server-list" thead-class="bg-dark text-white">
       <!-- DYNAMIC HEADER FIELD NAMES -->
       <template #head(id)>{{ $t('lib.appId') }}</template>
