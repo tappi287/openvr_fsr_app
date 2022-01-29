@@ -1,9 +1,10 @@
 {
   "main": {
-    "folderSelect": "Mod source data found at:",
-    "folderSelectClick": "Click to customize PlugIn source path.",
+    "folderSelectClick": "Manage custom file and app locations",
     "folderSelectError": "<b>Mod PlugIn data not found!</b> Download\n <a href=\"https://github.com/fholger/openvr_fsr/releases/latest\" target=\"_blank\">OpenVR FSR</a>\n extract it to a folder and provide the path to that folder here.",
     "folderPop": "Mod PlugIn Source Folder",
+    "folderPopCurrent": "Current:",
+    "folderPopSelect": "Choose Mod Type:",
     "folderPopText": "Paste a path in the Format <i>C:\\Dir\\MyDir</i> where you want to copy the PlugIn dll from.",
     "folderPopHint": "Paste a folder location",
     "folderPopUpdate": "Update",
@@ -29,7 +30,10 @@
     "debug": "Debug Mode",
     "debugText": "If enabled, will visualize the radius to which FSR is applied.\n Will also periodically log the GPU cost for applying FSR in the\n current configuration.",
     "versionMismatch": "Installed OpenVR FSR version doesn't match the version supported by this app. Some FSR configuration settings may not be available or may have no effect.",
-    "versionMatch": "This version of OpenVR FSR is supported by this version of the app."
+    "versionMatch": "This version of OpenVR FSR is supported by this version of the app.",
+    "dirModTitle": "Manage App directories",
+    "dirModText": "Manage directories pointing to different mod version or remove custom user libraries.",
+    "dirModLibs": "Custom Libraries"
   },
   "setting": {
     "keyboardAssign": "Press a keyboard key to assign a Hotkey"

@@ -220,6 +220,11 @@ def add_custom_app_fn(app_dict: dict):
 
 
 @app.utils.capture_app_exceptions
+def get_custom_dirs_fn():
+    return AppSettings.user_app_directories
+
+
+@app.utils.capture_app_exceptions
 def add_custom_dir_fn(path: str):
     path = Path(path)
     if not path.exists():

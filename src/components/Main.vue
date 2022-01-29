@@ -9,53 +9,15 @@
       </b-navbar-brand>
 
       <b-navbar-nav class="ml-auto" small>
-        <!-- Folder -->
-        <!-- FSR Folder Select -->
-        <b-button variant="secondary" size="sm" id="mod-folder" class="mr-2">
-          <b-icon icon="folder-fill"></b-icon>
+        <!-- Folder Management -->
+        <b-button variant="secondary" size="sm" class="mr-2" @click="toggleDirModal"
+                  v-b-popover.hover.top="$t('main.folderSelectClick')">
+          <b-icon class="text-primary" icon="folder-fill"></b-icon>
         </b-button>
-
-        <!-- Folder Select Message Hover -->
-        <b-popover target="mod-folder" triggers="hover">
-          <template v-if="modDataDirs[selectedModType] !== null">
-            <span>{{ $t('main.folderSelect')}}</span><br />
-            <span v-for="modType in modTypes" :key="modType">
-              <i>{{ modDataDirs[modType] }}</i><br />
-            </span><br />
-            <span>{{ $t('main.folderSelectClick')}}</span>
-          </template>
-          <template v-else>
-            <span v-html="$t('main.folderSelectError')" />
-          </template>
-        </b-popover>
 
         <!-- Folder Select Popover -->
         <b-popover target="mod-folder" triggers="click">
-          <h5>{{ $t('main.folderPop') }}</h5>
-          <b-dropdown :text="modNames[selectedModType]" size="sm">
-            <b-dropdown-item v-for="modType in modTypes" :key="modType" @click="selectedModType = modType">
-              {{ modNames[modType] }}
-            </b-dropdown-item>
-          </b-dropdown>
-          <p v-html="$t('main.folderPopText')" />
-          <b-form-input size="sm" v-model="modDirInput"
-                        :placeholder="$t('main.folderPopHint')">
-          </b-form-input>
-          <!-- Buttons -->
-          <div class="text-right mt-1">
-            <b-button @click="setModDir(selectedModType)" size="sm" variant="primary"
-                      aria-label="Save">
-              {{ $t('main.folderPopUpdate') }}
-            </b-button>
-            <b-button @click="resetModDir(selectedModType)" size="sm" variant="warning"
-                      class="ml-2">
-              {{ $t('main.folderPopReset') }}
-            </b-button>
-            <b-button @click="$root.$emit('bv::hide::popover', 'mod-folder')"
-                      size="sm" aria-label="Close" class="ml-2">
-              {{ $t('main.folderPopClose') }}
-            </b-button>
-          </div>
+
         </b-popover>
 
         <!-- Info Toggle -->
@@ -67,6 +29,66 @@
         <LanguageSwitcher />
       </b-navbar-nav>
     </b-navbar>
+
+    <!-- Dirs modal -->
+    <b-modal v-model="showDirModal" :title="$t('main.dirModTitle')">
+      <!-- Mod source directories -->
+      <b-card class="mb-4" header="Default">
+        <template #header><h5 v-html="$t('main.folderPop')"></h5></template>
+
+        <div class="mb-3 d-flex flex-row justify-content-between">
+          <div class="d-inline-flex p-2">{{ $t('main.folderPopSelect') }}</div>
+
+          <b-dropdown :text="modNames[selectedModType]" size="sm" class="d-inline-flex">
+            <b-dropdown-item v-for="modType in modTypes" :key="modType" @click="selectedModType = modType">
+              {{ modNames[modType] }}
+            </b-dropdown-item>
+          </b-dropdown>
+        </div>
+
+        <div class="p-2">
+          <p v-html="$t('main.folderPopText')" />
+          <p><span v-html="$t('main.folderPopCurrent')" /><i>{{ modDataDirs[selectedModType] }}</i></p>
+          <b-form-input size="sm" v-model="modDirInput"
+                        :placeholder="$t('main.folderPopHint')">
+          </b-form-input>
+        </div>
+
+        <template #footer>
+          <!-- Buttons -->
+          <div class="text-right mt-1">
+            <b-button @click="setModDir(selectedModType)" size="sm" variant="primary"
+                      aria-label="Save">
+              {{ $t('main.folderPopUpdate') }}
+            </b-button>
+            <b-button @click="resetModDir(selectedModType)" size="sm" variant="warning"
+                      class="ml-2">
+              {{ $t('main.folderPopReset') }}
+            </b-button>
+          </div>
+        </template>
+      </b-card>
+
+      <!-- Custom Library directories -->
+      <b-card header="Default">
+        <template #header><h5 v-html="$t('main.dirModLibs')"></h5></template>
+        <template v-if="customDirs.length !== 0">
+          <div v-for="d in customDirs" :key="d.id">
+            {{ d.path }}
+          </div>
+        </template>
+        <template v-else>
+          <div>None</div>
+        </template>
+      </b-card>
+
+      <!-- Modal Footer -->
+      <template #modal-footer>
+        <b-button variant="secondary" size="sm" @click="showDirModal=false">
+          {{ $t('main.folderPopClose') }}
+        </b-button>
+      </template>
+    </b-modal>
 
     <!-- Info -->
     <b-collapse id="info-collapse">
@@ -131,6 +153,7 @@ export default {
     return {
       modDirInput: '',
       modDataDirs: {0: null, 1: null, 2: null},
+      userAppDirs: {}, showDirModal: false,
       selectedModType: 0,
       modTypes: [0, 1, 2],
       modNames: {0: 'Open VR FSR', 1: 'Open VR Foveated', 2: 'VR Performance Toolkit'},
@@ -154,6 +177,14 @@ export default {
       })
     },
     setBusy: function (busy) { this.isBusy = busy},
+    toggleDirModal: async function() {
+      await this.getCustomDirs()
+      this.showDirModal = !this.showDirModal
+    },
+    getCustomDirs: async function () {
+      const r = await window.eel.get_custom_dirs()()
+      if (r !== undefined) { this.userAppDirs = r }
+    },
     getModDir: async function (modType = 0) {
       const r = await window.eel.get_mod_dir(modType)()
       if (r !== undefined) { this.modDataDirs[modType] = r }
@@ -162,6 +193,7 @@ export default {
       modType = Number(modType)
       this.modDirInput = ''
       await this.setModDir(modType)
+      this.showDirModal = false
     },
     setModDir: async function (modType) {
       const r = await getEelJsonObject(window.eel.set_mod_dir(this.modDirInput, modType)())
@@ -176,11 +208,18 @@ export default {
             'danger', this.modNames[modType])
         await this.getModDir(modType)
       }
-      this.$root.$emit('bv::hide::popover', 'mod-folder')
+      this.showDirModal = false
     },
     setError: async function (error) { this.$emit('error', error) },
   },
   computed: {
+    customDirs: function () {
+      let appDirArray = []
+      for (const key in this.userAppDirs) {
+         appDirArray.push({'id': key, 'path': this.userAppDirs[key]})
+      }
+      return appDirArray
+    },
   },
   async created() {
     this.$eventHub.$on('make-toast', this.makeToast)
