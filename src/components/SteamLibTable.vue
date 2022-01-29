@@ -101,7 +101,7 @@
 
       <!-- Size Column -->
       <template v-slot:cell(sizeGb)="row">
-        <span v-if="row.item.sizeGb !== '0.0 GB' && row.item.sizeGb !== '0'">
+        <span v-if="row.item.sizeGb !== '0.0 GB' && row.item.sizeGb !== '0' && row.item.sizeGb !== 0">
           {{ row.item.sizeGb }}
         </span>
       </template>
