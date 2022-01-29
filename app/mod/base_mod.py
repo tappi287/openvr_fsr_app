@@ -244,9 +244,7 @@ class BaseMod:
         for selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY_SELECTED, list()) or list():
             results.append(selected_engine_dll_path in manifest.get(self.DLL_LOC_KEY))
 
-        if results:
-            return all(results)
-        return False
+        return all(results)
 
     def get_source_dir(self) -> Path:
         return Path(update_mod_data_dirs().get(self.TYPE))
