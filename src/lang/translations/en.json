@@ -30,12 +30,13 @@
     "debug": "Debug Mode",
     "debugText": "If enabled, will visualize the radius to which FSR is applied.\n Will also periodically log the GPU cost for applying FSR in the\n current configuration.",
     "versionMismatch": "Installed OpenVR FSR version doesn't match the version supported by this app. Some FSR configuration settings may not be available or may have no effect.",
-    "versionMatch": "This version of OpenVR FSR is supported by this version of the app.",
+    "versionMatch": "This version of this Mod is supported by this version of the app.",
     "dirModTitle": "Manage App directories",
     "dirModText": "Manage directories pointing to different mod version or remove custom user libraries.",
     "dirModLibs": "User App Libraries",
     "dirRem": "Do you really want to remove this custom library?",
-    "dirRemConfirm": "Confirm Removal"
+    "dirRemConfirm": "Confirm Removal",
+    "dirModNoLib": "No User App Libraries added yet"
   },
   "setting": {
     "keyboardAssign": "Press a keyboard key to assign a Hotkey"
@@ -67,6 +68,7 @@
     "addDirPathHint": "Provide the path to the root directory of the library containing app folders",
     "addDirSubmit": "Add Library",
     "addAppHint": "Add a custom app outside your Steam library.",
+    "addAppDirHint": "Add a custom app library.",
     "addAppTitle": "Add User App",
     "addAppText": "Provide the path to an application outside your Steam library in the format: <i>C:\\Dir\\MyDir</i>.<br /><br />",
     "addAppName": "Application Name",

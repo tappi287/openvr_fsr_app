@@ -69,7 +69,7 @@
         </div>
       </template>
       <template v-else>
-        <div>None</div>
+        <div v-html="$t('main.dirModNoLib')"></div>
       </template>
 
       <!-- Add Custom Dir -->
@@ -137,6 +137,7 @@ export default {
       this.$eventHub.$emit('set-busy', false)
     },
     addCustomDir: async function() {
+      if (this.addDir === '') { return }
       this.$eventHub.$emit('set-busy', true)
       this.$eventHub.$emit('toggle-dir-manager')
 

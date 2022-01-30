@@ -30,12 +30,13 @@
     "debug": "Debug Mode",
     "debugText": " Visualisiert den angewendeten Radius und wird regelmäßig den Leistungsverlust durch FSR dokumentieren.",
     "versionMismatch": "Installierte OpenVR FSR Version wird von dieser Version der App nicht unterstützt. Einige FSR Konfigurationseinstellungen sind möglicherweise nicht verfügbar oder haben möglicherweise keine auswirkung.",
-    "versionMatch": "Diese Version von OpenVR FSR wird von dieser App unterstützt.",
+    "versionMatch": "Diese Version der Mod wird von dieser App unterstützt.",
     "dirModTitle": "App Verzeichnisse verwalten",
     "dirModText": "Verwalte Datei-Verzeichnisse zu unterschiedlichen Mod Versionen und hinzugefügten App Bibliotheken.",
     "dirModLibs": "Benutzer App Bibliotheken",
     "dirRem": "Soll diese benutzerdefinierte Bibliothek wirklich entfernt werden?",
-    "dirRemConfirm": "Entfernung Bestätigen"
+    "dirRemConfirm": "Entfernung Bestätigen",
+    "dirModNoLib": "Keine benutzerdefinierten Bibliotheken vorhanden"
   },
   "setting": {
     "keyboardAssign": "Eine Tastatur Taste drücken um einen Hotkey zuzuweisen"
@@ -67,6 +68,7 @@
     "addDirPathHint": "Pfad zum Stammverzeichnis der Bibliothek angeben die App Ordner enthält",
     "addDirSubmit": "Bibliothek hinzufügen",
     "addAppHint": "Füge eine eigene Anwendung außerhalb der Steam Bibliothek hinzu.",
+    "addAppDirHint": "Benutzer App Bibliothek hinzufügen.",
     "addAppTitle": "Benutzer App hinzufügen",
     "addAppText": "Einen Pfad zur externen Anwendung im Format: <i>C:\\Dir\\MyDir</i> eingeben.<br /><br />",
     "addAppName": "Anwendungs Name",

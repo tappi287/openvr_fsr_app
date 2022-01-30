@@ -15,7 +15,7 @@
         <!-- Add User Dir -->
         <b-button @click="$eventHub.$emit('toggle-dir-manager', false, true)" variant="primary"
                   :disabled="backgroundBusy || steamlibBusy"
-                  v-b-popover.hover.top="$t('lib.addAppHint')">
+                  v-b-popover.hover.top="$t('lib.addAppDirHint')">
           <b-icon icon="folder-plus"></b-icon>
         </b-button>
         <!-- Manual Update -->
