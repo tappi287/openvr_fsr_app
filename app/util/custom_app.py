@@ -4,7 +4,7 @@ from typing import Optional
 
 import app
 import app.mod
-from app.util.manifest_worker import ManifestWorker
+from app.util.manifest_worker import ManifestWorker, run_update_steam_apps
 from app.util.utils import get_name_id
 
 
@@ -63,7 +63,7 @@ def scan_custom_library(dir_id: str, path: Path):
         custom_apps[app_id] = custom_app
 
     # -- Scan
-    custom_apps = ManifestWorker.update_steam_apps(custom_apps)
+    custom_apps = run_update_steam_apps(custom_apps)
 
     # -- Remove empty entries
     remove_ids = set()

@@ -33,7 +33,7 @@
         <b-input-group-text>
           <!-- Background Busy Indicator -->
           <b-spinner class="ml-2" small v-if="backgroundBusy"></b-spinner>
-          <span class="ml-2" v-if="backgroundBusy">{{ $t('lib.bgSearch') }}</span>
+          <span class="ml-2" v-if="backgroundBusy">{{ steamLibBusyMessage }}</span>
           <b-icon icon="filter" aria-hidden="true"></b-icon>
         </b-input-group-text>
       </b-input-group-prepend>
@@ -188,10 +188,20 @@ export default {
         { key: 'openVr', label: 'Open VR', sortable: true, class: 'text-right' },
       ],
       currentFsrVersion: '', currentFovVersion: '', currentVrpVersion: '',
+      progressMessage: ''
     }
   },
   methods: {
     isBusy: function () { return this.backgroundBusy || this.steamlibBusy },
+    setProgressMessage: function (message) {
+      // Set progress message
+      this.progressMessage = message
+
+      // Clear after timeout
+      setTimeout(() => {
+        this.setProgressMessage('')
+      }, 10000)
+    },
     updateTableSort(sortByRow = 'name', descending = false) {
       this.sortBy = sortByRow; this.sortDesc = descending
     },
@@ -258,6 +268,8 @@ export default {
       // Scan the disk in the background
       this.backgroundBusy = true
       const r = await getEelJsonObject(window.eel.get_steam_lib()())
+      this.$eventHub.$emit('update-progress', '')
+
       if (!r.result) {
         this.$eventHub.$emit('make-toast',
             'Could not load Steam Library!', 'danger', 'Steam Library', true, -1)
@@ -313,6 +325,12 @@ export default {
     tableBusy() {
       return this.isBusy()
     },
+    steamLibBusyMessage() {
+      if (this.progressMessage !== '') {
+        return this.$t('lib.bgSearchPre') + this.progressMessage + ' ...'
+      }
+      return this.$t('lib.bgSearch')
+    },
     computedList() {
       let steamTableData = []
       for (const appId in this.steamApps) {
@@ -327,6 +345,7 @@ export default {
   created() {
     this.$eventHub.$on('reload-steam-lib', this.loadSteamLib)
     this.$eventHub.$on('sort-steam-lib', this.updateTableSort)
+    this.$eventHub.$on('update-progress', this.setProgressMessage)
   },
   async mounted() {
     await this.loadSteamLib()
@@ -340,6 +359,7 @@ export default {
   destroyed() {
     this.$eventHub.$off('reload-steam-lib')
     this.$eventHub.$off('sort-steam-lib')
+    this.$eventHub.$off('update-progress')
   }
 }
 </script>

@@ -6,6 +6,7 @@ import webbrowser
 import eel
 
 from app import expose_app_methods, CLOSE_EVENT
+from app.events import app_event_loop
 from app.app_settings import AppSettings
 from app.globals import FROZEN, get_version
 from app.log import setup_logging
@@ -74,8 +75,10 @@ def start_eel():
 
     # -- Run until window/tab closed
     while not CLOSE_EVENT.is_set():
+        CLOSE_EVENT.wait(timeout=1)
+
         # --- Event loop ---
-        CLOSE_EVENT.wait(timeout=10)
+        app_event_loop()
 
         # Capture exception events
         AppExceptionHook.exception_event_loop()

@@ -140,6 +140,7 @@ export default {
       if (this.addDir === '') { return }
       this.$eventHub.$emit('set-busy', true)
       this.$eventHub.$emit('toggle-dir-manager')
+      this.$eventHub.$emit('update-progress', '')
 
       const r = await getEelJsonObject(window.eel.add_custom_dir(this.addDir)())
       if (!r.result) {

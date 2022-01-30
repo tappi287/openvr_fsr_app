@@ -83,7 +83,15 @@
 
     <!-- Busy Overlay -->
     <b-overlay no-wrap fixed :show="isBusy" blur="1px" variant="dark" rounded>
-      <b-spinner></b-spinner>
+      <template #overlay>
+        <div class="text-center">
+          <b-spinner></b-spinner>
+          <template v-if="progressMessage !== ''">
+            <div></div>
+            <span class="mt-4">{{ progressMessage }}</span>
+          </template>
+        </div>
+      </template>
     </b-overlay>
   </div>
 </template>
@@ -102,7 +110,7 @@ export default {
     return {
       showDirManager: false, showDirManagerMod: true, showDirManagerCustom: true,
       version: version,
-      isBusy: false,
+      isBusy: false, progressMessage: '',
       appName: process.env.VUE_APP_FRIENDLY_NAME,
     }
   },
@@ -120,6 +128,15 @@ export default {
         solid: true,
       })
     },
+    setProgressMessage: function (message) {
+      // Set progress message
+      this.progressMessage = message
+
+      // Clear after timeout
+      setTimeout(() => {
+        this.setProgressMessage('')
+      }, 15000)
+    },
     toggleDirManager: function (showMod = true, showCustom = true) {
       this.showDirManagerMod = showMod; this.showDirManagerCustom = showCustom
       this.showDirManager = !this.showDirManager
@@ -133,11 +150,13 @@ export default {
     this.$eventHub.$on('make-toast', this.makeToast)
     this.$eventHub.$on('set-busy', this.setBusy)
     this.$eventHub.$on('toggle-dir-manager', this.toggleDirManager)
+    this.$eventHub.$on('update-progress', this.setProgressMessage)
   },
   beforeDestroy() {
     this.$eventHub.$off('make-toast')
     this.$eventHub.$off('set-busy')
     this.$eventHub.$off('toggle-dir-manager')
+    this.$eventHub.$off('update-progress')
   },
   components: {
     DirManager,

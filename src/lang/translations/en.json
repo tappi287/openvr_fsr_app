@@ -45,6 +45,7 @@
     "appId": "App ID",
     "name": "Name",
     "sizeGb": "Size",
+    "bgSearchPre": "Scanning: ",
     "bgSearch": "Updating SteamLib in the background ...",
     "busy": "Steam library is being scanned ...",
     "noResults": "No results with current filter settings",

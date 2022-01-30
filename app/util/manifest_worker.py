@@ -1,11 +1,30 @@
+import threading
+from queue import Queue
 import concurrent.futures
 import logging
 import os
 from pathlib import Path
 from typing import Optional, List
 
+import gevent
+
 from app.globals import OPEN_VR_DLL, EXE_NAME
 from app.mod import get_available_mods
+from app.events import progress_update
+
+
+def run_update_steam_apps(steam_apps: dict) -> dict:
+    """ Calls ManifestWorker.update_steam_apps from thread to not block the event loop """
+    q = Queue()
+    t = threading.Thread(target=ManifestWorker.update_steam_apps, args=(steam_apps, q))
+    t.start()
+
+    # -- Wait for thread to finish
+    while t.is_alive():
+        gevent.sleep(1)
+        t.join(timeout=0.1)
+
+    return q.get()
 
 
 class ManifestWorker:
@@ -14,7 +33,7 @@ class ManifestWorker:
     chunk_size = 16  # Number of Manifests per worker
 
     @classmethod
-    def update_steam_apps(cls, steam_apps: dict) -> dict:
+    def update_steam_apps(cls, steam_apps: dict, queue: Queue = None) -> dict:
         app_id_list = list(steam_apps.keys())
 
         # -- Split server addresses into chunks for workers
@@ -30,8 +49,10 @@ class ManifestWorker:
                 [steam_apps.get(app_id) for app_id in id_chunk_ls]
             )
 
-        logging.debug('Using %s worker threads to search for OpenVr Api Dll in %s SteamApps in %s chunks.',
+        logging.debug('Using maximum of %s worker threads to search thru %s Apps in %s chunks.',
                       cls.max_workers, len(steam_apps.keys()), len(manifest_ls_chunks))
+        progress = 0
+        progress_update(f'{progress} / {len(steam_apps.keys())}')
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=cls.max_workers) as executor:
             future_info = {
@@ -55,6 +76,14 @@ class ManifestWorker:
                     for manifest in manifest_ls:
                         steam_apps[manifest.get('appid')] = manifest
 
+                    # -- Update Progress
+                    progress += len(manifest_ls)
+                    manifest = manifest_ls[-1:][0]
+                    progress_update(f'{manifest.get("path", " ")[0:2]} {progress} / {len(steam_apps.keys())}')
+
+        if queue is not None:
+            queue.put(steam_apps)
+
         return steam_apps
 
     @staticmethod
@@ -70,6 +99,8 @@ class ManifestWorker:
             except Exception as e:
                 logging.error('Error reading path for: %s %s', manifest.get('name', 'Unknown'), e)
                 continue
+
+            progress_update(f'{manifest["path"][0:2]} {Path(manifest["path"]).stem}')
 
             # -- LookUp OpenVr Api location(s)
             try:

@@ -6,7 +6,7 @@ from pathlib import WindowsPath, Path
 import app
 import app.mod
 from app.app_settings import AppSettings
-from app.util.manifest_worker import ManifestWorker
+from app.util.manifest_worker import ManifestWorker, run_update_steam_apps
 from app.util.custom_app import create_custom_app, scan_custom_library
 from app.util.utils import get_name_id
 
@@ -133,7 +133,8 @@ def get_steam_lib_fn():
         return json.dumps({'result': False, 'msg': msg})
 
     logging.debug('Acquiring OpenVR Dll locations for %s Steam Apps.', len(steam_apps.keys()))
-    steam_apps = ManifestWorker.update_steam_apps(steam_apps)
+    # steam_apps = ManifestWorker.update_steam_apps(steam_apps)
+    steam_apps = run_update_steam_apps(steam_apps)
 
     # -- Restore Mod settings cached on disk and add custom apps
     cached_steam_apps = AppSettings.load_steam_apps()

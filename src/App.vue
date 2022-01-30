@@ -50,6 +50,13 @@ async function appExceptionFunc (event) {
   window.dispatchEvent(excEvent)
 }
 // --- />
+// --- </ Prepare receiving Progress Updates
+window.eel.expose(updateProgressFunc, 'update_progress')
+async function updateProgressFunc (event) {
+  const progressEvent = new CustomEvent('update-progress-event', {detail: event})
+  window.dispatchEvent(progressEvent)
+}
+// --- />
 
 export default {
   name: 'App',
@@ -76,6 +83,9 @@ export default {
     resetAdmin: async function () {
       await window.eel.reset_admin()
     },
+    emitProgressEvent: function (event) {
+      this.$eventHub.$emit('update-progress', event.detail)
+    },
   },
   components: {
     Updater,
@@ -88,11 +98,13 @@ export default {
   created() {
     window.addEventListener('beforeunload', this.requestClose)
     window.addEventListener('app-exception-event', this.setException)
+    window.addEventListener('update-progress-event', this.emitProgressEvent)
   },
   computed: {
   },
   destroyed() {
     window.removeEventListener('app-exception-event', this.setException)
+    window.removeEventListener('update-progress-event', this.emitProgressEvent)
   }
 }
 
