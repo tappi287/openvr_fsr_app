@@ -244,14 +244,14 @@ def add_custom_dir_fn(path: str):
         if Path(usr_dir_path) == path:
             return json.dumps({'result': False, 'msg': f'Directory already added {dir_id}: {path.as_posix()}'})
 
-    new_dir_id = f'{app.globals.CUSTOM_APP_PREFIX}{get_name_id(path.stem)}'
+    new_dir_id = f'{app.globals.CUSTOM_APP_PREFIX}{get_name_id(path.as_posix())}'
     AppSettings.user_app_directories[new_dir_id] = path.as_posix()
     AppSettings.save()
 
     # -- Scan custom app dir
     result_dict = json.loads(scan_custom_libs_fn(new_dir_id))
     if not result_dict['result']:
-        return result_dict
+        return json.dumps(result_dict)
 
     return json.dumps({'result': True, 'msg': f'Added custom location {path.as_posix()}'})
 

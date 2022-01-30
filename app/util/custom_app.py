@@ -56,14 +56,15 @@ def scan_custom_library(dir_id: str, path: Path):
     for app_dir in path.glob('*'):
         if not app_dir.is_dir():
             continue
-        app_id = f'{dir_id}_{get_name_id(app_dir.stem)}'
+        app_id = f'{dir_id}_{get_name_id(app_dir.as_posix())}'
         custom_app = create_custom_app(app_id, app_dir, app_dir.stem, scan=False)
         if not custom_app:
             continue
         custom_apps[app_id] = custom_app
 
-    # -- Scan
-    custom_apps = run_update_steam_apps(custom_apps)
+    if custom_apps:
+        # -- Scan
+        custom_apps = run_update_steam_apps(custom_apps)
 
     # -- Remove empty entries
     remove_ids = set()
