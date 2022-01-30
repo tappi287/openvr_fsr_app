@@ -243,7 +243,7 @@ def add_custom_dir_fn(path: str):
         if Path(usr_dir_path) == path:
             return json.dumps({'result': False, 'msg': f'Directory already added {dir_id}: {path.as_posix()}'})
 
-    new_dir_id = f'{path.stem[:2]}{len(AppSettings.user_app_directories.keys()):02d}'
+    new_dir_id = f'{get_name_id(path.stem)}'
     AppSettings.user_app_directories[new_dir_id] = path.as_posix()
     AppSettings.save()
 
