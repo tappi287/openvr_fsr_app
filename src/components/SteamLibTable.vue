@@ -13,7 +13,7 @@
           </b-iconstack>
         </b-button>
         <!-- Add User Dir -->
-        <b-button @click="showAddDirModal=!showAddDirModal" variant="primary"
+        <b-button @click="$eventHub.$emit('toggle-dir-manager', false, true)" variant="primary"
                   :disabled="backgroundBusy || steamlibBusy"
                   v-b-popover.hover.top="$t('lib.addAppHint')">
           <b-icon icon="folder-plus"></b-icon>
@@ -159,22 +159,6 @@
         <b-button variant="secondary" @click="showAddAppModal=false" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
       </template>
     </b-modal>
-
-    <!-- Add App Dir modal -->
-    <b-modal v-model="showAddDirModal" :title="$t('lib.addDirTitle')">
-      <div class="mb-2" v-html="$t('lib.addDirText')" />
-
-      <b-form @submit.prevent @reset.prevent>
-        <b-form-group id="input-group-2" :label="$t('lib.addAppPath')" label-for="input-1"
-                      :description="$t('lib.addDirPathHint')">
-          <b-form-input id="input-2" v-model="addDir" required :placeholder="$t('lib.addAppPathPlace')" />
-        </b-form-group>
-      </b-form>
-      <template #modal-footer>
-        <b-button variant="primary" @click="addUsrDir">{{ $t('lib.addDirSubmit') }}</b-button>
-        <b-button variant="secondary" @click="showAddDirModal=false" class="ml-2">{{ $t('lib.addAppReset') }}</b-button>
-      </template>
-    </b-modal>
   </div>
 </template>
 
@@ -318,23 +302,6 @@ export default {
 
       this.addApp = { name: '', path: '' }
       this.$eventHub.$emit('set-busy', false)
-    },
-    addUsrDir: async function() {
-      if (this.isBusy()) { return }
-      this.$eventHub.$emit('set-busy', true)
-      this.showAddDirModal = false
-      const r = await getEelJsonObject(window.eel.add_custom_dir(this.addDir)())
-      if (!r.result) {
-        // Error
-        this.$eventHub.$emit('make-toast',
-            'Error adding custom folder entry: ' + r.msg, 'danger', 'Add Folder Entry', true, -1)
-      } else {
-        // Success
-        await this.loadSteamLib()
-      }
-
-      this.addDir = ''
-      this.$eventHub.$emit('set-busy', false)
     }
   },
   computed: {
@@ -353,6 +320,7 @@ export default {
     }
   },
   async mounted() {
+    this.$eventHub.$on('reload-steam-lib', this.loadSteamLib)
     await this.loadSteamLib()
     this.currentFsrVersion = await window.eel.get_current_fsr_version()()
     this.currentFovVersion = await window.eel.get_current_foveated_version()()
@@ -361,6 +329,9 @@ export default {
     if (Object.keys(this.steamApps).length === 0 || this.reScanRequired) {
       await this.scanSteamLib()
     }
+  },
+  destroyed() {
+    this.$eventHub.$off('reload-steam-lib')
   }
 }
 </script>

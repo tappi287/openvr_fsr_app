@@ -33,7 +33,9 @@
     "versionMatch": "Diese Version von OpenVR FSR wird von dieser App unterstützt.",
     "dirModTitle": "App Verzeichnisse verwalten",
     "dirModText": "Verwalte Datei-Verzeichnisse zu unterschiedlichen Mod Versionen und hinzugefügten App Bibliotheken.",
-    "dirModLibs": "Benutzer App Bibliotheken"
+    "dirModLibs": "Benutzer App Bibliotheken",
+    "dirRem": "Soll diese benutzerdefinierte Bibliothek wirklich entfernt werden?",
+    "dirRemConfirm": "Entfernung Bestätigen"
   },
   "setting": {
     "keyboardAssign": "Eine Tastatur Taste drücken um einen Hotkey zuzuweisen"
