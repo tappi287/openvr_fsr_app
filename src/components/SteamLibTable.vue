@@ -62,6 +62,7 @@
 
     <!-- Steam Library Table -->
     <b-table :items="computedList" :fields="fields" :busy="steamlibBusy"
+             :sort-by.sync="sortBy" :sort-desc.sync="sortDesc"
              table-variant="dark" small borderless show-empty sort-icon-left
              primary-key="id" class="server-list" thead-class="bg-dark text-white">
       <!-- DYNAMIC HEADER FIELD NAMES -->
@@ -177,7 +178,8 @@ export default {
       steamlibBusy: false, backgroundBusy: false,
       showAddAppModal: false, showAddDirModal: false,
       addApp: { name: '', path: '' },
-      addDir: '',
+      addDir: 'name',
+      sortBy: 'name', sortDesc: false,
       fields: [
         { key: 'id', label: '', sortable: true, class: 'text-left' },
         { key: 'name', label: '', sortable: true, class: 'text-left' },
@@ -190,6 +192,9 @@ export default {
   },
   methods: {
     isBusy: function () { return this.backgroundBusy || this.steamlibBusy },
+    updateTableSort(sortByRow = 'name', descending = false) {
+      this.sortBy = sortByRow; this.sortDesc = descending
+    },
     getRowLinkClass: function (manifest) {
       let textClass = 'text-light'
       if (manifest.fsrInstalled) {
@@ -319,19 +324,22 @@ export default {
       return this.filterEntries(steamTableData)
     }
   },
-  async mounted() {
+  created() {
     this.$eventHub.$on('reload-steam-lib', this.loadSteamLib)
+    this.$eventHub.$on('sort-steam-lib', this.updateTableSort)
+  },
+  async mounted() {
     await this.loadSteamLib()
     this.currentFsrVersion = await window.eel.get_current_fsr_version()()
     this.currentFovVersion = await window.eel.get_current_foveated_version()()
     this.currentVrpVersion = await window.eel.get_current_vrperfkit_version()()
-    console.log('Current FSR App compatible version:', this.currentFsrVersion)
     if (Object.keys(this.steamApps).length === 0 || this.reScanRequired) {
       await this.scanSteamLib()
     }
   },
   destroyed() {
     this.$eventHub.$off('reload-steam-lib')
+    this.$eventHub.$off('sort-steam-lib')
   }
 }
 </script>

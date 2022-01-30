@@ -123,6 +123,8 @@ export default {
     },
     removeCustomDir: async function(dir_id) {
       this.$eventHub.$emit('set-busy', true)
+      this.$eventHub.$emit('toggle-dir-manager')
+
       const r = await getEelJsonObject(window.eel.remove_custom_dir(dir_id)())
       if (!r.result) {
         // Error
@@ -131,12 +133,13 @@ export default {
       } else {
         // Success
         this.$eventHub.$emit('reload-steam-lib')
-        this.$eventHub.$emit('toggle-dir-manager')
       }
       this.$eventHub.$emit('set-busy', false)
     },
     addCustomDir: async function() {
       this.$eventHub.$emit('set-busy', true)
+      this.$eventHub.$emit('toggle-dir-manager')
+
       const r = await getEelJsonObject(window.eel.add_custom_dir(this.addDir)())
       if (!r.result) {
         // Error
@@ -144,8 +147,8 @@ export default {
             'Error adding custom folder entry: ' + r.msg, 'danger', 'Add Folder Entry', true, -1)
       } else {
         // Success
-        this.$eventHub.$emit('toggle-dir-manager')
-        this.$nextTick(() => { this.$eventHub.$emit('reload-steam-lib') })
+        this.$eventHub.$emit('reload-steam-lib')
+        this.$eventHub.$emit('sort-steam-lib', 'id', true)
       }
 
       this.addDir = ''
