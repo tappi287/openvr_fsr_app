@@ -77,7 +77,7 @@ def custom_lib_path(input_path):
 
 @pytest.fixture(scope='session')
 def custom_dir_id(custom_lib_path):
-    return f'{get_name_id(custom_lib_path.stem)}'
+    return f'{app.globals.CUSTOM_APP_PREFIX}{get_name_id(custom_lib_path.stem)}'
 
 
 @pytest.fixture(scope='session')

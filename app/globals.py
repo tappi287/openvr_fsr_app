@@ -19,6 +19,7 @@ APP_NAME = 'openvr_fsr_app'
 DATA_DIR = 'data'
 SETTINGS_DIR_NAME = 'openvr_fsr_app'
 USER_APP_PREFIX = 'Usr'
+CUSTOM_APP_PREFIX = '#'
 
 BASE_PATH = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__ + '/..')))
 
