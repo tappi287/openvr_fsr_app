@@ -148,7 +148,7 @@ export default {
       } else {
         // Success
         this.$eventHub.$emit('reload-steam-lib')
-        this.$eventHub.$emit('sort-steam-lib', 'id', true)
+        this.$eventHub.$emit('sort-steam-lib', 'id', false)
       }
 
       this.addDir = ''
