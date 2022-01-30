@@ -8,6 +8,7 @@ import app.mod
 from app.app_settings import AppSettings
 from app.util.manifest_worker import ManifestWorker
 from app.util.custom_app import create_custom_app, scan_custom_library
+from app.util.utils import get_name_id
 
 
 def reduce_steam_apps_for_export(steam_apps) -> dict:
@@ -38,11 +39,9 @@ def reduce_steam_apps_for_export(steam_apps) -> dict:
     return reduced_dict
 
 
-def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False, scan_mod=False):
+def _load_steam_apps_with_mod_settings(steam_apps, scan_mod=False):
     """ Add or restore complete settings entries """
     for app_id, entry in steam_apps.items():
-        entry['userApp'] = flag_as_user_app
-
         if entry.get('openVr') or entry.get('vrpInstalled'):
             for mod in app.mod.get_available_mods(entry):
                 if scan_mod:
@@ -56,23 +55,13 @@ def _load_steam_apps_with_mod_settings(steam_apps, flag_as_user_app=False, scan_
 def save_steam_lib(steam_apps):
     logging.info('Updating SteamApp disk cache.')
 
-    # -- Save disk cache without User Apps
-    #    and update AppSettings User App entries
-    remove_ids = set()
+    # -- Save disk cache
     for app_id, entry in steam_apps.items():
         if not app_id:
             continue
         if entry.get('_showDetails'):
             entry.pop('_showDetails')
-        if entry.get('userApp', False) is True or app_id.startswith(app.globals.USER_APP_PREFIX):
-            remove_ids.add(app_id)
 
-    user_apps = dict()
-    for app_id in remove_ids:
-        user_entry = steam_apps.pop(app_id)
-        user_apps[app_id] = user_entry
-
-    AppSettings.user_apps = reduce_steam_apps_for_export(user_apps)
     AppSettings.save_steam_apps(reduce_steam_apps_for_export(steam_apps))
     AppSettings.save()
 
@@ -93,10 +82,6 @@ def load_steam_lib_fn():
         re_scan_required = True
 
     logging.debug(f'Loaded {len(steam_apps.keys())} Steam Apps from disk.')
-
-    # -- Add User Apps
-    steam_apps.update(_load_steam_apps_with_mod_settings(AppSettings.user_apps, True))
-
     return json.dumps({'result': True, 'data': steam_apps, 'reScanRequired': re_scan_required})
 
 
@@ -162,10 +147,6 @@ def get_steam_lib_fn():
             if app_id.startswith(dir_id):
                 steam_apps[app_id] = entry
 
-    # -- Add User Apps
-    AppSettings.load()
-    steam_apps.update(AppSettings.user_apps)
-
     # -- Cache updated SteamApps to disk
     try:
         save_steam_lib(steam_apps)
@@ -180,13 +161,15 @@ def get_steam_lib_fn():
 
 @app.utils.capture_app_exceptions
 def remove_custom_app_fn(app_dict: dict):
-    if app_dict.get('appid') not in AppSettings.user_apps:
+    custom_apps = AppSettings.load_custom_dir_apps()
+
+    if app_dict.get('appid') not in custom_apps:
         return json.dumps({'result': False, 'msg': f'Could not find app with Id: {app_dict.get("appid")}'})
 
-    entry = AppSettings.user_apps.pop(app_dict.get('appid'))
-    AppSettings.save()
+    entry = custom_apps.pop(app_dict.get('appid'))
+    save_steam_lib(custom_apps)
     logging.debug('App entry: %s %s removed', entry.get('name'), entry.get('appid'))
-    return json.dumps({'result': True, 'msg': f'App entry {entry.get("name")} {entry.get("appid")} created.'})
+    return json.dumps({'result': True, 'msg': f'App entry {entry.get("name")} {entry.get("appid")} removed.'})
 
 
 @app.utils.capture_app_exceptions
@@ -199,29 +182,55 @@ def add_custom_app_fn(app_dict: dict):
     if not path.exists():
         return json.dumps({'result': False, 'msg': 'Provided path does not exist.'})
 
-    for app_id, entry in AppSettings.user_apps.items():
+    user_apps = dict()
+    for entry_id, entry in AppSettings.load_custom_dir_apps().items():
+        if not entry_id.startswith(app.globals.USER_APP_PREFIX):
+            continue
+
+        user_apps[entry_id] = entry
         if Path(entry.get('path')) == path:
             return json.dumps({'result': False, 'msg': f'Entry already exists as '
-                                                       f'{entry.get("name")}, Id: {app_id}.'})
+                                                       f'{entry.get("name")}, Id: {entry_id}.'})
+
+    # -- Create User Apps custom dir entry
+    if app.globals.USER_APP_PREFIX not in AppSettings.user_app_directories:
+        AppSettings.user_app_directories[app.globals.USER_APP_PREFIX] = app.globals.get_settings_dir().as_posix()
+        AppSettings.save()
 
     # -- Create User App entry
-    AppSettings.user_app_counter += 1
-    app_id = f'{app.globals.USER_APP_PREFIX}{AppSettings.user_app_counter:03d}'
+    app_id = f'{app.globals.USER_APP_PREFIX}_{get_name_id(path.stem)}'
     manifest = create_custom_app(app_id, path, app_dict.get('name'))
     if not manifest:
-        AppSettings.user_app_counter -= 1
         return json.dumps({'result': False, 'msg': f'No OpenVR dll or Executables found in: {path.as_posix()} or '
                                                    f'any sub directory.'})
 
-    AppSettings.user_apps[app_id] = manifest
-    AppSettings.save()
+    # -- Save custom app
+    user_apps[app_id] = manifest
+    result = AppSettings.save_custom_dir_apps(app.globals.USER_APP_PREFIX, reduce_steam_apps_for_export(user_apps))
 
-    return json.dumps({'result': True, 'msg': f'App entry {app_id} created.'})
+    if result:
+        return json.dumps({'result': result, 'msg': f'App entry {app_id} created.'})
+    else:
+        return json.dumps({'result': result, 'msg': f'Could not create user app settings.'})
 
 
 @app.utils.capture_app_exceptions
 def get_custom_dirs_fn():
     return AppSettings.user_app_directories
+
+
+@app.utils.capture_app_exceptions
+def remove_custom_dir_fn(dir_id: str):
+    if dir_id not in AppSettings.user_app_directories:
+        return json.dumps({'result': False, 'msg': f'Path id {dir_id} is unknown.'})
+
+    entry = AppSettings.user_app_directories.pop(dir_id)
+    result = AppSettings.remove_custom_dir_apps(dir_id)
+    if not result:
+        return json.dumps({'result': True, 'msg': f'Could not remove custom apps cache file.'})
+
+    AppSettings.save()
+    return json.dumps({'result': True, 'msg': f'Custom library {entry} removed.'})
 
 
 @app.utils.capture_app_exceptions

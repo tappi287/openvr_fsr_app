@@ -61,6 +61,11 @@ def add_custom_dir(path: str):
 
 
 @eel.expose
+def remove_custom_dir(dir_id: str):
+    return app_fn.remove_custom_dir_fn(dir_id)
+
+
+@eel.expose
 def get_custom_dirs():
     return app_fn.get_custom_dirs_fn()
 

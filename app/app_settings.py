@@ -14,9 +14,10 @@ class AppSettings(JsonRepr):
     backup_created = False
     needs_admin = False
     previous_version = str()
-    user_apps = dict()
-    user_app_directories = dict()
-    user_app_counter = len(user_apps.keys())
+
+    user_app_directories = {
+        app_globals.USER_APP_PREFIX: app_globals.get_settings_dir().as_posix(),
+    }
 
     open_vr_fsr_versions = {
         'v0.5': 'd74d3083e3506d83fac0d95520625eab',
@@ -100,6 +101,11 @@ class AppSettings(JsonRepr):
 
         # -- Convert str dict keys to int
         AppSettings.mod_data_dirs = {int(k): v for k, v in AppSettings.mod_data_dirs.items()}
+        # -- Create UserApps fake dir
+        if app_globals.USER_APP_PREFIX not in AppSettings.user_app_directories:
+            AppSettings.user_app_directories.update({
+                app_globals.USER_APP_PREFIX: app_globals.get_settings_dir().as_posix(),
+            })
         return True
 
     @classmethod
@@ -130,6 +136,10 @@ class AppSettings(JsonRepr):
         for dir_id in AppSettings.user_app_directories:
             cls.save_custom_dir_apps(dir_id, custom_apps[dir_id])
 
+        if not steam_apps:
+            return True
+
+        # -- Save steam apps
         file = cls._get_steam_apps_file()
 
         try:
@@ -171,9 +181,6 @@ class AppSettings(JsonRepr):
 
     @classmethod
     def save_custom_dir_apps(cls, dir_id, custom_apps) -> bool:
-        if not custom_apps:
-            return True
-
         file = cls._get_custom_dir_file(dir_id)
 
         try:
@@ -186,13 +193,26 @@ class AppSettings(JsonRepr):
         return True
 
     @classmethod
+    def remove_custom_dir_apps(cls, dir_id) -> bool:
+        file = cls._get_custom_dir_file(dir_id)
+
+        try:
+            file.unlink()
+        except Exception as e:
+            logging.error('Could not remove custom apps cache file! %s', e)
+            return False
+        return True
+
+    @classmethod
     def load_custom_dir_apps(cls) -> dict:
         custom_apps = dict()
+        remove_dirs = set()
 
         for dir_id in AppSettings.user_app_directories:
             custom_apps[dir_id] = dict()
             file = cls._get_custom_dir_file(dir_id)
             if not file.exists():
+                remove_dirs.add(dir_id)
                 continue
 
             try:
@@ -202,6 +222,10 @@ class AppSettings(JsonRepr):
             except Exception as e:
                 logging.error('Could not load custom apps from file! %s', e)
                 return dict()
+
+        # -- Remove dirs that have no app cache file
+        for dir_id in remove_dirs:
+            AppSettings.user_app_directories.pop(dir_id)
 
         result_apps = dict()
         for dir_id in custom_apps:
