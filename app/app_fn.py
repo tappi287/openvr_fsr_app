@@ -113,6 +113,10 @@ def scan_app_lib_fn():
     """ Refresh SteamLib and re-scan every app directory """
     logging.debug('Reading Steam Library')
 
+    # -- Load currently cached custom apps before
+    #    they get overwritten by the scan
+    cached_custom_apps = AppSettings.load_custom_dir_apps()
+
     # -- Read custom libraries and store result to disk
     #    Custom Apps will be loaded with AppSettings.load_steam_apps
     for dir_id in AppSettings.user_app_directories:
@@ -134,15 +138,20 @@ def scan_app_lib_fn():
         return json.dumps({'result': False, 'msg': msg})
 
     logging.debug('Acquiring OpenVR Dll locations for %s Steam Apps.', len(steam_apps.keys()))
-    # steam_apps = ManifestWorker.update_steam_apps(steam_apps)
     steam_apps = run_update_steam_apps(steam_apps)
 
     # -- Restore Mod settings cached on disk and add custom apps
     cached_steam_apps = AppSettings.load_steam_apps()
 
+    # -- Restore cached selected installation paths for custom apps
+    for app_id, cached_entry in cached_custom_apps.items():
+        for mod in get_available_mods(dict()):
+            if mod.DLL_LOC_KEY_SELECTED in cached_entry:
+                cached_steam_apps[app_id][mod.DLL_LOC_KEY_SELECTED] = cached_entry[mod.DLL_LOC_KEY_SELECTED]
+
     for app_id, cached_entry in cached_steam_apps.items():
         if app_id in steam_apps:
-            # -- Restore cached selected installation paths
+            # -- Restore cached selected installation paths for steam apps
             for mod in get_available_mods(dict()):
                 if mod.DLL_LOC_KEY_SELECTED in cached_entry:
                     steam_apps[app_id][mod.DLL_LOC_KEY_SELECTED] = cached_entry[mod.DLL_LOC_KEY_SELECTED]
