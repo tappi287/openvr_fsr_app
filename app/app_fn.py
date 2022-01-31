@@ -329,6 +329,7 @@ def toggle_mod_install_fn(manifest: dict, mod_type: int = 0):
     # -- Uninstall
     elif mod_installed is True:
         uninstall_result = mod.uninstall()
+        mod.update_from_disk()
         if uninstall_result:
             mod.manifest[mod.VAR_NAMES['version']] = str()
         return json.dumps({'result': uninstall_result, 'msg': mod.error, 'manifest': mod.manifest})

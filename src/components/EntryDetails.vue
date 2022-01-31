@@ -235,9 +235,6 @@ export default {
         // Report Error
         this.$eventHub.$emit('make-toast', r.msg, 'danger', 'PlugIn Installation', true, -1)
       } else {
-        // Update settings
-        await this.updateEntry(r.manifest)
-
         // Update install state
         if (this.entry.fsrInstalled || this.entry.fovInstalled || this.entry.vrpInstalled) {
           this.$eventHub.$emit('make-toast', 'Installed PlugIn to ' + this.entry.name, 'success',
@@ -246,7 +243,11 @@ export default {
           this.$eventHub.$emit('make-toast', 'Uninstalled PlugIn from ' + this.entry.name, 'success',
           'PlugIn Uninstalled')
         }
+      }
 
+      if (r.manifest !== undefined) {
+        // Update settings
+        await this.updateEntry(r.manifest)
         // Update disk cache
         this.$emit('entry-updated', this.entry)
       }
