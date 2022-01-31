@@ -2,6 +2,7 @@ import json
 import logging
 from pathlib import Path
 
+import app.app_fn
 import app.util.scan_app_lib
 from app import app_fn
 from app.mod import FsrMod, FoveatedMod, VRPerfKitMod
@@ -89,7 +90,7 @@ def test_get_steam_lib_fn(steam_apps_obj):
 def test_scan_custom_lib(app_settings, custom_lib_path, custom_dir_id, custom_app_id, steam_apps_obj):
     app_settings.user_app_directories[custom_dir_id] = custom_lib_path.as_posix()
 
-    result_dict = json.loads(app.util.scan_app_lib.scan_custom_libs_fn(custom_dir_id))
+    result_dict = json.loads(app.app_fn.scan_custom_libs(custom_dir_id))
     apps = result_dict['data']
 
     assert result_dict['result'] is True

@@ -5,10 +5,11 @@ from pathlib import WindowsPath, Path
 
 import app
 import app.mod
+import app.util.utils
 from app.app_settings import AppSettings
+from app.mod import get_available_mods
 from app.util.manifest_worker import run_update_steam_apps
-from app.util.custom_app import create_custom_app
-from app.util.scan_app_lib import scan_custom_libs_fn
+from app.util.custom_app import create_custom_app, scan_custom_library
 from app.util.utils import get_name_id
 
 
@@ -86,6 +87,27 @@ def load_steam_lib_fn():
     return json.dumps({'result': True, 'data': steam_apps, 'reScanRequired': re_scan_required})
 
 
+def scan_custom_libs(dir_id: str):
+    """ Scan and save a custom library """
+    logging.debug(f'Reading Custom Library: {dir_id}')
+    if dir_id not in AppSettings.user_app_directories:
+        return json.dumps({'result': False, 'msg': f'Unknown Custom library with id: {dir_id}'})
+
+    path = Path(AppSettings.user_app_directories.get(dir_id))
+    if not path.exists():
+        AppSettings.user_app_directories.pop(dir_id)
+        AppSettings.save()
+        return json.dumps({'result': False, 'msg': f'Non Existing library {path.as_posix()} removed.'})
+
+    result_apps = scan_custom_library(dir_id, path)
+    if not result_apps:
+        return json.dumps({'result': False, 'msg': f'No Apps found in {dir_id}: {path.as_posix()}'})
+
+    AppSettings.save_custom_dir_apps(dir_id, reduce_steam_apps_for_export(result_apps))
+
+    return json.dumps({'result': True, 'data': result_apps})
+
+
 @app.utils.capture_app_exceptions
 def scan_app_lib_fn():
     """ Refresh SteamLib and re-scan every app directory """
@@ -94,7 +116,7 @@ def scan_app_lib_fn():
     # -- Read custom libraries and store result to disk
     #    Custom Apps will be loaded with AppSettings.load_steam_apps
     for dir_id in AppSettings.user_app_directories:
-        scan_custom_libs_fn(dir_id)
+        scan_custom_libs(dir_id)
 
     try:
         # -- Read this machines Steam library
@@ -118,14 +140,19 @@ def scan_app_lib_fn():
     # -- Restore Mod settings cached on disk and add custom apps
     cached_steam_apps = AppSettings.load_steam_apps()
 
-    for app_id, entry in cached_steam_apps.items():
+    for app_id, cached_entry in cached_steam_apps.items():
         if app_id in steam_apps:
+            # -- Restore cached selected installation paths
+            for mod in get_available_mods(dict()):
+                if mod.DLL_LOC_KEY_SELECTED in cached_entry:
+                    steam_apps[app_id][mod.DLL_LOC_KEY_SELECTED] = cached_entry[mod.DLL_LOC_KEY_SELECTED]
+
             steam_apps.update(_load_steam_apps_with_mod_settings({app_id: steam_apps[app_id]}, scan_mod=True))
 
         # -- Add custom apps
         for dir_id in AppSettings.user_app_directories:
             if app_id.startswith(dir_id):
-                steam_apps[app_id] = entry
+                steam_apps[app_id] = cached_entry
 
     # -- Cache updated SteamApps to disk
     try:
@@ -228,7 +255,7 @@ def add_custom_dir_fn(path: str):
     AppSettings.save()
 
     # -- Scan custom app dir
-    result_dict = json.loads(scan_custom_libs_fn(new_dir_id))
+    result_dict = json.loads(scan_custom_libs(new_dir_id))
     if not result_dict['result']:
         return json.dumps(result_dict)
 
