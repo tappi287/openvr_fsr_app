@@ -267,7 +267,7 @@ export default {
       if (this.backgroundBusy) { return }
       // Scan the disk in the background
       this.backgroundBusy = true
-      const r = await getEelJsonObject(window.eel.get_steam_lib()())
+      const r = await getEelJsonObject(window.eel.scan_app_lib()())
       this.$eventHub.$emit('update-progress', '')
 
       if (!r.result) {

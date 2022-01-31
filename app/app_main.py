@@ -35,9 +35,9 @@ def load_steam_lib():
 
 
 @eel.expose
-def get_steam_lib():
+def scan_app_lib():
     """ Refresh SteamLib and re-scan every app directory """
-    return app_fn.get_steam_lib_fn()
+    return app_fn.scan_app_lib_fn()
 
 
 @eel.expose
