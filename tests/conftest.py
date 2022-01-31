@@ -72,17 +72,18 @@ def output_path():
 
 @pytest.fixture(scope='session')
 def custom_lib_path(input_path):
-    return  input_path / 'custom_dir'
+    return input_path / 'custom_dir'
 
 
 @pytest.fixture(scope='session')
 def custom_dir_id(custom_lib_path):
-    return f'{app.globals.CUSTOM_APP_PREFIX}{get_name_id(custom_lib_path.stem)}'
+    return f'{app.globals.CUSTOM_APP_PREFIX}{get_name_id(custom_lib_path.as_posix())}'
 
 
 @pytest.fixture(scope='session')
-def custom_app_id(custom_dir_id):
-    return f'{custom_dir_id}_{get_name_id("custom_app_writeable")}'
+def custom_app_id(custom_dir_id, custom_lib_path):
+    custom_app_path = custom_lib_path / "custom_app_writeable"
+    return f'{custom_dir_id}_{get_name_id(custom_app_path.as_posix())}'
 
 
 @pytest.fixture(scope='session')
