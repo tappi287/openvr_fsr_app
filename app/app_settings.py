@@ -206,13 +206,11 @@ class AppSettings(JsonRepr):
     @classmethod
     def load_custom_dir_apps(cls) -> dict:
         custom_apps = dict()
-        remove_dirs = set()
 
         for dir_id in AppSettings.user_app_directories:
             custom_apps[dir_id] = dict()
             file = cls._get_custom_dir_file(dir_id)
             if not file.exists():
-                remove_dirs.add(dir_id)
                 continue
 
             try:
@@ -222,10 +220,6 @@ class AppSettings(JsonRepr):
             except Exception as e:
                 logging.error('Could not load custom apps from file! %s', e)
                 return dict()
-
-        # -- Remove dirs that have no app cache file
-        for dir_id in remove_dirs:
-            AppSettings.user_app_directories.pop(dir_id)
 
         result_apps = dict()
         for dir_id in custom_apps:
