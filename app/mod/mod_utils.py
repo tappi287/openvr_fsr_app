@@ -1,10 +1,11 @@
 from pathlib import Path, WindowsPath
-from typing import Dict
+from typing import Dict, Optional
 
 import app.mod
 from app.app_settings import AppSettings
 from app.globals import get_data_dir
 from app.mod import BaseModType
+from app.util.utils import get_file_hash
 
 
 def get_mod(manifest, mod_type):
@@ -52,3 +53,23 @@ def update_mod_data_dirs() -> Dict[int, str]:
 
     AppSettings.mod_data_dirs.update(mod_dirs)
     return mod_dirs
+
+
+def get_mod_version_from_dll(engine_dll: Path, mod_type: int) -> Optional[str]:
+    if not engine_dll.exists():
+        return
+
+    file_hash = get_file_hash(engine_dll.as_posix())
+    version_dict = dict()
+
+    if mod_type == BaseModType.fsr:
+        version_dict = AppSettings.open_vr_fsr_versions
+    elif mod_type == BaseModType.foveated:
+        version_dict = AppSettings.open_vr_foveated_versions
+    elif mod_type == BaseModType.vrp:
+        version_dict = AppSettings.vrperfkit_versions
+
+    for version, hash_str in version_dict.items():
+        if file_hash != hash_str:
+            continue
+        return version

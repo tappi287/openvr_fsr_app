@@ -4,9 +4,8 @@ from shutil import copyfile
 from typing import Optional
 
 import app.cfg
-from app.app_settings import AppSettings
 from app.cfg import BaseModCfgType, BaseModSettings
-from app.mod import BaseModType, update_mod_data_dirs
+from app.mod import BaseModType, update_mod_data_dirs, get_mod_version_from_dll
 
 
 class BaseMod:
@@ -89,7 +88,7 @@ class BaseMod:
             cfg_results.append(settings_read)
 
             if settings_read:
-                version = self.get_mod_version_from_dll(self.engine_dll, self.TYPE)
+                version = get_mod_version_from_dll(self.engine_dll, self.TYPE)
                 self.manifest[self.VAR_NAMES['version']] = version or 'Unknown Version'
                 self.manifest[self.VAR_NAMES['settings']] = self.settings.to_js()
 
@@ -189,26 +188,6 @@ class BaseMod:
             return False
         return True
 
-    @staticmethod
-    def get_mod_version_from_dll(engine_dll: Path, mod_type: int) -> Optional[str]:
-        if not engine_dll.exists():
-            return
-
-        file_hash = app.utils.get_file_hash(engine_dll.as_posix())
-        version_dict = dict()
-
-        if mod_type == BaseModType.fsr:
-            version_dict = AppSettings.open_vr_fsr_versions
-        elif mod_type == BaseModType.foveated:
-            version_dict = AppSettings.open_vr_foveated_versions
-        elif mod_type == BaseModType.vrp:
-            version_dict = AppSettings.vrperfkit_versions
-
-        for version, hash_str in version_dict.items():
-            if file_hash != hash_str:
-                continue
-            return version
-
     def get_version(self):
         results = list()
         for engine_dll in self._update_engine_dll_paths():
@@ -216,7 +195,7 @@ class BaseMod:
                 continue
 
             try:
-                results.append(self.get_mod_version_from_dll(self.engine_dll, self.TYPE))
+                results.append(get_mod_version_from_dll(self.engine_dll, self.TYPE))
             except Exception as e:
                 msg = f'Error reading dll version: {e}'
                 self.error = msg
