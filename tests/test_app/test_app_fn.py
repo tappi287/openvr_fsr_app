@@ -13,25 +13,6 @@ test_keys = {'name', 'path', 'openVrDllPaths', 'openVrDllPathsSelected', 'execut
              'vrp_settings', 'vrpInstalled', 'vrpVersion'}
 
 
-def test_add_custom_library(app_settings, input_path, custom_lib_path, custom_dir_id, custom_app_id):
-    # -- Test adding non-existing dir
-    non_existing_test_path = Path('.') / 'non_existing_test_dir'
-    result_dict = json.loads(app_fn.add_custom_dir_fn(non_existing_test_path.as_posix()))
-    assert result_dict['result'] is False
-
-    # -- Test add of custom test lib
-    result_dict = json.loads(app_fn.add_custom_dir_fn(custom_lib_path.as_posix()))
-
-    assert result_dict['result'] is True
-    assert custom_dir_id in app_settings.user_app_directories
-
-    apps = app_settings.load_steam_apps()
-    assert custom_app_id in apps.keys()
-    assert test_keys.difference(set(apps[custom_app_id].keys())) == set()
-
-    app_settings.user_app_directories.pop(custom_dir_id)
-
-
 def test_reduce_steam_apps_for_export(steam_apps_obj):
     reduced_apps = app_fn.reduce_steam_apps_for_export(steam_apps_obj.steam_apps)
     assert len(reduced_apps) == len(steam_apps_obj.steam_apps)
@@ -74,29 +55,21 @@ def test_load_steam_lib_fn(app_settings):
     assert Path(user_app.get('path')) == user_app_path
 
 
-def test_get_steam_lib_fn(steam_apps_obj):
+def test_scan_app_lib_fn(app_settings, custom_dir_id, custom_lib_path, custom_app_id, steam_apps_obj):
+    # -- Add non existing lib
+    non_existing_id = custom_dir_id + '-'
+    app_settings.user_app_directories[non_existing_id] = Path(custom_lib_path.parent / 'non-existing').as_posix()
+    # -- Add custom test app lib
+    app_settings.user_app_directories[custom_dir_id] = custom_lib_path.as_posix()
+
+    # -- Test scan
     result_dict = json.loads(app_fn.scan_app_lib_fn())
     test_app = result_dict['data']['123']
 
-    LOGGER.info(f'Result: {result_dict}')
-
     assert result_dict['result'] is True
     assert 'Test App' == test_app.get('name')
+    assert custom_app_id in result_dict['data']
     assert test_app.get('path') == test_app_path.as_posix()
-
-
-def test_scan_custom_lib(app_settings, custom_lib_path, custom_dir_id, custom_app_id, steam_apps_obj):
-    app_settings.user_app_directories[custom_dir_id] = custom_lib_path.as_posix()
-
-    result_dict = json.loads(app_fn.scan_custom_libs(custom_dir_id))
-    apps = result_dict['data']
-
-    assert result_dict['result'] is True
-    assert custom_app_id in apps
-
-    assert test_keys.difference(set(apps[custom_app_id].keys())) == set()
-
-    app_settings.user_app_directories.pop(custom_dir_id)
 
 
 def test_save_lib_fn(steam_apps_obj, custom_lib_path):
