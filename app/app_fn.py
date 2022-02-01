@@ -119,7 +119,8 @@ def scan_app_lib_fn():
 
     # -- Read custom libraries and store result to disk
     #    Custom Apps will be loaded with AppSettings.load_steam_apps
-    for dir_id in AppSettings.user_app_directories:
+    dir_ids = set(AppSettings.user_app_directories.keys())
+    for dir_id in dir_ids:
         scan_custom_libs(dir_id)
 
     try:
