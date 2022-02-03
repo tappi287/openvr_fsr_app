@@ -21,7 +21,7 @@ class ModCfgJsonHandler:
             return dict()
 
         # -- Update settings from json data
-        cls.from_json_data(json_data, settings)
+        cls.from_json_data(json_data[settings.cfg_key], settings)
         return json_data[settings.cfg_key]
 
     @classmethod
