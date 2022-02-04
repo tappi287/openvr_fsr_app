@@ -1,4 +1,6 @@
 import json
+import logging
+import shutil
 from pathlib import Path
 
 from ruamel.yaml import YAML, CommentedMap
@@ -87,6 +89,17 @@ class ModCfgJsonHandler:
 
 class ModCfgYamlHandler:
     yaml = YAML()
+    BACK_UP_SUFFIX = '.orig'
+
+    @staticmethod
+    def create_backup(file: Path):
+        try:
+            back_up_file = file.with_name(f'{file.name}{ModCfgYamlHandler.BACK_UP_SUFFIX}')
+            back_up_file.unlink(missing_ok=True)
+
+            shutil.copy(file, back_up_file)
+        except Exception as e:
+            logging.error('Error creating yml config back-up: %s', e)
 
     @classmethod
     def load_file(cls, file: Path) -> CommentedMap:
@@ -119,6 +132,7 @@ class ModCfgYamlHandler:
         :param app.cfg.base_mod_cfg.BaseModSettings settings:
         :param Path target_file:
         """
+        cls.create_backup(target_file)
         data = cls._prepare_yaml_data(settings, target_file, True)
         cls.yaml.dump(data, target_file)
 
