@@ -1,6 +1,6 @@
 {
   "name": "vr_mod_app",
-  "version": "0.9.5",
+  "version": "0.9.7",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

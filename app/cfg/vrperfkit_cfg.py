@@ -154,6 +154,15 @@ class VRPerfKitSettings(BaseModSettings):
             value=1.00,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 2.00, 'step': 0.01}]
         )
+        self.ffrFavorHorizontal = BaseModCfgSetting(
+            key='favorHorizontal',
+            name='Favor Horizontal',
+            category=self.ffr.category,
+            parent=self.ffr.key,
+            desc="When reducing resolution, prefer to keep horizontal or vertical resolution",
+            value=True,
+            settings=[{'value': True, 'name': 'Horizontal'}, {'value': False, 'name': 'Vertical'}]
+        )
 
         # --
         # HotKeys
@@ -258,6 +267,15 @@ class VRPerfKitSettings(BaseModSettings):
             parent=self.hotkeys.key,
             desc="Toggle fixed foveated rendering",
             value=["alt", "f1"],
+            settings=[{'settingType': 'keyCombo'}]
+        )
+        self.hkToggleFFRFavorHorizontal = BaseModCfgSetting(
+            key='toggleFFRFavorHorizontal',
+            name='Toggle FFR favor Horizontal',
+            category=self.hotkeys.category,
+            parent=self.hotkeys.key,
+            desc="Toggle if you want to prefer horizontal or vertical resolution",
+            value=["alt", "f2"],
             settings=[{'settingType': 'keyCombo'}]
         )
 
