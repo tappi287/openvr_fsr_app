@@ -35,3 +35,11 @@ If you'd like to contribute to development, these steps may help you to get up a
  - switch into the Python virtual env by `pipenv shell`
  - start the app with `python.exe run.py`
  - build an executable with `python.exe build.py`
+
+  ##### Dev Requirements
+ - Python 3.10.x
+   - pipenv >= 2022.3.23
+   - pytest >= latest
+ - npm >= 8.3.1
+ - yarn >= 1.22.10
+ - Chromium based web browser (Edge, Opera, Chrome) for running in browser app-mode
