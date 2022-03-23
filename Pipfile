@@ -17,7 +17,7 @@ eel = {version = "==0.14.1", index = "piwigo"}  # See fork https://github.com/ta
 appdirs = "*"
 gevent = ">=21.1.2"
 python-a2s = "*"
-ruamel = {yaml = "*"}
+# ruamel = {yaml = "*"}
 "ruamel.yaml" = "*"
 
 [requires]
