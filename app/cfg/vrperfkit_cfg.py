@@ -40,7 +40,7 @@ class VRPerfKitSettings(BaseModSettings):
                  "fsr (AMD FidelityFX Super Resolution), "
                  "nis (NVIDIA Image Scaling), "
                  "cas (AMD FidelityFX Contrast Adaptive Sharpening)",
-            value='fsr',
+            value='cas',
             settings=[{'value': 'fsr', 'name': 'FSR'}, {'value': 'nis', 'name': 'NIS'}, {'value': 'cas', 'name': 'CAS'}]
         )
         self.upRenderScale = BaseModCfgSetting(
@@ -54,7 +54,7 @@ class VRPerfKitSettings(BaseModSettings):
                  "resolution is 1000x1000. "
                  "NOTE: this is different from how render scale works in SteamVR! A SteamVR "
                  "render scale of 0.5 would be equivalent to renderScale 0.707 in this mod!, ",
-            value=0.77,
+            value=0.9,
             settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.00, 'step': 0.01, 'display': 'floatpercent'}]
         )
         self.upSharpness = BaseModCfgSetting(
@@ -124,7 +124,7 @@ class VRPerfKitSettings(BaseModSettings):
                  " at 1/16th resolution."
                  " Fixed foveated rendering is achieved with Variable Rate Shading. This technique is only"
                  " available on NVIDIA RTX and GTX 16xx cards.",
-            value=False,
+            value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
         self.ffrInnerRadius = BaseModCfgSetting(
