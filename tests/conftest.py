@@ -177,11 +177,6 @@ def test_app_writeable(steam_apps_obj):
     return _create_writeable_test_app(steam_apps_obj, '124')
 
 
-@pytest.fixture
-def test_app_issues_writeable(steam_apps_obj):
-    return _create_writeable_test_app(steam_apps_obj, '125')
-
-
 def pytest_generate_tests(metafunc):
     if "app_settings" in metafunc.fixturenames:
         metafunc.parametrize("app_settings", ["app_settings_old", "app_settings"], indirect=True)

@@ -7,9 +7,10 @@ import pytest
 
 import app.mod
 from app import app_fn, globals
+from app.app_settings import AppSettings
 from app.mod import BaseModType
 from app.mod.fsr_mod import FsrMod
-from tests.conftest import create_manipulated_settings
+from tests.conftest import create_manipulated_settings, test_data_output_path
 
 
 def test_get_fsr_dir_fn(app_settings, open_vr_fsr_dir):
@@ -155,6 +156,7 @@ def test_reset_mod_settings_fn(test_app_writeable):
 
 
 def test_mod_install_manual_fn(app_settings, test_app_writeable, open_vr_fsr_dir):
+    """ Test a manual user removal at one location """
     # -- Use the actual mod to have a dll bigger than 0 bytes
     app_settings.mod_data_dirs[0] = open_vr_fsr_dir
     output_dlls = test_app_writeable['openVrDllPaths']
@@ -175,13 +177,75 @@ def test_mod_install_manual_fn(app_settings, test_app_writeable, open_vr_fsr_dir
         cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
         assert cfg_file.exists() is True
 
+    # -- Test manual removal
+    for written_dll in output_dlls:
+        if 'sub dir' not in written_dll:
+            continue
+        Path(written_dll).unlink()
+        back_up_file = Path(written_dll).with_name(f'{globals.OPEN_VR_DLL[:-4]}.orig.dll')
+        back_up_file.unlink()
+        cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
+        cfg_file.unlink()
+
     # -- Test OpenVR Mod uninstallation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, 0))
+    assert result_dict['result'] is True
+    assert result_dict['manifest'][FsrMod.VAR_NAMES['installed']] is False
+
+    for written_dll in output_dlls:
+        if 'sub dir' not in written_dll:
+            continue
+
+        # -- Test original dll restored
+        assert Path(written_dll).exists() is False
+
+        # -- Test backup file removed
+        back_up_file = Path(written_dll).with_name(f'{globals.OPEN_VR_DLL[:-4]}.orig.dll')
+        assert back_up_file.exists() is False
+
+        # -- Test config file removed
+        cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
+        assert cfg_file.exists() is False
+
+
+def test_mod_install_manual_all_fn(app_settings, test_app_writeable, open_vr_fsr_dir):
+    """ Test a manual user removal at all locations """
+    # -- Use the actual mod to have a dll bigger than 0 bytes
+    app_settings.mod_data_dirs[0] = open_vr_fsr_dir
+    output_dlls = test_app_writeable['openVrDllPaths']
+
+    # -- Test OpenVR Mod installation
     result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, 0))
     assert result_dict['result'] is True
 
     for written_dll in output_dlls:
+        # -- Test dll's have size 0, installed dll's should be bigger than a few bytes
+        assert Path(written_dll).stat().st_size > 50
+
+        # -- Test backup files created
+        back_up_file = Path(written_dll).with_name(f'{globals.OPEN_VR_DLL[:-4]}.orig.dll')
+        assert back_up_file.exists() is True
+
+        # -- Test config file written
+        cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
+        assert cfg_file.exists() is True
+
+    # -- Test manual removal
+    for written_dll in output_dlls:
+        Path(written_dll).unlink()
+        back_up_file = Path(written_dll).with_name(f'{globals.OPEN_VR_DLL[:-4]}.orig.dll')
+        back_up_file.unlink()
+        cfg_file = Path(written_dll).parent / globals.OPEN_VR_FSR_CFG
+        cfg_file.unlink()
+
+    # -- Test OpenVR Mod uninstallation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, 0))
+    assert result_dict['result'] is True
+    assert result_dict['manifest'][FsrMod.VAR_NAMES['installed']] is False
+
+    for written_dll in output_dlls:
         # -- Test original dll restored
-        assert Path(written_dll).stat().st_size < 50
+        assert Path(written_dll).exists() is False
 
         # -- Test backup file removed
         back_up_file = Path(written_dll).with_name(f'{globals.OPEN_VR_DLL[:-4]}.orig.dll')
