@@ -143,7 +143,6 @@ def test_mod_install_manual_fn(app_settings, test_app_writeable, open_vr_fsr_dir
 
     mod.update_from_disk()
     assert mod.manifest[VRPerfKitMod.VAR_NAMES['installed']] is True
-    assert mod.manifest[VRPerfKitMod.VAR_NAMES['version']] != AppSettings.current_vrperfkit_version
 
     # -- Test Mod uninstallation
     result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, BaseModType.vrp))
