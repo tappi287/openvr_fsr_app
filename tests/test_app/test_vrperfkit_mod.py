@@ -113,6 +113,80 @@ def test_toggle_mod_install_fn(test_app_writeable):
         assert cfg_file.exists() is False
 
 
+def test_mod_install_manual_fn(app_settings, test_app_writeable, open_vr_fsr_dir):
+    """ Test a manual user removal at one location """
+    # -- Use the actual mod to have a dll bigger than 0 bytes
+    app_settings.mod_data_dirs[0] = open_vr_fsr_dir
+    output_dlls = test_app_writeable['openVrDllPaths']
+
+    # -- Remove OpenVr Mods
+    for dll_path in output_dlls:
+        Path(dll_path).unlink(True)
+        cfg_file = Path(dll_path).parent / globals.OPEN_VR_FSR_CFG
+        cfg_file.unlink(True)
+
+    # -- Test VRP Mod installation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, BaseModType.vrp))
+    assert result_dict['result'] is True
+    mod = VRPerfKitMod(test_app_writeable)
+
+    # -- Verify version
+    mod.update_from_disk()
+    assert mod.manifest[VRPerfKitMod.VAR_NAMES['version']] == AppSettings.current_vrperfkit_version
+
+    # -- Test manual removal
+    for written_dll in output_dlls:
+        if 'sub dir' not in written_dll:
+            continue
+        vrp_dll = Path(written_dll).parent / globals.DXGI_DLL
+        vrp_dll.unlink()
+
+    mod.update_from_disk()
+    assert mod.manifest[VRPerfKitMod.VAR_NAMES['installed']] is True
+    assert mod.manifest[VRPerfKitMod.VAR_NAMES['version']] != AppSettings.current_vrperfkit_version
+
+    # -- Test Mod uninstallation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, BaseModType.vrp))
+    assert result_dict['result'] is True
+    assert result_dict['manifest'][VRPerfKitMod.VAR_NAMES['installed']] is False
+
+
+def test_mod_install_manual_all_fn(app_settings, test_app_writeable, open_vr_fsr_dir):
+    """ Test a manual user removal at all locations """
+    # -- Use the actual mod to have a dll bigger than 0 bytes
+    app_settings.mod_data_dirs[0] = open_vr_fsr_dir
+    output_dlls = test_app_writeable['openVrDllPaths']
+
+    # -- Remove OpenVr Mods
+    for dll_path in output_dlls:
+        Path(dll_path).unlink(True)
+        cfg_file = Path(dll_path).parent / globals.OPEN_VR_FSR_CFG
+        cfg_file.unlink(True)
+
+    # -- Test VRP Mod installation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, BaseModType.vrp))
+    assert result_dict['result'] is True
+    mod = VRPerfKitMod(test_app_writeable)
+
+    # -- Verify version
+    mod.update_from_disk()
+    assert mod.manifest[VRPerfKitMod.VAR_NAMES['version']] == AppSettings.current_vrperfkit_version
+
+    # -- Test manual removal
+    for written_dll in output_dlls:
+        vrp_dll = Path(written_dll).parent / globals.DXGI_DLL
+        vrp_dll.unlink()
+
+    mod.update_from_disk()
+    assert mod.manifest[VRPerfKitMod.VAR_NAMES['installed']] is True
+    assert mod.manifest[VRPerfKitMod.VAR_NAMES['version']] != AppSettings.current_vrperfkit_version
+
+    # -- Test Mod uninstallation
+    result_dict = json.loads(app_fn.toggle_mod_install_fn(test_app_writeable, BaseModType.vrp))
+    assert result_dict['result'] is True
+    assert result_dict['manifest'][VRPerfKitMod.VAR_NAMES['installed']] is False
+
+
 def test_reset_mod_settings_fn(test_app_writeable):
     test_set = ([('method', 'upscaling'), ('renderScale', 'upscaling'), ('debugMode', None),
                  ('cycleUpscalingMethod', 'hotkeys')],
