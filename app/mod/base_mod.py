@@ -121,7 +121,7 @@ class BaseMod:
     def install(self, uninstall: bool = False) -> bool:
         results = list()
         for engine_dll in self._update_engine_dll_paths():
-            if not engine_dll:
+            if not engine_dll and self.TYPE != BaseModType.vrp:
                 results.append(False)
                 continue
             results.append(self._install_single(uninstall))
@@ -165,7 +165,7 @@ class BaseMod:
                     legacy_dll_bak.rename(self.engine_dll)
         # -- Remove installed dxgi.dll
         elif self.settings.CFG_TYPE == BaseModCfgType.vrp_mod:
-            self.engine_dll.unlink()
+            self.engine_dll.unlink(True)
 
         # Remove Cfg
         if not self.settings.delete_cfg(self.engine_dll.parent):
