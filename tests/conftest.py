@@ -3,7 +3,7 @@ from typing import Tuple
 
 import pytest
 from pathlib import Path, WindowsPath
-from distutils.dir_util import copy_tree
+from distutils.dir_util import copy_tree, remove_tree
 
 import app
 import app.mod
@@ -42,7 +42,7 @@ test_data_output_path.mkdir(exist_ok=True)
 
 
 def create_manipulated_settings(test_app_manifest, test_keys_values: Tuple[list, list], mod) -> Tuple[dict, list]:
-    # -- Create Test Settings
+    """ Create Test Settings """
     test_settings = list()
 
     for _key_pair, _test_value in zip(test_keys_values[0], test_keys_values[1]):
@@ -154,12 +154,13 @@ def test_app(steam_apps_obj):
     return manifest
 
 
-@pytest.fixture
-def test_app_writeable(steam_apps_obj):
-    manifest = steam_apps_obj.steam_apps.get('124')
+def _create_writeable_test_app(steam_apps_obj, app_id):
+    manifest = steam_apps_obj.steam_apps.get(app_id)
 
     # -- Create writeable App Copy in output
     new_path = test_data_output_path / Path(manifest.get('path')).name
+    if new_path.exists():
+        remove_tree(new_path.as_posix(), verbose=0)
     copy_tree(Path(manifest.get('path')).as_posix(), new_path.as_posix())
 
     manifest['path'] = new_path.as_posix()
@@ -167,8 +168,18 @@ def test_app_writeable(steam_apps_obj):
     _setup_manifest_paths(manifest)
     _setup_manifest_mods(manifest)
 
-    steam_apps_obj.steam_apps['124'] = manifest
+    steam_apps_obj.steam_apps[app_id] = manifest
     return manifest
+
+
+@pytest.fixture(scope='function')
+def test_app_writeable(steam_apps_obj):
+    return _create_writeable_test_app(steam_apps_obj, '124')
+
+
+@pytest.fixture
+def test_app_issues_writeable(steam_apps_obj):
+    return _create_writeable_test_app(steam_apps_obj, '125')
 
 
 def pytest_generate_tests(metafunc):
