@@ -44,7 +44,7 @@
       <b-card class="setting-card mt-3" bg-variant="dark" text-variant="white" footer-class="pt-0">
         <p>
           {{ $t('main.infoDesc1') }}
-          <b-link href="https://github.com/fholger/openvr_fsr#modified-openvr-dll-with-amd-fidelityfx-superresolution-upscaler"
+          <b-link href="https://github.com/fholger/openvr_fsr"
                   target="_blank">
             {{ $t('main.infoDesc2') }}
           </b-link>
