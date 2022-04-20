@@ -3,9 +3,9 @@
     <h6>Credits</h6>
     <h6>
       <b-icon icon="caret-right-fill" />
-      <b-link class="ml-2 text-light" v-b-toggle="'openvr-credits'">Modified OpenVR DLL with AMD FidelityFX SuperResolution / NVIDIA Image Scaling by fholger</b-link>
+      <b-link class="ml-2 text-light" v-b-toggle="'fsr-credits'">Modified OpenVR DLL with AMD FidelityFX SuperResolution / NVIDIA Image Scaling by fholger</b-link>
     </h6>
-    <b-collapse id="openvr-credits">
+    <b-collapse id="fsr-credits">
       <b-link href="https://github.com/fholger/openvr_fsr/" target="_blank">
         https://github.com/fholger/openvr_fsr/
       </b-link>
@@ -118,9 +118,9 @@
     </b-collapse>
     <h6>
       <b-icon icon="caret-right-fill" />
-      <b-link class="ml-2 text-light" v-b-toggle="'openvr-credits'">Fixed Foveated Rendering mod for SteamVR games by fholger</b-link>
+      <b-link class="ml-2 text-light" v-b-toggle="'fov-credits'">Fixed Foveated Rendering mod for SteamVR games by fholger</b-link>
     </h6>
-    <b-collapse id="openvr-credits">
+    <b-collapse id="fov-credits">
       <b-link href="https://github.com/fholger/openvr_foveated" target="_blank">
         https://github.com/fholger/openvr_foveated
       </b-link>
@@ -233,9 +233,9 @@
     </b-collapse>
     <h6>
       <b-icon icon="caret-right-fill" />
-      <b-link class="ml-2 text-light" v-b-toggle="'openvr-credits'">VR Performance Toolkit by fholger</b-link>
+      <b-link class="ml-2 text-light" v-b-toggle="'vrp-credits'">VR Performance Toolkit by fholger</b-link>
     </h6>
-    <b-collapse id="openvr-credits">
+    <b-collapse id="vrp-credits">
       <b-link href="https://github.com/fholger/vrperfkit" target="_blank">
         https://github.com/fholger/vrperfkit
       </b-link>
