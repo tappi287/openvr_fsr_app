@@ -44,10 +44,11 @@ class AppSettings(JsonRepr):
         'v0.2.1': '2baca682f41b5046f3245d200b4e3c02',
         'v0.2.2': '30531b66aa251f7ee7cfbc9b005d10b3',
         'v0.3.0': '8bd81654a1a8cf77e7f7a54bb137c7ac',
+        'v3.2_RSF': '447cc3f78cdafbd78e1ab4c0255098f9'
     }
     current_fsr_version = 'v2.1.1'
     current_foveated_version = 'v0.2'
-    current_vrperfkit_version = 'v0.3.0'
+    current_vrperfkit_version = 'v3.2_RSF'
 
     # Default plugin paths
     mod_data_dirs = dict()

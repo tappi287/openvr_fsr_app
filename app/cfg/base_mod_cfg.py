@@ -4,6 +4,7 @@ from shutil import copyfile
 from typing import List, Iterator
 
 from app.cfg import ModCfgJsonHandler, ModCfgYamlHandler
+from app.globals import VRPERFKIT_OLD_CFG
 from app.util.utils import JsonRepr
 
 
@@ -58,8 +59,17 @@ class BaseModSettings(JsonRepr):
         if option:
             option.value = option_dict.get('value')
 
+    def search_cfg_path(self, search_path: Path):
+        cfg_path = search_path / self.CFG_FILE
+        if self.CFG_TYPE == BaseModCfgType.vrp_mod:
+            legacy_cfg = search_path / VRPERFKIT_OLD_CFG
+            if not cfg_path.exists() and legacy_cfg.exists():
+                cfg_path = legacy_cfg
+        return cfg_path
+
     def read_from_cfg(self, plugin_path: Path) -> bool:
-        cfg = plugin_path / self.CFG_FILE
+        cfg = self.search_cfg_path(plugin_path)
+
         if not cfg.exists():
             return False
 
@@ -77,7 +87,7 @@ class BaseModSettings(JsonRepr):
         return False
 
     def write_cfg(self, plugin_path: Path, plugin_src_dir: Path) -> bool:
-        cfg = plugin_path / self.CFG_FILE
+        cfg = self.search_cfg_path(plugin_path)
 
         match self.CFG_TYPE:
             case BaseModCfgType.open_vr_mod:
@@ -93,7 +103,7 @@ class BaseModSettings(JsonRepr):
         return True
 
     def delete_cfg(self, plugin_path) -> bool:
-        cfg = plugin_path / self.CFG_FILE
+        cfg = self.search_cfg_path(plugin_path)
         if not cfg.exists():
             return True
 
