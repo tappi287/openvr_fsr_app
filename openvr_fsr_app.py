@@ -1,11 +1,14 @@
 import logging
+import os
 import platform
 import sys
 import webbrowser
+from pathlib import Path
 
 import eel
 
 from app import expose_app_methods, CLOSE_EVENT
+from app.app_main import close_request
 from app.events import app_event_loop
 from app.app_settings import AppSettings
 from app.globals import FROZEN, get_version
@@ -51,27 +54,29 @@ def start_eel():
     host = 'localhost'
     port = 8144
     eel.init('web')
+    edge_cmd = f"{os.path.expandvars('%PROGRAMFILES(x86)%')}\\Microsoft\\Edge\\Application\\msedge.exe"
+    start_url = f'http://{host}:{port}'
 
     # TODO: fetch OSError port in use
     try:
-        eel.start(page, host=host, port=port, block=False)
+        app_module_prefs = getattr(AppSettings, 'app_preferences', dict()).get('appModules', list())
+        if Path(edge_cmd).exists() and 'edge_preferred' in app_module_prefs:
+            eel.start(page, mode='custom', host=host, port=port, block=False,
+                      cmdline_args=[edge_cmd, '--profile-directory=Default', f'--app={start_url}'])
+        else:
+            eel.start(page, host=host, port=port, block=False, close_callback=close_request)
     except EnvironmentError:
-        # If Chrome isn't found, fallback to Microsoft Edge on Win10 or greater
-        edge_failed = False
-        if sys.platform in ['win32', 'win64'] and int(platform.release()) >= 10:
-            try:
-                eel.start(page, mode='edge', host=host, port=port, block=False)
-            except Exception as e:
-                logging.error(e)
-                edge_failed = True
+        # If Chrome isn't found, fallback to Microsoft Chromium Edge
+        if Path(edge_cmd).exists():
+            logging.info('Falling back to Edge Browser')
+            eel.start(page, mode='custom', host=host, port=port, block=False,
+                      cmdline_args=[edge_cmd, '--profile-directory=Default', f'--app={start_url}'])
         # Fallback to opening a regular browser window
         else:
-            edge_failed = True
-
-        if edge_failed:
+            logging.info('Falling back to default Web Browser')
             eel.start(page, mode=None, app_mode=False, host=host, port=port, block=False)
             # Open system default web browser
-            webbrowser.open_new(f'http://{host}:{port}')
+            webbrowser.open_new(start_url)
 
     # -- Run until window/tab closed
     while not CLOSE_EVENT.is_set():
