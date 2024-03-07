@@ -5,6 +5,7 @@ from pathlib import Path
 import app.mod
 from app import app_fn, globals
 from app.app_settings import AppSettings
+from app.cfg import VRPerfKitSettings, BaseModCfgSetting
 from app.cfg.cfg_file_handler import ModCfgYamlHandler
 from app.mod import BaseModType, VRPerfKitMod
 from tests.conftest import create_manipulated_settings
@@ -189,7 +190,7 @@ def test_mod_install_manual_all_fn(app_settings, test_app_writeable, open_vr_fsr
 def test_reset_mod_settings_fn(test_app_writeable):
     test_set = ([('method', 'upscaling'), ('renderScale', 'upscaling'), ('debugMode', None),
                  ('cycleUpscalingMethod', 'hotkeys')],
-                ['nis', 2.50, True, ["shift", "l"]])
+                ['vrs', 2.50, True, ["shift", "l"]])
     test_app, test_settings = create_manipulated_settings(test_app_writeable, test_set,
                                                           app.mod.get_mod(dict(), BaseModType.vrp))
 
@@ -217,3 +218,37 @@ def test_reset_mod_settings_fn(test_app_writeable):
     for _test_s in test_settings:
         option = mod.settings.get_option_by_key(_test_s.get('key'), _test_s.get('parent'))
         assert option.value != _test_s.get('value')
+
+
+def test_mod_settings_class_fields():
+    """ Test that for each setting in the /data/vrperfkit/vrperkit_RSF.yml
+        there is a corresponding class field in the VRPerfKitSettings class.
+    """
+    vrperfkit_settings = VRPerfKitSettings()
+    vrperfkit_settings_fields = {attr: getattr(vrperfkit_settings, attr).key for attr in dir(vrperfkit_settings)
+                                 if isinstance(getattr(vrperfkit_settings, attr), BaseModCfgSetting)}
+    vrperfkit_yml_data = ModCfgYamlHandler.load_file(globals.get_data_dir() / "vrperfkit" / globals.VRPERFKIT_CFG)
+    vrperfkit_yml_dict = {k: v for k, v in vrperfkit_yml_data.items()}
+
+    yml_settings = dict()
+    class_settings = dict()
+
+    for category, settings_map in vrperfkit_yml_dict.items():
+        if type(settings_map).__name__ != 'CommentedMap':
+            settings_map = {category: settings_map}
+
+        for name, default_value in settings_map.items():
+            yml_settings[f'{category}.{name}'] = default_value
+
+            if name in vrperfkit_settings_fields.values():
+                category_attr = [getattr(vrperfkit_settings, attr) for attr in vrperfkit_settings_fields
+                                 if getattr(vrperfkit_settings, attr).key == category]
+                if not category_attr:
+                    continue
+                class_setting = [getattr(vrperfkit_settings, attr) for attr, key in vrperfkit_settings_fields.items()
+                                 if getattr(vrperfkit_settings, attr).category == category_attr[0].category
+                                 and key == name][0]
+
+                class_settings[f'{category}.{name}'] = class_setting.value
+
+    assert class_settings == yml_settings
