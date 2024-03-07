@@ -125,11 +125,12 @@ def scan_app_lib_fn():
 
     try:
         # -- Read this machines Steam library
-        app.steam.apps.read_steam_library()
+        apps = app.steam.SteamApps()
+        apps.read_steam_library()
 
         # -- Create a local copy of Steam Apps dict
         steam_apps = dict()
-        steam_apps.update(app.steam.apps.steam_apps)
+        steam_apps.update(apps.steam_apps)
 
         # -- Remove Library Paths helper entry
         steam_apps.pop(app.steam.STEAM_LIBRARY_FOLDERS)

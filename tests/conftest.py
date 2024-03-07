@@ -116,7 +116,7 @@ def steam_apps_obj(steam_test_path):
         )
 
     # -- Re-route Steam Location to test directory
-    steam_apps = app.steam.apps
+    steam_apps = app.steam.SteamApps()
     app.steam.SteamApps.STEAM_LOCATION = steam_test_path
 
     # -- Read Steam Apps
