@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vr mod app"
-version = "0.9.82"
+version = "0.9.9"
 description = "Management Gui for OpenVR FSR PlugIn"
 authors = ["tappi287 <tapper.stefan@gmail.com>"]
 license = "MIT"
