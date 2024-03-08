@@ -48,7 +48,8 @@ class AppSettings(JsonRepr):
     }
     current_fsr_version = 'v2.1.1'
     current_foveated_version = 'v0.2'
-    current_vrperfkit_version = 'v3.2_RSF'
+    current_vrperfkit_version = 'v0.3.0'
+    current_vrperfkit_rsf_version = 'v3.2_RSF'
 
     # Default plugin paths
     mod_data_dirs = dict()

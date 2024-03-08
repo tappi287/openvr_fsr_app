@@ -116,6 +116,11 @@ def get_current_vrperfkit_version():
 
 
 @eel.expose
+def get_current_vrperfkit_rsf_version():
+    return AppSettings.current_vrperfkit_rsf_version
+
+
+@eel.expose
 def re_run_admin():
     AppSettings.needs_admin = True
     AppSettings.save()

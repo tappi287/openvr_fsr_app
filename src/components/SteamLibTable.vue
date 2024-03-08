@@ -113,6 +113,7 @@
                       :current-fsr-version="currentFsrVersion"
                       :current-fov-version="currentFovVersion"
                       :current-vrp-version="currentVrpVersion"
+                      :current-vrp-rsf-version="currentVrpRsfVersion"
                       :steam-lib-busy="tableBusy"
                       @entry-updated="saveSteamApps"
                       @load-steam-lib="loadSteamLib"
@@ -187,7 +188,7 @@ export default {
         { key: 'sizeGb', label: '', sortable: true, class: 'text-right' },
         { key: 'openVr', label: 'Open VR', sortable: true, class: 'text-right' },
       ],
-      currentFsrVersion: '', currentFovVersion: '', currentVrpVersion: '',
+      currentFsrVersion: '', currentFovVersion: '', currentVrpVersion: '', currentVrpRsfVersion: '',
       progressMessage: ''
     }
   },
@@ -222,6 +223,11 @@ export default {
         if (manifest.vrpVersion !== undefined) {
           if (manifest.vrpVersion !== this.currentVrpVersion) { textClass = 'text-warning' }
         }
+      } else if (manifest.vrpRsfInstalled) {
+        textClass = 'text-success'
+        if (manifest.vrpRsfVersion !== undefined) {
+          if (manifest.vrpRsfVersion !== this.currentVrpRsfVersion) { textClass = 'text-warning' }
+        }
       }
       return textClass
     },
@@ -237,6 +243,11 @@ export default {
       } else if (manifest.vrpInstalled) {
         if (manifest.vrpVersion !== undefined) {
           return {text: 'VrPerfKit ' + manifest.vrpVersion, version: manifest.vrpVersion === this.currentVrpVersion}
+        }
+      } else if (manifest.vrpRsfInstalled) {
+        if (manifest.vrpRsfVersion !== undefined) {
+          return {text: 'VrPerfKit RSF' + manifest.vrpRsfVersion,
+            version: manifest.vrpRsfVersion === this.currentVrpRsfVersion}
         }
       }
       return {text: '', version: false}
@@ -293,7 +304,8 @@ export default {
       tableData.forEach(rowItem => {
         // Button Filter
         if (this.filterVr && !rowItem.openVr) { return }
-        if (this.filterInstalled && !rowItem.fsrInstalled && !rowItem.fovInstalled && !rowItem.vrpInstalled) { return }
+        if (this.filterInstalled && !rowItem.fsrInstalled && !rowItem.fovInstalled
+            && !rowItem.vrpInstalled && !rowItem.vrpRsfInstalled) { return }
 
         // Text Filter
         if (filterText === '') { filteredList.push(rowItem); return }
@@ -352,6 +364,7 @@ export default {
     this.currentFsrVersion = await window.eel.get_current_fsr_version()()
     this.currentFovVersion = await window.eel.get_current_foveated_version()()
     this.currentVrpVersion = await window.eel.get_current_vrperfkit_version()()
+    this.currentVrpRsfVersion = await window.eel.get_current_vrperfkit_rsf_version()()
     if (Object.keys(this.steamApps).length === 0 || this.reScanRequired) {
       await this.scanSteamLib()
     }

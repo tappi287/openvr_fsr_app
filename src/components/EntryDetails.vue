@@ -172,7 +172,7 @@ export default {
   },
   props: {
     entry: Object, currentFsrVersion: String, currentFovVersion: String, currentVrpVersion: String,
-    steamLibBusy: Boolean
+    currentVrpRsfVersion: String, steamLibBusy: Boolean
   },
   methods: {
     delay: ms => new Promise(res => {
@@ -187,7 +187,9 @@ export default {
       } else if (modType === 1) {
         return !this.entry.fsrInstalled && !this.entry.vrpInstalled && openVrPathSelected
       } else if (modType === 2) {
-        return !this.entry.fsrInstalled && !this.entry.fovInstalled && exePathSelected
+        return !this.entry.fsrInstalled && !this.entry.fovInstalled && !this.entry.vrpRsfInstalled && exePathSelected
+      } else if (modType === 3) {
+        return !this.entry.fsrInstalled && !this.entry.fovInstalled && !this.entry.vrpInstalled && exePathSelected
       }
     },
     launchApp: async function() {
@@ -223,6 +225,9 @@ export default {
       this.entry.vrp_settings = manifest.vrp_settings
       this.entry.vrpInstalled = manifest.vrpInstalled
       this.entry.vrpVersion = manifest.vrpVersion
+      this.entry.vrp_rsf_settings = manifest.vrp_rsf_settings
+      this.entry.vrpRsfInstalled = manifest.vrpRsfInstalled
+      this.entry.vrpRsfVersion = manifest.vrpRsfVersion
       this.$nextTick(() => { this.settingsAboutToReset = false })
     },
     installMod: async function (modType) {
@@ -243,7 +248,7 @@ export default {
         this.$emit('entry-updated', this.entry)
 
         // Report install state
-        if (this.entry.fsrInstalled || this.entry.fovInstalled || this.entry.vrpInstalled) {
+        if (this.entry.fsrInstalled || this.entry.fovInstalled || this.entry.vrpInstalled || this.entry.vrpRsfInstalled) {
           this.$eventHub.$emit('make-toast', 'Installed PlugIn to ' + this.entry.name, 'success',
               'PlugIn Installed')
         } else {
@@ -315,6 +320,8 @@ export default {
         settings = this.entry.fov_settings
       } else if (modType === 2) {
         settings = this.entry.vrp_settings
+      } else if (modType === 3) {
+        settings = this.entry.vrp_rsf_settings
       }
       return settings
     },
