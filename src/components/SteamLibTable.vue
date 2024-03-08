@@ -200,7 +200,7 @@ export default {
       // Clear after timeout
       setTimeout(() => {
         this.setProgressMessage('')
-      }, 10000)
+      }, 20000)
     },
     updateTableSort(sortByRow = 'name', descending = false) {
       this.sortBy = sortByRow; this.sortDesc = descending
