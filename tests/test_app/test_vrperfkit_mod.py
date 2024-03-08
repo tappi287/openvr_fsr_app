@@ -16,9 +16,9 @@ def _create_test_output(output_path, vrperfkit_dir):
     # -- Create dummy file
     with open(test_dxgi_dll, 'w') as f:
         f.write('')
-    test_mod_yml_path = output_path / globals.VRPERFKIT_CFG
+    test_mod_yml_path = output_path / globals.VRPERFKIT_OLD_CFG
     # -- Create default cfg file
-    shutil.copy(vrperfkit_dir / globals.VRPERFKIT_CFG, test_mod_yml_path)
+    shutil.copy(vrperfkit_dir / globals.VRPERFKIT_OLD_CFG, test_mod_yml_path)
     return test_dxgi_dll, test_mod_yml_path
 
 
@@ -91,7 +91,7 @@ def test_toggle_mod_install_fn(test_app_writeable):
         assert written_dll.stat().st_size > 50
 
         # -- Test config file written
-        cfg_file = written_dll.parent / globals.VRPERFKIT_CFG
+        cfg_file = written_dll.parent / globals.VRPERFKIT_RSF_CFG
         assert cfg_file.exists() is True
 
     # -- Test VRP Mod uninstallation
@@ -110,7 +110,7 @@ def test_toggle_mod_install_fn(test_app_writeable):
         assert written_dll.exists() is False
 
         # -- Test config file removed
-        cfg_file = written_dll.parent / globals.VRPERFKIT_CFG
+        cfg_file = written_dll.parent / globals.VRPERFKIT_RSF_CFG
         assert cfg_file.exists() is False
 
 
@@ -227,7 +227,7 @@ def test_mod_settings_class_fields():
     vrperfkit_settings = VRPerfKitSettings()
     vrperfkit_settings_fields = {attr: getattr(vrperfkit_settings, attr).key for attr in dir(vrperfkit_settings)
                                  if isinstance(getattr(vrperfkit_settings, attr), BaseModCfgSetting)}
-    vrperfkit_yml_data = ModCfgYamlHandler.load_file(globals.get_data_dir() / "vrperfkit" / globals.VRPERFKIT_CFG)
+    vrperfkit_yml_data = ModCfgYamlHandler.load_file(globals.get_data_dir() / "vrperfkit" / globals.VRPERFKIT_RSF_CFG)
     vrperfkit_yml_dict = {k: v for k, v in vrperfkit_yml_data.items()}
 
     yml_settings = dict()
