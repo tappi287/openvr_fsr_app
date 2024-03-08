@@ -61,10 +61,6 @@ class BaseModSettings(JsonRepr):
 
     def search_cfg_path(self, search_path: Path):
         cfg_path = search_path / self.CFG_FILE
-        if self.CFG_TYPE == BaseModCfgType.vrp_mod:
-            legacy_cfg = search_path / VRPERFKIT_OLD_CFG
-            if not cfg_path.exists() and legacy_cfg.exists():
-                cfg_path = legacy_cfg
         return cfg_path
 
     def read_from_cfg(self, plugin_path: Path) -> bool:
