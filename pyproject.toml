@@ -10,6 +10,8 @@ packages = [{include = "app"}]
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
 Eel = "^0.16.0"
+# Bottle >0.13 does not overwrite sys.stdout/stderr so it is compatible with PyInstaller
+bottle = {file = "./local_pkgs/bottle-0.13.dev0.tar.gz"}
 appdirs = "^1.4.4"
 gevent = "^24.2.1"
 python-a2s = "^1.3.0"
