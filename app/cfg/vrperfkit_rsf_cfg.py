@@ -2,7 +2,7 @@ from app.cfg import BaseModCfgSetting, BaseModSettings, BaseModCfgType
 from app.globals import VRPERFKIT_RSF_CFG
 
 
-class VRPerfKitSettings(BaseModSettings):
+class VRPerfKitRsfSettings(BaseModSettings):
     cfg_key = None
     format = 'yml'
     CFG_FILE = VRPERFKIT_RSF_CFG
@@ -613,4 +613,4 @@ class VRPerfKitSettings(BaseModSettings):
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
 
-        super(VRPerfKitSettings, self).__init__()
+        super(VRPerfKitRsfSettings, self).__init__()

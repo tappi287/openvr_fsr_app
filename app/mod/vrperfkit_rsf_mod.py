@@ -1,4 +1,4 @@
-from app.cfg.vrperfkit_cfg import VRPerfKitSettings
+from app.cfg.vrperfkit_rsf_cfg import VRPerfKitRsfSettings
 from app.globals import DXGI_DLL
 from app.mod import BaseModType, BaseMod
 
@@ -15,7 +15,7 @@ class VRPerfKitRsfMod(BaseMod):
     DLL_NAME = DXGI_DLL  # Alternative would be d3d11.dll
 
     def __init__(self, manifest: dict):
-        self.settings = VRPerfKitSettings()
+        self.settings = VRPerfKitRsfSettings()
         self.settings.from_js_dict(manifest.get(self.VAR_NAMES['settings']))
 
         super(VRPerfKitRsfMod, self).__init__(manifest, self.settings)

@@ -121,7 +121,7 @@ class BaseMod:
     def install(self, uninstall: bool = False) -> bool:
         results = list()
         for engine_dll in self._update_engine_dll_paths():
-            if not engine_dll and self.TYPE != BaseModType.vrp:
+            if not engine_dll and self.TYPE not in (BaseModType.vrp, BaseModType.vrp_rsf):
                 results.append(False)
                 continue
             results.append(self._install_single(uninstall))
