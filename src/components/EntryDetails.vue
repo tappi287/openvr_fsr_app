@@ -57,6 +57,14 @@
         VrPerfKit {{ entry.vrpInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
       </b-button>
 
+            <!-- VrPerfKit RSF PlugIn Install / Uninstall Button -->
+      <b-button :variant="entry.vrpRsfInstalled ? 'success' : 'info'"
+                :disabled="!modInstallAllowed(3)"
+                @click="installMod(3)" class="mr-2 ml-2" size="sm">
+        <b-icon class="mr-1" :icon="entry.vrpInstalled ? 'square-fill' : 'square'" />
+        VrPerfKit RSF {{ entry.vrpRsfInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
+      </b-button>
+
       <b-button v-if="entry.fsrInstalled" variant="warning"
                 @click="resetModSettings(0)"
                 class="float-right warning no-border" size="sm">
@@ -74,6 +82,12 @@
                 class="float-right warning no-border" size="sm">
         <b-icon class="mr-1" icon="arrow-counterclockwise"/>
         Reset VRP Settings
+      </b-button>
+      <b-button v-if="entry.vrpRsfInstalled" variant="warning"
+                @click="resetModSettings(3)"
+                class="float-right warning no-border" size="sm">
+        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+        Reset VRP RSF Settings
       </b-button>
     </b-card-text>
 
@@ -120,6 +134,21 @@
           <!-- Settings -->
           <Setting v-for="s in orderedSettings(2, category)" :key="s.key" :setting="s" :app-id="entry.id"
                    :disabled="!entry.vrpInstalled" @setting-changed="updateModSetting(2)"
+                   :fixed-width="true" :group-id="'VRP' + idx"
+                   class="mr-3 mb-3" />
+        </div>
+      </template>
+
+      <!-- VrPerfKit RSF Settings -->
+      <template v-if="entry.vrpRsfInstalled">
+        <h4 v-if="settingsCategories(3)[0] === null" class="mt-4">{{ $t('lib.settingsTitle') }}</h4>
+        <!-- Categories -->
+        <div class="mt-1 mb-2 text-center" v-for="(category, idx) in settingsCategories(3)" :key="category"
+             :id="'VRP-RSF' + idx">
+          <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
+          <!-- Settings -->
+          <Setting v-for="s in orderedSettings(2, category)" :key="s.key" :setting="s" :app-id="entry.id"
+                   :disabled="!entry.vrpInstalled" @setting-changed="updateModSetting(3)"
                    :fixed-width="true" :group-id="'VRP' + idx"
                    class="mr-3 mb-3" />
         </div>
@@ -351,7 +380,7 @@ export default {
     }
   },
   async mounted() {
-    for (const modType in [0, 1, 2]) {
+    for (const modType in [0, 1, 2, 3]) {
       await this.updateMod(Number(modType))
     }
   }
