@@ -82,6 +82,12 @@ class AppExceptionHook:
     produce_exception = False
 
     @classmethod
+    def gevent_error_handler(cls, context, exception_args):
+        logging.error('Gevent error context: %s', str(context))
+        e_type, value, tb = exception_args
+        return cls.exception_hook(e_type, value, tb)
+
+    @classmethod
     def exception_hook(cls, etype, value, tb):
         """ sys.excepthook will call this method """
         import traceback
