@@ -12,7 +12,7 @@ from app import expose_app_methods, CLOSE_EVENT
 from app.app_main import close_request
 from app.events import app_event_loop
 from app.app_settings import AppSettings
-from app.globals import FROZEN, get_version
+from app.globals import FROZEN, get_version, get_current_modules_dir
 from app.log import setup_logging
 from app.util.runasadmin import run_as_admin
 from app.util.utils import AppExceptionHook
@@ -42,14 +42,23 @@ def register_gevent_error_handler(error_handler):
     Hub.handle_error = custom_handle_error
 
 
-def _start_in_browser():
+def _start_in_browser(npm_serve=True):
     page = 'index.html'
     host = 'localhost'
     port = 8144
-    eel.init('web')
+
+    if npm_serve:
+        # Dev env with npm run serve
+        page = {'port': 8080}
+        url_port = page.get('port')
+        eel.init(Path(get_current_modules_dir()).joinpath('src').as_posix())
+    else:
+        # Frozen or npm run build
+        url_port = port
+        eel.init(Path(get_current_modules_dir()).joinpath('web').as_posix())
 
     edge_cmd = f"{os.path.expandvars('%PROGRAMFILES(x86)%')}\\Microsoft\\Edge\\Application\\msedge.exe"
-    start_url = f'http://{host}:{port}'
+    start_url = f'http://{host}:{url_port}'
 
     try:
         app_module_prefs = getattr(AppSettings, 'app_preferences', dict()).get('appModules', list())
@@ -100,7 +109,7 @@ def start_eel():
     """
         //
     """
-    _start_in_browser()
+    _start_in_browser(not FROZEN)
     gevent.sleep(0.5)
     if AppExceptionHook.event.is_set():
         logging.error('Exception making app available in browser. Aborting.')
