@@ -1,5 +1,5 @@
-from app.cfg import BaseModCfgSetting, BaseModSettings, BaseModCfgType
 from app.globals import VRPERFKIT_OLD_CFG
+from app.cfg import BaseModCfgSetting, BaseModSettings, BaseModCfgType
 
 
 class VRPerfKitSettings(BaseModSettings):
@@ -9,10 +9,6 @@ class VRPerfKitSettings(BaseModSettings):
     CFG_TYPE = BaseModCfgType.vrp_mod
 
     def __init__(self):
-        """ Creates a BasModCfgSetting object for every corresponding setting in the
-            /data/vrperfkit/vrperfkit_RSF.yml file.
-            The settings are stored in the class fields.
-        """
         # --
         # Upscaling Settings
         # --
@@ -44,7 +40,7 @@ class VRPerfKitSettings(BaseModSettings):
                  "fsr (AMD FidelityFX Super Resolution), "
                  "nis (NVIDIA Image Scaling), "
                  "cas (AMD FidelityFX Contrast Adaptive Sharpening)",
-            value='nis',
+            value='cas',
             settings=[{'value': 'fsr', 'name': 'FSR'}, {'value': 'nis', 'name': 'NIS'}, {'value': 'cas', 'name': 'CAS'}]
         )
         self.upRenderScale = BaseModCfgSetting(
@@ -52,14 +48,14 @@ class VRPerfKitSettings(BaseModSettings):
             name='Render Scale',
             category=self.upscaling.category,
             parent=self.upscaling.key,
-            desc="Control how much the render resolution is lowered. The renderScale is the percentage "
-                 "used to scale resolution used by the GPU to render. For example, a value of 50 (50%) "
-                 "means GPU will use half of pixels. This is same from how render scale works in SteamVR. "
-                 "If you set a value higher than 100 for renderScale, then the game will render at the native "
-                 "resolution, i.e. the one configured in SteamVR. But FSR/NIS/CAS will then take this render and "
-                 "upscale it to a resolution increased by the value of renderScale percentage.",
-            value=70.0,
-            settings=[{'settingType': 'range', 'min': 0.10, 'max': 999.00, 'step': 1.00, 'display': 'percent'}]
+            desc="Control how much the render resolution is lowered. The renderScale factor is "
+                 "applied to both width and height. So if renderScale is set to 0.5 and you "
+                 "have a resolution of 2000x2000 configured in SteamVR, the resulting render "
+                 "resolution is 1000x1000. "
+                 "NOTE: this is different from how render scale works in SteamVR! A SteamVR "
+                 "render scale of 0.5 would be equivalent to renderScale 0.707 in this mod!, ",
+            value=0.9,
+            settings=[{'settingType': 'range', 'min': 0.10, 'max': 3.00, 'step': 0.01, 'display': 'floatpercent'}]
         )
         self.upSharpness = BaseModCfgSetting(
             key='sharpness',
@@ -69,7 +65,7 @@ class VRPerfKitSettings(BaseModSettings):
             desc="Configure how much the image is sharpened during upscaling. "
                  "This parameter works differently for each of the upscaling methods, so you "
                  "will have to tweak it after you have chosen your preferred upscaling method.",
-            value=0.3,
+            value=0.7,
             settings=[{'settingType': 'range', 'min': 0.00, 'max': 3.00, 'step': 0.01, 'display': 'floatpercent'}]
         )
         self.upSharpnessRadius = BaseModCfgSetting(
@@ -85,7 +81,7 @@ class VRPerfKitSettings(BaseModSettings):
                  "to visualize the size of the circle. "
                  "Note: to disable this optimization entirely, choose an arbitrary high value "
                  "(e.g. 100) for the radius.",
-            value=0.95,
+            value=0.60,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 3.00, 'step': 0.01}]
         )
         self.upApplyMIPBias = BaseModCfgSetting(
@@ -128,94 +124,16 @@ class VRPerfKitSettings(BaseModSettings):
                  " at 1/16th resolution."
                  " Fixed foveated rendering is achieved with Variable Rate Shading. This technique is only"
                  " available on NVIDIA RTX and GTX 16xx cards.",
-            value=False,
-            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
-        )
-        # RSF additions
-        self.ffrMethod = BaseModCfgSetting(
-            key='method',
-            name='Method',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Select the method to use for fixed foveated rendering. Available options: "
-                 "vrs (Variable Rate Shading: This is only available on NVIDIA RTX and GTX 16xx cards). "
-                 "rdm (Radial Density Mask: Compatible with any GPU. Hidden Mask will be disabled and "
-                 "Upscaling wil be enabled)",
-            value='vrs',
-            settings=[{'value': 'vrs', 'name': 'Variable Rate Shading'},
-                      {'value': 'rdm', 'name': 'Radial Density Mask'}]
-        )
-        self.ffrDynamic = BaseModCfgSetting(
-            key='dynamic',
-            name='Dynamic',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="FFR is applied only when needed to try to maintain at least target FPS",
-            value=False,
-            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
-        )
-        self.ffrTargetFps = BaseModCfgSetting(
-            key='targetFPS',
-            name='Target FPS',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Target FPS",
-            value=60.0,
-            settings=[{'settingType': 'range', 'min': 1.0, 'max': 999.00, 'step': 1.00}]
-        )
-        self.ffrMarginFps = BaseModCfgSetting(
-            key='marginFPS',
-            name='Margin FPS',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="FPS to start decreasing radius.",
-            value=65.0,
-            settings=[{'settingType': 'range', 'min': 1.0, 'max': 999.00, 'step': 1.00}]
-        )
-        self.ffrDynamicChangeRadius = BaseModCfgSetting(
-            key='dynamicChangeRadius',
-            name='Dynamic Change Radius',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Change default dynamic behavior: FFR is always enabled but dynamic mode changes radius dynamically",
             value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
-        self.ffrMinRadius = BaseModCfgSetting(
-            key='minRadius',
-            name='Min Radius',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="This is the minimal radius applied to Inner Radius when dynamic is enabled",
-            value=0.30,
-            settings=[{'settingType': 'range', 'min': 0.01, 'max': 1.00, 'step': 0.01}]
-        )
-        self.ffrDecreaseRadiusStep = BaseModCfgSetting(
-            key='decreaseRadiusStep',
-            name='Decrease Radius Step',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Decreased radius amount applied for each frametime check when needed",
-            value=0.01,
-            settings=[{'settingType': 'range', 'min': 0.01, 'max': 1.00, 'step': 0.01}]
-        )
-        self.ffrIncreaseRadiusStep = BaseModCfgSetting(
-            key='increaseRadiusStep',
-            name='Increase Radius Step',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Increased radius amount applied for each frametime check when needed",
-            value=0.02,
-            settings=[{'settingType': 'range', 'min': 0.01, 'max': 1.00, 'step': 0.01}]
-        )
-        # /RSF additions
         self.ffrInnerRadius = BaseModCfgSetting(
             key='innerRadius',
             name='Inner Radius',
             category=self.ffr.category,
             parent=self.ffr.key,
             desc="Configure the end of the inner circle, which is the area that will be rendered at full resolution",
-            value=0.50,
+            value=0.60,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 1.00, 'step': 0.01}]
         )
         self.ffrMidRadius = BaseModCfgSetting(
@@ -224,7 +142,7 @@ class VRPerfKitSettings(BaseModSettings):
             category=self.ffr.category,
             parent=self.ffr.key,
             desc="Configure the end of the second ring, which will be rendered at half resolution",
-            value=0.65,
+            value=0.80,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 1.00, 'step': 0.01}]
         )
         self.ffrOuterRadius = BaseModCfgSetting(
@@ -233,62 +151,9 @@ class VRPerfKitSettings(BaseModSettings):
             category=self.ffr.category,
             parent=self.ffr.key,
             desc="Configure the end of the third ring, which will be rendered at 1/4th resolution",
-            value=0.80,
+            value=1.00,
             settings=[{'settingType': 'range', 'min': 0.20, 'max': 2.00, 'step': 0.01}]
         )
-        # RSF additions
-        self.ffrEdgeRadius = BaseModCfgSetting(
-            key='edgeRadius',
-            name='Edge Radius',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Creates a Hidden Radial Mask. Available only in RDM mode",
-            value=1.15,
-            settings=[{'settingType': 'range', 'min': 0.10, 'max': 10.00, 'step': 0.10}]
-        )
-        self.ffrPreciseResolution = BaseModCfgSetting(
-            key='preciseResolution',
-            name='Precise Resolution',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Only applies FFR to target renders that matches equal resolution to final render. "
-                 "Some games require to disable it.",
-            value=True,
-            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
-        )
-        self.ffrRenderOnlyTarget = BaseModCfgSetting(
-            key='renderOnlyTarget',
-            name='Render Only Target',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="If not 0, FFR will be applied only to specific render target. Using a negative value will cause that "
-                 "used target will be count from last. For example, -1 will be applied to the last target.",
-            value=0,
-            settings=[{'settingType': 'range', 'min': -999, 'max': 999, 'step': 1}]
-        )
-        self.ffrIgnoreFirstTargetRenders = BaseModCfgSetting(
-            key='ignoreFirstTargetRenders',
-            name='Ignore First Target Renders',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="FFR will not be applied to first and last specified target renders. Some games needs to skip some "
-                 "target renders to avoid crashes. This is different from HRM option. Target renders from VSR mode "
-                 "are different to RDM mode target renders.",
-            value=0,
-            settings=[{'settingType': 'range', 'min': -999, 'max': 999, 'step': 1}]
-        )
-        self.ffrIgnoreLastTargetRenders = BaseModCfgSetting(
-            key='ignoreLastTargetRenders',
-            name="Ignore Last Target Renders",
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="FFR will not be applied to first and last specified target renders. Some games needs to skip some "
-                 "target renders to avoid crashes. This is different from HRM option. Target renders from VSR mode "
-                 "are different to RDM mode target renders.",
-            value=0,
-            settings=[{'settingType': 'range', 'min': -999, 'max': 999, 'step': 1}]
-        )
-        # /RSF additions
         self.ffrFavorHorizontal = BaseModCfgSetting(
             key='favorHorizontal',
             name='Favor Horizontal',
@@ -297,191 +162,6 @@ class VRPerfKitSettings(BaseModSettings):
             desc="When reducing resolution, prefer to keep horizontal or vertical resolution",
             value=True,
             settings=[{'value': True, 'name': 'Horizontal'}, {'value': False, 'name': 'Vertical'}]
-        )
-        # RSF Additions to FFR
-        self.ffrFastMode = BaseModCfgSetting(
-            key='fastMode',
-            name='Fast Mode',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="Fast mode: When game renders each eye separatelly, enabling this will save a bit of performance, "
-                 "But overrideSingleEyeOrder will be ignored. Available only in VRS mode.",
-            value=False,
-            settings=[{'value': True, 'name': 'Enabled'}, {'value': False, 'name': 'Disabled'}]
-        )
-        self.ffrFastModeUsesHRMCount = BaseModCfgSetting(
-            key='fastModeUsesHRMCount',
-            name='Fast Mode Uses HRM Count',
-            category=self.ffr.category,
-            parent=self.ffr.key,
-            desc="When fastMode is used, you can use HRM render targets counter instead default VRS counter. This will"
-                 "force to enable HRM. Ignored target renders configuration will be used from hiddenMask section "
-                 "instead.",
-            value=False,
-            settings=[{'value': True, 'name': 'Enabled'}, {'value': False, 'name': 'Disabled'}]
-        )
-
-        # --
-        # RSF hidden mask
-        # --
-        self.hmHiddenMask = BaseModCfgSetting(
-            key='hiddenMask',
-            name='Hidden Mask',
-            category='HiddenMask',
-            hidden=True,
-            value=dict(),
-            settings=list(),
-        )
-        self.hmEnabled = BaseModCfgSetting(
-            key='enabled',
-            name='Enabled',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Hidden radial mask (HRM) applies a render mask to avoid GPU rendering hidden pixel that are "
-                 "not visible in the headset and gain some performance without any disadvantage. "
-                 "Not all games are compatible.",
-            value=True,
-            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
-        )
-        self.hmDynamic = BaseModCfgSetting(
-            key='dynamic',
-            name='Dynamic',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Dynamic: HRM is applied only when needed to try to maintain at least target FPS",
-            value=False,
-            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
-        )
-        self.hmTargetFPS = BaseModCfgSetting(
-            key='targetFPS',
-            name='Target FPS',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="HRM will be applied only when needed to maintain this FPS",
-            value=55.0,
-            settings=[{'settingType': 'range', 'min': 1.0, 'max': 1000.0, 'step': 1.0}]
-        )
-        self.hmMarginFPS = BaseModCfgSetting(
-            key='marginFPS',
-            name='Margin FPS',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="FPS to start recovering decreasing radius.",
-            value=60.0,
-            settings=[{'settingType': 'range', 'min': 1.0, 'max': 1000.0, 'step': 1.0}]
-        )
-        self.hmDynamicChangeRadius = BaseModCfgSetting(
-            key='dynamicChangeRadius',
-            name='Dynamic Change Radius',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Change default dynamic behavior: HRM is always enabled but dynamic mode changes radius dynamically",
-            value=True,
-            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
-        )
-        self.hmMinRadius = BaseModCfgSetting(
-            key='minRadius',
-            name='Min Radius',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Minimal radius: This is the minimal radius applied when dynamic is enabled",
-            value=0.85,
-            settings=[{'settingType': 'range', 'min': 0.10, 'max': 2.00, 'step': 0.01}]
-        )
-        self.hmDecreaseRadiusStep = BaseModCfgSetting(
-            key='decreaseRadiusStep',
-            name='Decrease Radius Step',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Decreased radius amount applied for each frametime check when needed",
-            value=0.01,
-            settings=[{'settingType': 'range', 'min': 0.001, 'max': 0.50, 'step': 0.01}]
-        )
-        self.hmIncreaseRadiusStep = BaseModCfgSetting(
-            key='increaseRadiusStep',
-            name='Increase Radius Step',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Increased radius amount applied for each frametime check when needed",
-            value=0.02,
-            settings=[{'settingType': 'range', 'min': 0.001, 'max': 0.50, 'step': 0.01}]
-        )
-        self.hmEdgeRadius = BaseModCfgSetting(
-            key='edgeRadius',
-            name='Edge Radius',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Edge radius",
-            value=1.15,
-            settings=[{'settingType': 'range', 'min': 0.10, 'max': 10.00, 'step': 0.10}]
-        )
-        self.hmPreciseResolution = BaseModCfgSetting(
-            key='preciseResolution',
-            name='Precise Resolution',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="Only applies HRM to target renders that matches equal resolution to final render. "
-                 "Some games requires to disable it.",
-            value=True,
-            settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
-        )
-        self.hmRenderOnlyTarget = BaseModCfgSetting(
-            key='renderOnlyTarget',
-            name='Render Only Target',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="If not 0, HRM will be applied only to specific render target. Using a negative value will cause that "
-                 "used target will be count from last. For example, -1 will be applied to the last target.",
-            value=0,
-            settings=[{'settingType': 'range', 'min': -999, 'max': 999, 'step': 1}]
-        )
-        self.hmIgnoreFirstTargetRenders = BaseModCfgSetting(
-            key='ignoreFirstTargetRenders',
-            name='Ignore First Target Renders',
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="HRM will not be applied to first and last specified target renders. Some games needs to skip some "
-                 "target renders to avoid crashes. This is different from FFR option.",
-            value=0,
-            settings=[{'settingType': 'range', 'min': -999, 'max': 999, 'step': 1}]
-        )
-        self.hmIgnoreLastTargetRenders = BaseModCfgSetting(
-            key='ignoreLastTargetRenders',
-            name="Ignore Last Target Renders",
-            category=self.hmHiddenMask.category,
-            parent=self.hmHiddenMask.key,
-            desc="HRM will not be applied to first and last specified target renders. Some games needs to skip some "
-                 "target renders to avoid crashes. This is different from FFR option.",
-            value=0,
-            settings=[{'settingType': 'range', 'min': -999, 'max': 999, 'step': 1}]
-        )
-
-        # --
-        # RSF Settings
-        # --
-        self.gameMode = BaseModCfgSetting(
-            key='gameMode',
-            name='Game Mode',
-            category='Settings',
-            hidden=False,
-            value='auto',
-            desc="Some game need a special mode: auto (Default), single (A single rendered image contains both eyes), "
-                 "left (Each eye is rendered separately, and left eye is rendered first), "
-                 "right (Each eye is rendered separately, and right eye is rendered first)",
-            settings=[{'value': 'auto', 'name': 'Auto'},
-                      {'value': 'single', 'name': 'Single'},
-                      {'value': 'left', 'name': 'Left'},
-                      {'value': 'right', 'name': 'Right'}]
-        )
-        self.dynamicFramesCheck = BaseModCfgSetting(
-            key='dynamicFramesCheck',
-            name='Dynamic Frames Check',
-            category='Settings',
-            hidden=False,
-            desc="This controls how many frames must be generated to measure frametime when dynamic mode is used"
-                 " with FFR and/or HRM.",
-            value=1,
-            settings=[{'settingType': 'range', 'min': 1, 'max': 1000, 'step': 1}]
         )
 
         # --
@@ -504,7 +184,7 @@ class VRPerfKitSettings(BaseModSettings):
                  "for direct comparisons inside the headset. Note that any changes you make via hotkeys "
                  "are not currently persisted in the config file and will reset to the values in the "
                  "config file when you next launch the game.",
-            value=False,
+            value=True,
             settings=[{'value': True, 'name': 'On'}, {'value': False, 'name': 'Off'}]
         )
         self.hkToggleDebugMode = BaseModCfgSetting(
@@ -586,7 +266,7 @@ class VRPerfKitSettings(BaseModSettings):
             category=self.hotkeys.category,
             parent=self.hotkeys.key,
             desc="Toggle fixed foveated rendering",
-            value=["ctrl", "f8"],
+            value=["alt", "f1"],
             settings=[{'settingType': 'keyCombo'}]
         )
         self.hkToggleFFRFavorHorizontal = BaseModCfgSetting(
@@ -595,7 +275,7 @@ class VRPerfKitSettings(BaseModSettings):
             category=self.hotkeys.category,
             parent=self.hotkeys.key,
             desc="Toggle if you want to prefer horizontal or vertical resolution",
-            value=["ctrl", "f9"],
+            value=["alt", "f2"],
             settings=[{'settingType': 'keyCombo'}]
         )
 
