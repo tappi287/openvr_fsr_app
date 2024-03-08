@@ -33,62 +33,64 @@
         />
       </div>
 
-      <!-- FSR PlugIn Install / Uninstall Button -->
-      <b-button :variant="entry.fsrInstalled ? 'success' : 'primary'"
-                :disabled="!modInstallAllowed(0)"
-                @click="installMod(0)" class="mr-2" size="sm">
-        <b-icon class="mr-1" :icon="entry.fsrInstalled ? 'square-fill' : 'square'" />
-        FSR {{ entry.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
-      </b-button>
+      <b-button-group size="sm">
+        <!-- FSR PlugIn Install / Uninstall Button -->
+        <b-button :variant="entry.fsrInstalled ? 'success' : 'primary'"
+                  :disabled="!modInstallAllowed(0)"
+                  @click="installMod(0)" class="mr-2" size="sm">
+          <b-icon class="mr-1" :icon="entry.fsrInstalled ? 'square-fill' : 'square'" />
+          FSR {{ entry.fsrInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
+        </b-button>
 
-      <!-- Foveated PlugIn Install / Uninstall Button -->
-      <b-button :variant="entry.fovInstalled ? 'success' : 'primary'"
-                :disabled="!modInstallAllowed(1)"
-                @click="installMod(1)" class="mr-2 ml-2" size="sm">
-        <b-icon class="mr-1" :icon="entry.fovInstalled ? 'square-fill' : 'square'" />
-        Foveated {{ entry.fovInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
-      </b-button>
+        <!-- Foveated PlugIn Install / Uninstall Button -->
+        <b-button :variant="entry.fovInstalled ? 'success' : 'primary'"
+                  :disabled="!modInstallAllowed(1)"
+                  @click="installMod(1)" class="mr-2 ml-2" size="sm">
+          <b-icon class="mr-1" :icon="entry.fovInstalled ? 'square-fill' : 'square'" />
+          Foveated {{ entry.fovInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
+        </b-button>
 
-      <!-- VrPerfKit PlugIn Install / Uninstall Button -->
-      <b-button :variant="entry.vrpInstalled ? 'success' : 'info'"
-                :disabled="!modInstallAllowed(2)"
-                @click="installMod(2)" class="mr-2 ml-2" size="sm">
-        <b-icon class="mr-1" :icon="entry.vrpInstalled ? 'square-fill' : 'square'" />
-        VrPerfKit {{ entry.vrpInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
-      </b-button>
+        <!-- VrPerfKit PlugIn Install / Uninstall Button -->
+        <b-button :variant="entry.vrpInstalled ? 'success' : 'info'"
+                  :disabled="!modInstallAllowed(2)"
+                  @click="installMod(2)" class="mr-2 ml-2" size="sm">
+          <b-icon class="mr-1" :icon="entry.vrpInstalled ? 'square-fill' : 'square'" />
+          VrPerfKit {{ entry.vrpInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
+        </b-button>
 
-            <!-- VrPerfKit RSF PlugIn Install / Uninstall Button -->
-      <b-button :variant="entry.vrpRsfInstalled ? 'success' : 'info'"
-                :disabled="!modInstallAllowed(3)"
-                @click="installMod(3)" class="mr-2 ml-2" size="sm">
-        <b-icon class="mr-1" :icon="entry.vrpInstalled ? 'square-fill' : 'square'" />
-        VrPerfKit RSF {{ entry.vrpRsfInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
-      </b-button>
+              <!-- VrPerfKit RSF PlugIn Install / Uninstall Button -->
+        <b-button :variant="entry.vrpRsfInstalled ? 'success' : 'info'"
+                  :disabled="!modInstallAllowed(3)"
+                  @click="installMod(3)" class="mr-2 ml-2" size="sm">
+          <b-icon class="mr-1" :icon="entry.vrpRsfInstalled ? 'square-fill' : 'square'" />
+          VrPerfKit RSF {{ entry.vrpRsfInstalled ? $t('lib.uninstallPlugin') : $t('lib.installPlugin')}}
+        </b-button>
 
-      <b-button v-if="entry.fsrInstalled" variant="warning"
-                @click="resetModSettings(0)"
-                class="float-right warning no-border" size="sm">
-        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
-        Reset FSR Settings
-      </b-button>
-      <b-button v-if="entry.fovInstalled" variant="warning"
-                @click="resetModSettings(1)"
-                class="float-right warning no-border" size="sm">
-        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
-        Reset FFR Settings
-      </b-button>
-      <b-button v-if="entry.vrpInstalled" variant="warning"
-                @click="resetModSettings(2)"
-                class="float-right warning no-border" size="sm">
-        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
-        Reset VRP Settings
-      </b-button>
-      <b-button v-if="entry.vrpRsfInstalled" variant="warning"
-                @click="resetModSettings(3)"
-                class="float-right warning no-border" size="sm">
-        <b-icon class="mr-1" icon="arrow-counterclockwise"/>
-        Reset VRP RSF Settings
-      </b-button>
+        <b-button v-if="entry.fsrInstalled" variant="warning"
+                  @click="resetModSettings(0)"
+                  class="float-right warning no-border" size="sm">
+          <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+          Reset FSR Settings
+        </b-button>
+        <b-button v-if="entry.fovInstalled" variant="warning"
+                  @click="resetModSettings(1)"
+                  class="float-right warning no-border" size="sm">
+          <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+          Reset FFR Settings
+        </b-button>
+        <b-button v-if="entry.vrpInstalled" variant="warning"
+                  @click="resetModSettings(2)"
+                  class="float-right warning no-border" size="sm">
+          <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+          Reset VRP Settings
+        </b-button>
+        <b-button v-if="entry.vrpRsfInstalled" variant="warning"
+                  @click="resetModSettings(3)"
+                  class="float-right warning no-border" size="sm">
+          <b-icon class="mr-1" icon="arrow-counterclockwise"/>
+          Reset VRP RSF Settings
+        </b-button>
+      </b-button-group>
     </b-card-text>
 
     <!-- Settings Space -->
@@ -102,8 +104,9 @@
              :id="'FSR' + idx">
           <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
           <!-- Settings -->
-          <Setting v-for="s in orderedSettings(0, category)" :key="s.key" :setting="s" :app-id="entry.id"
-                   :disabled="!entry.fsrInstalled" @setting-changed="updateModSetting(0)"
+          <Setting v-for="s in orderedSettings(0, category)" :key="'fov_' + s.key + id"
+                   :setting="s" :app-id="entry.id" :disabled="!entry.fsrInstalled"
+                   @setting-changed="updateModSetting(0)"
                    :fixed-width="true" :group-id="'FSR' + idx"
                    class="mr-3 mb-3" />
         </div>
@@ -117,8 +120,9 @@
              :id="'FFR' + idx">
           <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
           <!-- Settings -->
-          <Setting v-for="s in orderedSettings(1, category)" :key="s.key" :setting="s" :app-id="entry.id"
-                   :disabled="!entry.fovInstalled" @setting-changed="updateModSetting(1)"
+          <Setting v-for="s in orderedSettings(1, category)" :key="'ffr_' + s.key + id"
+                   :setting="s" :app-id="entry.id" :disabled="!entry.fovInstalled"
+                   @setting-changed="updateModSetting(1)"
                    :fixed-width="true" :group-id="'FFR' + idx"
                    class="mr-3 mb-3" />
         </div>
@@ -132,8 +136,9 @@
              :id="'VRP' + idx">
           <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
           <!-- Settings -->
-          <Setting v-for="s in orderedSettings(2, category)" :key="s.key" :setting="s" :app-id="entry.id"
-                   :disabled="!entry.vrpInstalled" @setting-changed="updateModSetting(2)"
+          <Setting v-for="s in orderedSettings(2, category)" :key="'vrp_' + s.key + id"
+                   :setting="s" :app-id="entry.id" :disabled="!entry.vrpInstalled"
+                   @setting-changed="updateModSetting(2)"
                    :fixed-width="true" :group-id="'VRP' + idx"
                    class="mr-3 mb-3" />
         </div>
@@ -147,9 +152,10 @@
              :id="'VRP-RSF' + idx">
           <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
           <!-- Settings -->
-          <Setting v-for="s in orderedSettings(2, category)" :key="s.key" :setting="s" :app-id="entry.id"
-                   :disabled="!entry.vrpInstalled" @setting-changed="updateModSetting(3)"
-                   :fixed-width="true" :group-id="'VRP' + idx"
+          <Setting v-for="s in orderedSettings(3, category)" :key="'rsf_' + s.key + id"
+                   :setting="s" :app-id="entry.id" :disabled="!entry.vrpRsfInstalled"
+                   @setting-changed="updateModSetting(3)"
+                   :fixed-width="true" :group-id="'VRP-RSF' + idx"
                    class="mr-3 mb-3" />
         </div>
       </template>

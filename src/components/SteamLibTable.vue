@@ -246,7 +246,7 @@ export default {
         }
       } else if (manifest.vrpRsfInstalled) {
         if (manifest.vrpRsfVersion !== undefined) {
-          return {text: 'VrPerfKit RSF' + manifest.vrpRsfVersion,
+          return {text: 'VrPerfKit RSF ' + manifest.vrpRsfVersion,
             version: manifest.vrpRsfVersion === this.currentVrpRsfVersion}
         }
       }

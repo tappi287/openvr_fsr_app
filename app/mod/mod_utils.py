@@ -66,7 +66,7 @@ def get_mod_version_from_dll(engine_dll: Path, mod_type: int) -> Optional[str]:
         version_dict = AppSettings.open_vr_fsr_versions
     elif mod_type == BaseModType.foveated:
         version_dict = AppSettings.open_vr_foveated_versions
-    elif mod_type == BaseModType.vrp:
+    elif mod_type in (BaseModType.vrp, BaseModType.vrp_rsf):
         version_dict = AppSettings.vrperfkit_versions
 
     for version, hash_str in version_dict.items():
