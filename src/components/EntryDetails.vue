@@ -139,13 +139,20 @@
         <!-- Categories -->
         <div class="mt-1 mb-2 text-center" v-for="(category, idx) in settingsCategories(2)" :key="category"
              :id="'VRP' + idx">
-          <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
-          <!-- Settings -->
-          <Setting v-for="s in orderedSettings(2, category)" :key="'vrp_' + s.key + id"
-                   :setting="s" :app-id="entry.id" :disabled="!entry.vrpInstalled"
-                   @setting-changed="updateModSetting(2)"
-                   :fixed-width="true" :group-id="'VRP' + idx"
-                   class="mr-3 mb-3" />
+          <h6 class="mt-1" v-b-toggle="'vrp_settings_' + idx + id">
+            <b-icon class="when-closed" icon="caret-right-fill" />
+            <b-icon class="when-open" icon="caret-down-fill" />
+            <span>{{ category }}</span>
+          </h6>
+
+          <b-collapse visible :id="'vrp_settings_' + idx + id">
+            <!-- Settings -->
+            <Setting v-for="s in orderedSettings(2, category)" :key="'vrp_' + s.key + id"
+                     :setting="s" :app-id="entry.id" :disabled="!entry.vrpInstalled"
+                     @setting-changed="updateModSetting(2)"
+                     :fixed-width="true" :group-id="'VRP' + idx"
+                     class="mr-3 mb-3" />
+          </b-collapse>
         </div>
       </template>
 
@@ -155,13 +162,19 @@
         <!-- Categories -->
         <div class="mt-1 mb-2 text-center" v-for="(category, idx) in settingsCategories(3)" :key="category"
              :id="'VRP-RSF' + idx">
-          <template v-if="category !== null"><h6 class="mt-1">{{ category }}</h6></template>
-          <!-- Settings -->
-          <Setting v-for="s in orderedSettings(3, category)" :key="'rsf_' + s.key + id"
-                   :setting="s" :app-id="entry.id" :disabled="!entry.vrpRsfInstalled"
-                   @setting-changed="updateModSetting(3)"
-                   :fixed-width="true" :group-id="'VRP-RSF' + idx"
-                   class="mr-3 mb-3" />
+          <h6 class="mt-1" v-b-toggle="'rsf_settings_' + idx + id">
+            <b-icon class="when-closed" icon="caret-right-fill" />
+            <b-icon class="when-open" icon="caret-down-fill" />
+            <span>{{ category }}</span>
+          </h6>
+          <b-collapse visible :id="'rsf_settings_' + idx + id">
+            <!-- Settings -->
+            <Setting v-for="s in orderedSettings(3, category)" :key="'rsf_' + s.key + id"
+                     :setting="s" :app-id="entry.id" :disabled="!entry.vrpRsfInstalled"
+                     @setting-changed="updateModSetting(3)"
+                     :fixed-width="true" :group-id="'VRP-RSF' + idx"
+                     class="mr-3 mb-3" />
+          </b-collapse>
         </div>
       </template>
     </div>
@@ -399,5 +412,8 @@ export default {
 </script>
 
 <style scoped>
-
+.collapsed > .when-open,
+.not-collapsed > .when-closed {
+  display: none;
+}
 </style>
