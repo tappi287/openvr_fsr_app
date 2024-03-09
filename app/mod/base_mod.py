@@ -1,4 +1,5 @@
 import logging
+import shutil
 from pathlib import Path
 from shutil import copyfile
 from typing import Optional
@@ -181,7 +182,10 @@ class BaseMod:
             self.engine_dll.unlink()
 
         # Copy
-        copyfile(self.get_source_dll(), self.engine_dll)
+        src_file = self.get_source_dll()
+        dst_file = self.engine_dll
+        shutil.copy(self.get_source_dll(), self.engine_dll)
+        # copyfile(self.get_source_dll(), self.engine_dll)
 
         if not self.settings.write_cfg(self.engine_dll.parent, self.get_source_dir()):
             self.error = 'Error writing Mod CFG file.'

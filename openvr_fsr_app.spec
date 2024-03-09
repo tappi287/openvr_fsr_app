@@ -52,5 +52,5 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=True,
-               upx_exclude=['vcruntime140.dll', 'python38.dll', 'python.dll'],
+               upx_exclude=['vcruntime140.dll', 'python.dll', 'dxgi.dll', 'openvr_api.dll'],
                name=APP_NAME)
