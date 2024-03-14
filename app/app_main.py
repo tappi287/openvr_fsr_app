@@ -8,6 +8,7 @@ from .app_settings import AppSettings
 from app.util.runasadmin import run_as_admin
 
 CLOSE_EVENT = gevent.event.Event()
+BROWSER_ALIVE = gevent.event.Event()
 
 
 def expose_main():
@@ -29,6 +30,11 @@ def close_js_result(result):
 @eel.expose
 def close_request():
     request_close()
+
+
+@eel.expose
+def frontend_alive():
+    BROWSER_ALIVE.set()
 
 
 @eel.expose

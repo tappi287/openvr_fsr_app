@@ -99,6 +99,8 @@ export default {
     window.addEventListener('beforeunload', this.requestClose)
     window.addEventListener('app-exception-event', this.setException)
     window.addEventListener('update-progress-event', this.emitProgressEvent)
+    // Report that JS App is running and healthy, otherwise backend will exit
+    window.eel.frontend_alive()()
   },
   computed: {
   },

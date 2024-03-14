@@ -1,7 +1,5 @@
-import logging
 from typing import Optional
 
-import eel
 import gevent
 import gevent.event
 
@@ -33,11 +31,3 @@ class ProgressEvent(AppBaseEvent):
 
 def progress_update(message):
     ProgressEvent.set(message)
-
-
-def app_event_loop():
-    progress_event = ProgressEvent.get_nowait()
-    if progress_event:
-        logging.debug('Progress event callback to FrontEnd: %s', progress_event)
-        eel.update_progress(progress_event)
-        ProgressEvent.reset()

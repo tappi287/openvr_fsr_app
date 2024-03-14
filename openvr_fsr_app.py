@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import time
 import webbrowser
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from gevent.hub import Hub
 
 from app import expose_app_methods, CLOSE_EVENT
 from app.app_main import close_request
-from app.events import app_event_loop
+from app.app_event_loop import app_event_loop
 from app.app_settings import AppSettings
 from app.globals import FROZEN, get_version, get_current_modules_dir
 from app.log import setup_logging
@@ -117,14 +118,15 @@ def start_eel():
         raise RuntimeError(AppExceptionHook.gui_msg)
 
     # -- Run until window/tab closed
+    start_time = time.time()
     while not CLOSE_EVENT.is_set():
-        CLOSE_EVENT.wait(timeout=1)
-
         # --- Event loop ---
-        app_event_loop()
+        app_event_loop(start_time)
 
         # Capture exception events
         AppExceptionHook.exception_event_loop()
+
+        CLOSE_EVENT.wait(timeout=1)
 
     # -- Shutdown Greenlets
     # logging.debug('Shutting down Greenlets.')
