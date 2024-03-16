@@ -127,7 +127,8 @@ class AppExceptionHook:
     def exception_event_loop():
         if AppExceptionHook.event.is_set():
             logging.warning('Reporting App exception to front end')
-            eel.app_exception(AppExceptionHook.gui_msg)
+            if hasattr(eel, 'app_exception'):
+                eel.app_exception(AppExceptionHook.gui_msg)
             AppExceptionHook.event.clear()
 
 
