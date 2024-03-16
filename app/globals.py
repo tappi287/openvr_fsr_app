@@ -21,7 +21,7 @@ DATA_DIR = 'data'
 SETTINGS_DIR_NAME = 'openvr_fsr_app'
 USER_APP_PREFIX = 'Usr'
 CUSTOM_APP_PREFIX = '#'
-
+BROWSER_FAILED_ARG = 'b'
 BASE_PATH = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__ + '/..')))
 
 UPDATE_VERSION_FILE = 'version.txt'

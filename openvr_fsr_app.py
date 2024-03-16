@@ -44,7 +44,7 @@ def start_eel():
         return
 
     start_in_browser(not FROZEN)
-    gevent.sleep(0.5)
+    gevent.sleep(0.1)
     if AppExceptionHook.event.is_set():
         logging.error('Exception making app available in browser. Aborting.')
         CLOSE_EVENT.set()
@@ -63,8 +63,6 @@ def start_eel():
         CLOSE_EVENT.wait(timeout=1)
 
     # -- Shutdown Greenlets
-    # logging.debug('Shutting down Greenlets.')
-    # gevent.joinall((cg, hg, rg), timeout=15.0, raise_error=True)
     AppSettings.previous_version = get_version()
     AppSettings.save()
 

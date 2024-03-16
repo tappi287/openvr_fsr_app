@@ -51,6 +51,7 @@ class AppSettings(JsonRepr):
     current_foveated_version = 'v0.2'
     current_vrperfkit_version = 'v0.3.0'
     current_vrperfkit_rsf_version = 'v3.2_RSF'
+    browser_settings = dict()
 
     # Default plugin paths
     mod_data_dirs = dict()
@@ -110,6 +111,9 @@ class AppSettings(JsonRepr):
             AppSettings.user_app_directories.update({
                 app_globals.USER_APP_PREFIX: app_globals.get_settings_dir().as_posix(),
             })
+
+        # -- Set Browser Settings
+        BrowserSettings.from_settings(AppSettings.browser_settings)
         return True
 
     @classmethod
@@ -233,3 +237,48 @@ class AppSettings(JsonRepr):
             result_apps[app_id]['userApp'] = True
 
         return result_apps
+
+    @classmethod
+    def set_browser_unavailable(cls, browser_type: int):
+        cls.browser_settings[browser_type] = 0
+
+
+class BrowserSettings:
+    EDGE = 1  # 1 Working, 0 Not Working
+    CHROME = 1
+    SYSTEM_BROWSER = 1
+
+    CURRENT_BROWSER = 0
+
+    TYPE_EDGE = 0
+    TYPE_CHROME = 1
+    TYPE_SYSTEM_BROWSER = 2
+    INDEX = {0: 'EDGE', 1: 'CHROME', 2: 'SYSTEM_BROWSER'}
+
+    @classmethod
+    def is_browser_available(cls, browser_type: int) -> bool:
+        browser_attr_name = cls.INDEX[browser_type]
+        return bool(getattr(cls, browser_attr_name) == 1)
+
+    @classmethod
+    def set_browser_unavailable(cls, browser_type: int):
+        browser_attr_name = cls.INDEX[browser_type]
+        setattr(cls, browser_attr_name, 0)
+
+    @classmethod
+    def set_current_browser_unavailable(cls):
+        cls.set_browser_unavailable(cls.CURRENT_BROWSER)
+
+    @classmethod
+    def to_settings(cls) -> dict:
+        return {k: getattr(cls, v) for k, v in cls.INDEX.items()}
+
+    @classmethod
+    def from_settings(cls, settings: dict):
+        for k, v in settings.items():
+            browser_attr_name = cls.INDEX[k]
+            setattr(cls, browser_attr_name, v)
+
+    @classmethod
+    def no_browser_available(cls) -> bool:
+        return not any(cls.is_browser_available(k) for k in cls.INDEX)
